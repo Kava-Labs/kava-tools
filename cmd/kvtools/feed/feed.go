@@ -7,11 +7,11 @@ import (
 	"github.com/matryer/try"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	amino "github.com/tendermint/go-amino"
 
-	"github.com/kava-labs/kava-tools/cmd/oracle/txs"
-	"github.com/kava-labs/kava-tools/cmd/oracle/types"
+	"github.com/kava-labs/kava-tools/cmd/kvtools/txs"
+	"github.com/kava-labs/kava-tools/cmd/kvtools/types"
 )
 
 // ExecutePostingIteration gets the current coin prices and posts them to kava
@@ -19,7 +19,7 @@ func ExecutePostingIteration(
 	coins []string,
 	accAddress sdk.AccAddress,
 	chainID string,
-	cdc *codec.Codec,
+	cdc *amino.Codec,
 	oracleName string,
 	passphrase string,
 	cliCtx context.CLIContext,
@@ -56,7 +56,7 @@ func attemptPostPrice(
 	asset types.Asset,
 	accAddress sdk.AccAddress,
 	chainID string,
-	cdc *codec.Codec,
+	cdc *amino.Codec,
 	oracleName string,
 	passphrase string,
 	cliCtx context.CLIContext,

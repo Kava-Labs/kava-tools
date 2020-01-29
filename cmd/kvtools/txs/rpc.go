@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/kava-labs/kava-tools/cmd/oracle/types"
+	"github.com/kava-labs/kava-tools/cmd/kvtools/types"
 	pftypes "github.com/kava-labs/kava/x/pricefeed/types"
 )
 

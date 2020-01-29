@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/kava-labs/kava-tools/cmd/oracle/types"
+	"github.com/kava-labs/kava-tools/cmd/kvtools/types"
 )
 
 const (
@@ -132,11 +132,11 @@ func doReq(req *http.Request) ([]byte, error) {
 func buildMarketCodeDict() map[string]string {
 	var codeDict = make(map[string]string)
 
-	codeDict["bitcoin"] = "btc-usd"
-	codeDict["kava"] = "kava-usd"
-	codeDict["ripple"] = "xrp-usd"
-	codeDict["binancecoin"] = "bnb-usd"
-	codeDict["cosmos"] = "atom-usd"
+	codeDict["bitcoin"] = "btc:usd"
+	codeDict["kava"] = "kava:usd"
+	codeDict["ripple"] = "xrp:usd"
+	codeDict["binancecoin"] = "bnb:usd"
+	codeDict["cosmos"] = "atom:usd"
 
 	return codeDict
 }
