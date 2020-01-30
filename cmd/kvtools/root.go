@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"path"
 	"strconv"
 
 	// "fmt"
@@ -95,18 +96,12 @@ var auctionCmd = &cobra.Command{
 	SilenceUsage: true,
 }
 
-// var biddingCmd = &cobra.Command{
-// 	Use:          "bid",
-// 	Short:        "Bidding bot that allows users to place bids on auctions",
-// 	SilenceUsage: true,
-// }
-
 func startPriceOracleCmd() *cobra.Command {
 	startPriceOracleCmd := &cobra.Command{
 		Use:     "oracle [oracle-moniker] [coin1, coin2] [interval-minutes] --rpc-url=[rpc-url] --chain-id=[chain-id]",
 		Short:   "Starts an oracle that automatically updates kava's price feed",
 		Args:    cobra.ExactArgs(3),
-		Example: "kvtools pricefeed oracle vlad bitcoin,kava 30 --rpc-url=tcp://localhost:26657 --chain-id=testing",
+		Example: "kvtools pricefeed oracle accA bitcoin,kava 30 --rpc-url=tcp://localhost:26657 --chain-id=testing",
 		RunE:    RunStartPriceOracleCmd,
 	}
 
@@ -199,7 +194,7 @@ func RunStartBidding(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// RunStartPriceOracleCmd runs the StartPriceOracleCmd cmd
+// RunStartPriceOracleCmd runs the StartPriceOracleCmd
 func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 	// Parse RPC URL
 	rpcURL := viper.GetString(FlagRPCURL)
@@ -217,13 +212,13 @@ func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 	oracleFrom := args[0]
 
 	// Parse our coins
-	coins := strings.Split(args[1], ",")
+	coins := strings.Split(args[3], ",")
 	if 1 > len(coins) {
 		return errors.New("Must specify at least one coin")
 	}
 
 	// Parse the interval in minutes
-	interval, err := strconv.Atoi(args[2])
+	interval, err := strconv.Atoi(args[4])
 	if err != nil {
 		return err
 	}
@@ -264,6 +259,11 @@ func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 	gocron.Clear()
 
 	return nil
+}
+
+// KeysDir returns the path to the keys for this chain
+func keysDir(home, chainID string) string {
+	return path.Join(home, "keys", chainID)
 }
 
 func initConfig(cmd *cobra.Command) error {
