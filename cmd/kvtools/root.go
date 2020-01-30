@@ -24,7 +24,11 @@ import (
 	amino "github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/kava-labs/kava-tools/cmd/kvtools/common/socket"
+	auctools "github.com/kava-labs/kava-tools/cmd/kvtools/auction"
+	cdptools "github.com/kava-labs/kava-tools/cmd/kvtools/cdp"
+
+	// pftools "github.com/kava-labs/kava-tools/cmd/kvtools/pricefeed"
+
 	// "github.com/kava-labs/bidding/txs"
 	"github.com/kava-labs/kava/app"
 )
@@ -191,7 +195,7 @@ func RunStartBidding(cmd *cobra.Command, args []string) error {
 		WithFromAddress(accAddress).
 		WithFromName(from)
 
-	err := socket.StartSubscription(
+	err := auctools.StartSubscription(
 		rpcURL,
 		chainID,
 		from,
@@ -275,7 +279,7 @@ func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 	_ = cliCtx
 
 	// Schedule cron for price collection and posting
-	// gocron.Every(uint64(interval)).Seconds().Do(feed.ExecutePostingIteration, coins, accAddress, chainID, appCodec, oracleName, passphrase, cliCtx, rpcURL)
+	// gocron.Every(uint64(interval)).Seconds().Do(pftools.ExecutePostingIteration, coins, accAddress, chainID, appCodec, oracleName, passphrase, cliCtx, rpcURL)
 	gocron.Every(uint64(interval)).Seconds().Do(fmt.Println("PRINTPRINT"))
 	<-gocron.Start()
 	gocron.Clear()
@@ -352,7 +356,7 @@ func RunGenerateCDPsCmd(cmd *cobra.Command, args []string) error {
 		WithFromName(from)
 
 	gocron.Every(uint64(interval)).Seconds().Do(func() {
-		socket.SpamTxCDP(
+		cdptools.SpamTxCDP(
 			rpcURL,
 			chainID,
 			from,
