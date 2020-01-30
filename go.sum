@@ -115,6 +115,7 @@ github.com/jmhodges/levigo v1.0.0/go.mod h1:Q6Qx+uH3RAqyK4rFQroq9RL7mdkABMcfhEI+
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/jrick/logrotate v1.0.0/go.mod h1:LNinyqDIJnpAur+b8yyulnQw/wDuN1+BYKlTRt3OuAQ=
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
+github.com/kava-labs/kava v0.3.1 h1:/6FhbqyGK2+dJ/bFMzV5AumG8nFI+F3yHILGhZYaLtU=
 github.com/kava-labs/kava v0.3.2-0.20200120192830-d887266c249e h1:hRbX4T/Vl3h1T9T/O4GDRi5cSb1T/grL9o//SHkT6Gw=
 github.com/kava-labs/kava v0.3.2-0.20200120192830-d887266c249e/go.mod h1:8agzNFFu/hlOQN4NN5YwcqW/n6tuDgT+CGH7c95vAEM=
 github.com/keybase/go-keychain v0.0.0-20190712205309-48d3d31d256d h1:Z+RDyXzjKE0i2sTjZ/b1uxiGtPhFy34Ou/Tk0qwN0kM=

@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"path"
 	"strconv"
 
 	// "fmt"
@@ -64,11 +63,16 @@ func main() {
 		startPriceOracleCmd(),
 	)
 
+	cdpCmd.AddCommand(
+		generateCDPsCmd(),
+	)
+
 	// Construct root command
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
 		auctionCmd,
 		pricefeedCmd,
+		cdpCmd,
 	)
 
 	executor := cli.PrepareMainCmd(rootCmd, "KVTOOLS", DefaultCLIHome)
@@ -96,6 +100,12 @@ var auctionCmd = &cobra.Command{
 	SilenceUsage: true,
 }
 
+var cdpCmd = &cobra.Command{
+	Use:          "cdp",
+	Short:        "CDP module related",
+	SilenceUsage: true,
+}
+
 func startPriceOracleCmd() *cobra.Command {
 	startPriceOracleCmd := &cobra.Command{
 		Use:     "oracle [oracle-moniker] [coin1, coin2] [interval-minutes] --rpc-url=[rpc-url] --chain-id=[chain-id]",
@@ -118,6 +128,18 @@ func startBidding() *cobra.Command {
 	}
 
 	return startBidding
+}
+
+func generateCDPsCmd() *cobra.Command {
+	generateCDPsCmd := &cobra.Command{
+		Use:     "generate [collateral-denom] [debt-denom] [max-collateral] [interval-seconds] --from=[moniker] --rpc-url=[rpc-url] --chain-id=[chain-id]",
+		Short:   "Initalizes a feed which generates random CDPs within the parameterized bounds",
+		Args:    cobra.ExactArgs(4),
+		Example: "kvspammer cdp generate btc usdx 50 20 --from=vlad --rpc-url=tcp://localhost:26657 --chain-id=testing",
+		RunE:    RunGenerateCDPsCmd,
+	}
+
+	return generateCDPsCmd
 }
 
 // RunStartBidding runs start bidding cmd
@@ -261,9 +283,93 @@ func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// KeysDir returns the path to the keys for this chain
-func keysDir(home, chainID string) string {
-	return path.Join(home, "keys", chainID)
+// RunGenerateCDPsCmd runs the generate CDPs command
+func RunGenerateCDPsCmd(cmd *cobra.Command, args []string) error {
+	// Parse from moniker URL
+	from := viper.GetString(FlagFrom)
+	if strings.TrimSpace(from) == "" {
+		return errors.New("Must specify a 'from' moniker")
+	}
+
+	// Parse chain's ID
+	chainID := viper.GetString(client.FlagChainID)
+	if strings.TrimSpace(chainID) == "" {
+		return errors.New("Must specify a 'chain-id'")
+	}
+
+	// Parse RPC URL
+	rpcURL := viper.GetString(FlagRPCURL)
+	if strings.TrimSpace(rpcURL) == "" {
+		return errors.New("Must specify a 'rpc-url'")
+	}
+
+	collateralDenom := args[0]
+	if len(collateralDenom) == 0 {
+		return errors.New("Must specify a valid collateral denom")
+	}
+
+	principalDenom := args[1]
+	if len(principalDenom) == 0 {
+		return errors.New("Must specify a valid debt denom")
+	}
+
+	maxCollateral, err := strconv.ParseInt(args[2], 10, 64)
+	if err != nil {
+		fmt.Printf("Invalid max collateral: %s \n", string(args[2]))
+		return err
+	}
+
+	interval, err := strconv.ParseInt(args[3], 10, 64)
+	if err != nil {
+		return err
+	}
+	if interval < 10 {
+		fmt.Printf("Invalid internal %s (minimum 10 seconds)\n", string(interval))
+	}
+
+	// Get the spammer's name and account address using their moniker
+	accAddress, _, sdkErr := context.GetFromFields(from, false)
+	if sdkErr != nil {
+		return sdkErr
+	}
+
+	// Get the spammer's passphrase using their moniker
+	passphrase, sdkErr := keys.GetPassphrase(from)
+	if sdkErr != nil {
+		return sdkErr
+	}
+
+	// Test passphrase is correct
+	_, sdkErr = authtypes.MakeSignature(nil, from, passphrase, authtypes.StdSignMsg{})
+	if sdkErr != nil {
+		return sdkErr
+	}
+
+	// Set up our CLIContext
+	cliCtx := context.NewCLIContext().
+		WithCodec(appCodec).
+		WithFromAddress(accAddress).
+		WithFromName(from)
+
+	gocron.Every(uint64(interval)).Seconds().Do(func() {
+		socket.SpamTxCDP(
+			rpcURL,
+			chainID,
+			from,
+			passphrase,
+			collateralDenom,
+			principalDenom,
+			maxCollateral,
+			appCodec,
+			cliCtx,
+			accAddress,
+		)
+	})
+
+	<-gocron.Start()
+	gocron.Clear()
+
+	return nil
 }
 
 func initConfig(cmd *cobra.Command) error {
