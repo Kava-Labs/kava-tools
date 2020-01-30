@@ -16,6 +16,7 @@ import (
 
 	"github.com/kava-labs/kava-tools/cmd/kvtools/common/txs"
 	"github.com/kava-labs/kava/x/auction/types"
+	auctypes "github.com/kava-labs/kava/x/auction/types"
 )
 
 // StartSubscription starts a subscription to the tendermint node
@@ -66,45 +67,16 @@ func StartSubscription(
 
 			// Iterate over each event inside of the transaction
 			for _, event := range tx.Result.Events {
+				// TODO: remove -> logger.Info(fmt.Sprintf("%v", reflect.TypeOf(event)))
 
 				eventName := event.GetType()
 				logger.Info("Event name:", eventName)
 
-				switch eventName {
 				// TODO: use coinDenom to determine if user is interested in this auction
+
+				switch eventName {
 				case types.EventTypeAuctionStart:
-					logger.Info("New collateral auction started")
-					auction, err := txs.GetEventAttributes(event.GetAttributes())
-					if err != nil {
-						logger.Error("%s", err)
-					}
-					logger.Info("%v", auction)
-
-					bidDecision, err := readBidDecision()
-					if err != nil {
-						logger.Error("%s", err)
-					}
-
-					if bidDecision {
-						msg := txs.PrepareBid(auction, accAddress)
-
-						res, err := txs.SendTxRESTServer(
-							chainID,
-							cdc,
-							accAddress,
-							from,
-							passphrase,
-							cliCtx,
-							[]sdk.Msg{msg},
-							provider, // TODO: change to rest server
-						)
-
-						if err != nil {
-							return err
-						}
-
-						fmt.Println(res.Logs)
-					}
+					handleAuctionStart(logger, chainID, cdc, accAddress, from, passphrase, cliCtx, provider) // TODO: event
 				case types.EventTypeAuctionBid:
 					logger.Info("Bid placed!")
 				case types.EventTypeAuctionClose:
@@ -117,24 +89,48 @@ func StartSubscription(
 	}
 }
 
-// readBidDecision reads the users bid decision input
-func readBidDecision() (bool, error) {
-	var placeBidDecision bool
-	fmt.Println("Do you want to place a bid (y/n):")
-	_, err := fmt.Scan(&placeBidDecision)
-	if err != nil {
-		return false, err
-	}
-	return placeBidDecision, nil
-}
+func handleAuctionStart(
+	// event sdk.EventDataTx,
+	logger tmLog.Logger,
+	chainID string,
+	cdc *amino.Codec,
+	accAddress sdk.AccAddress,
+	from string,
+	passphrase string,
+	cliCtx sdkContext.CLIContext,
+	provider string,
+) error {
+	logger.Info("New collateral auction started")
 
-// readBidCoin reads the user's bid coin
-func readBidCoin() (sdk.Coin, error) {
-	var bidCoin sdk.Coin
-	fmt.Println("Enter coin denom and amount: (example 'bnb20')")
-	_, err := fmt.Scan(&bidCoin)
+	// Get event attributes
+	// auction, err := GetEventAttributes(event.GetAttributes())
+	// if err != nil {
+	// 	logger.Error("%s", err)
+	// }
+	// logger.Info("%v", auction)
+
+	// Scan user's bid decision
+	bidDecision, err := ScanBidDecision()
 	if err != nil {
-		return sdk.Coin{}, err
+		logger.Error("%s", err)
 	}
-	return bidCoin, nil
+
+	if bidDecision {
+		// Scan user's bid coin
+		bidCoin, err := ScanBidCoin()
+
+		// Package as MsgPlaceBid
+		// msgPlaceBid := auctypes.NewMsgPlaceBid(auction.ID, accAddress, bidCoin)
+		msgPlaceBid := auctypes.NewMsgPlaceBid(0, accAddress, bidCoin)
+
+		// TODO: change to rest server
+		res, err := txs.SendTxRPC(chainID, cdc, accAddress, from, passphrase, cliCtx, []sdk.Msg{msgPlaceBid}, provider)
+		if err != nil {
+			return err
+		}
+
+		// TODO: Check formatting
+		logger.Info(fmt.Sprintf("%v", res.Logs))
+	}
+	return nil
 }

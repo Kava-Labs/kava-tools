@@ -7,14 +7,11 @@ import (
 	"github.com/kava-labs/kava-tools/cmd/kvtools/common/rest"
 )
 
-const (
-	coinGeckoBaseURL = "https://api.coingecko.com/api/v3/coins/"
-)
+const coinGeckoBaseURL = "https://api.coingecko.com/api/v3/coins/"
 
 // GetCoinGeckoPrices gets prices for an array of coins by their symbols
 func GetCoinGeckoPrices(symbols []string, convert string) []Asset {
 	var assets []Asset
-	marketCodeDict := buildMarketCodeDict()
 
 	for _, symbol := range symbols {
 		requestURL := fmt.Sprintf("%s/%s/tickers", coinGeckoBaseURL, symbol)
@@ -39,7 +36,7 @@ func GetCoinGeckoPrices(symbols []string, convert string) []Asset {
 					asset := Asset{
 						Symbol:           data.Name,
 						Price:            ticker.Last,
-						TargetMarketCode: marketCodeDict[symbol],
+						TargetMarketCode: getLinkedMarket(symbol),
 					}
 					assets = append(assets, asset)
 				}
@@ -49,16 +46,20 @@ func GetCoinGeckoPrices(symbols []string, convert string) []Asset {
 	return assets
 }
 
-// TODO: REMOVE
-// TODO: Replace this with dynamically populated asset list
-func buildMarketCodeDict() map[string]string {
-	var codeDict = make(map[string]string)
-
-	codeDict["bitcoin"] = "btc:usd"
-	codeDict["kava"] = "kava:usd"
-	codeDict["ripple"] = "xrp:usd"
-	codeDict["binancecoin"] = "bnb:usd"
-	codeDict["cosmos"] = "atom:usd"
-
-	return codeDict
+// TODO: Replace with dynamically populated asset list queried from kava
+func getLinkedMarket(asset string) string {
+	switch asset {
+	case "bitcoin":
+		return "btc:usd"
+	case "kava":
+		return "kava:usd"
+	case "ripple":
+		return "xrp:usd"
+	case "binancecoin":
+		return "bnb:usd"
+	case "cosmos":
+		return "atom:usd"
+	default:
+		return ""
+	}
 }

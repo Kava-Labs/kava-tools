@@ -11,6 +11,7 @@ import (
 	amino "github.com/tendermint/go-amino"
 
 	"github.com/kava-labs/kava-tools/cmd/kvtools/common/txs"
+	pftypes "github.com/kava-labs/kava/x/pricefeed/types"
 )
 
 // ExecutePostingIteration gets the current coin prices and posts them to kava
@@ -64,17 +65,16 @@ func attemptPostPrice(
 	var txRes sdk.TxResponse
 	err := try.Do(func(attempt int) (bool, error) {
 		var err error
-
 		// Format attempt
 		attemptStr := ""
 		if attempt > 1 {
 			attemptStr = fmt.Sprintf(" [attempt #%d]", attempt)
 		}
 
-		fmt.Printf("\t%d. %s: posting price %f...%s\n", num, asset.Symbol, asset.Price, attemptStr)
-
 		// Build the msg
-		msg, _ := BuildPostPrice(asset, accAddress)
+		msg, _ := buildPostPrice(asset, accAddress)
+
+		fmt.Printf("\t%d. %s: posting price %f...%s\n", num, asset.Symbol, asset.Price, attemptStr)
 
 		// Attempt to send msg to blockchain
 		txRes, err = txs.SendTxRPC(chainID, cdc, accAddress, oracleName, passphrase, cliCtx, msg, rpcURL)
@@ -89,4 +89,18 @@ func attemptPostPrice(
 	}
 
 	return txRes, err
+}
+
+// buildPostPrice builds a MsgPostPrice
+func buildPostPrice(asset Asset, accAddress sdk.AccAddress) ([]sdk.Msg, error) {
+	// Parse the price
+	price, err := sdk.NewDecFromStr(fmt.Sprintf("%f", asset.Price))
+	if err != nil {
+		return []sdk.Msg{}, err
+	}
+	// Set expiration time to 1 day in the future
+	expiry := time.Now().Add(24 * time.Hour)
+	// Build MsgPostPrice
+	msg := []sdk.Msg{pftypes.NewMsgPostPrice(accAddress, asset.TargetMarketCode, price, expiry)}
+	return msg, nil
 }

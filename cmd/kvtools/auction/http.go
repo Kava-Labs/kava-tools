@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 
-	// "github.com/kava-labs/kava-tools/cmd/kvtools/common/types"
 	auctypes "github.com/kava-labs/kava/x/auction/types"
 )
 
@@ -24,6 +23,8 @@ func GetCurrentAuctions() (*auctypes.BaseAuction, error) {
 	client := &http.Client{}
 
 	auctionURL := fmt.Sprintf("%s/%s/auctions", BaseURL, AuctionModuleName)
+
+	// TODO: req, err := rest.MakeReq(url)
 	req, err := http.NewRequest("GET", auctionURL, nil)
 	if err != nil {
 		log.Print(err)

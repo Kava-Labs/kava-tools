@@ -11,8 +11,7 @@ import (
 )
 
 // QueryCDP queries an individual CDP
-func QueryCDP(
-	cdc *codec.Codec,
+func QueryCDP(cdc *codec.Codec,
 	cliCtx context.CLIContext,
 	accAddress sdk.AccAddress,
 	collateralDenom string,

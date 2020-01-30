@@ -7,10 +7,8 @@ import (
 	"github.com/kava-labs/kava-tools/cmd/kvtools/common/rest"
 )
 
-const (
-	// BaseURL is the base url for kava's rest-server
-	BaseURL = "http://localhost:1317"
-)
+// BaseURL is the base url for kava's rest-server
+const BaseURL = "http://localhost:1317"
 
 // GetAssetPrice gets an asset's current price on kava
 func GetAssetPrice(symbol string) {

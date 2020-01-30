@@ -38,7 +38,7 @@ func SpamTxCDP(
 	randSource := rand.New(rand.NewSource(int64(time.Now().Unix())))
 
 	// Attempt to locate existing CDP for this user/collateral denom
-	cdp, found, err := txs.QueryCDP(appCodec, cliCtx, accAddress, collateralDenom)
+	cdp, found, err := QueryCDP(appCodec, cliCtx, accAddress, collateralDenom)
 	if err != nil {
 		fmt.Println(err)
 	}
