@@ -10,9 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	amino "github.com/tendermint/go-amino"
 
-	"github.com/kava-labs/kava-tools/cmd/kvtools/common/rest"
 	"github.com/kava-labs/kava-tools/cmd/kvtools/common/txs"
-	"github.com/kava-labs/kava-tools/cmd/kvtools/common/types"
 )
 
 // ExecutePostingIteration gets the current coin prices and posts them to kava
@@ -26,7 +24,7 @@ func ExecutePostingIteration(
 	cliCtx context.CLIContext,
 	rpcURL string,
 ) error {
-	assets := rest.GetCoinGeckoPrices(coins, "USD")
+	assets := GetCoinGeckoPrices(coins, "USD")
 
 	fmt.Println("Time: ", time.Now().Format("15:04:05"))
 	for i := 0; i < len(assets); i++ {
@@ -54,7 +52,7 @@ func ExecutePostingIteration(
 // due to blockchain state, it will not try to resend the tx - but will print the tx log text.
 func attemptPostPrice(
 	num int,
-	asset types.Asset,
+	asset Asset,
 	accAddress sdk.AccAddress,
 	chainID string,
 	cdc *amino.Codec,
@@ -74,7 +72,12 @@ func attemptPostPrice(
 		}
 
 		fmt.Printf("\t%d. %s: posting price %f...%s\n", num, asset.Symbol, asset.Price, attemptStr)
-		txRes, err = txs.BuildPostPriceAndSend(asset, accAddress, chainID, cdc, oracleName, passphrase, cliCtx, rpcURL)
+
+		// Build the msg
+		msg, _ := BuildPostPrice(asset, accAddress)
+
+		// Attempt to send msg to blockchain
+		txRes, err = txs.SendTxRPC(chainID, cdc, accAddress, oracleName, passphrase, cliCtx, msg, rpcURL)
 		if err != nil {
 			time.Sleep(7 * time.Second) // wait 7 seconds
 		}

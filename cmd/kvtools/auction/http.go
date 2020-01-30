@@ -1,4 +1,4 @@
-package rest
+package auction
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/kava-labs/kava-tools/cmd/kvtools/common/types"
+	// "github.com/kava-labs/kava-tools/cmd/kvtools/common/types"
 	auctypes "github.com/kava-labs/kava/x/auction/types"
 )
 
@@ -51,38 +51,4 @@ func GetCurrentAuctions() (*auctypes.BaseAuction, error) {
 	}
 
 	return data, nil
-}
-
-// GetAssetList gets a list of assets on kava
-func GetAssetList() {
-	// Format URL and HTTP request
-	requestURL := fmt.Sprintf("%s/%s", BaseURL, "pricefeed/assets")
-	resp, err := MakeReq(requestURL)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Unmarshal the response to a usable format
-	var data *types.MarketsRes
-	err = json.Unmarshal(resp, &data)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// TODO: Unmarshal to object instead of string
-	for _, asset := range data.Result {
-		fmt.Println(asset)
-	}
-}
-
-// GetAssetPrice gets an asset's current price on kava
-func GetAssetPrice(symbol string) {
-	// Format URL and HTTP request
-	requestURL := fmt.Sprintf("%s/%s/%s", BaseURL, "pricefeed/currentprice", symbol)
-	resp, err := MakeReq(requestURL)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(string(resp))
 }

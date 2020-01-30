@@ -1,4 +1,4 @@
-package types
+package pricefeed
 
 // Asset struct
 type Asset struct {

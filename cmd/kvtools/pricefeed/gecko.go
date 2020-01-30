@@ -1,10 +1,10 @@
-package rest
+package pricefeed
 
 import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/kava-labs/kava-tools/cmd/kvtools/common/types"
+	"github.com/kava-labs/kava-tools/cmd/kvtools/common/rest"
 )
 
 const (
@@ -12,21 +12,21 @@ const (
 )
 
 // GetCoinGeckoPrices gets prices for an array of coins by their symbols
-func GetCoinGeckoPrices(symbols []string, convert string) []types.Asset {
-	var assets []types.Asset
+func GetCoinGeckoPrices(symbols []string, convert string) []Asset {
+	var assets []Asset
 	marketCodeDict := buildMarketCodeDict()
 
 	for _, symbol := range symbols {
 		requestURL := fmt.Sprintf("%s/%s/tickers", coinGeckoBaseURL, symbol)
 
 		// resp, err := MakeReq(requestURL, convert)
-		resp, err := MakeReq(requestURL)
+		resp, err := rest.MakeReq(requestURL)
 		if err != nil {
 			fmt.Println(err)
 		}
 
 		// Unmarshal the response to a usable format
-		var data *types.CoinGeckoTickers
+		var data *CoinGeckoTickers
 		err = json.Unmarshal(resp, &data)
 		if err != nil {
 			fmt.Println(err)
@@ -36,7 +36,7 @@ func GetCoinGeckoPrices(symbols []string, convert string) []types.Asset {
 		if data != nil && data.Tickers != nil {
 			for _, ticker := range data.Tickers {
 				if ticker.Market.Name == "Binance" && ticker.Target == "USDT" {
-					asset := types.Asset{
+					asset := Asset{
 						Symbol:           data.Name,
 						Price:            ticker.Last,
 						TargetMarketCode: marketCodeDict[symbol],

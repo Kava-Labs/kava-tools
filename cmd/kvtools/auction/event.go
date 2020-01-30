@@ -1,4 +1,4 @@
-package txs
+package auction
 
 import (
 	"fmt"
