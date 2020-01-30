@@ -6,6 +6,7 @@ require (
 	github.com/bgentry/speakeasy v0.1.0
 	github.com/cheekybits/is v0.0.0-20150225183255-68e9c0620927 // indirect
 	github.com/cosmos/cosmos-sdk v0.34.4-0.20191010193331-18de630d0ae1
+	github.com/gogo/protobuf v1.3.0
 	github.com/gorilla/mux v1.7.3
 	github.com/jasonlvhit/gocron v0.0.0-20191228163020-98b59b546dee
 	github.com/kava-labs/kava v0.3.2-0.20200120192830-d887266c249e

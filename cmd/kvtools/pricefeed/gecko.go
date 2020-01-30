@@ -16,8 +16,7 @@ func GetCoinGeckoPrices(symbols []string, convert string) []Asset {
 	for _, symbol := range symbols {
 		requestURL := fmt.Sprintf("%s/%s/tickers", coinGeckoBaseURL, symbol)
 
-		// resp, err := MakeReq(requestURL, convert)
-		resp, err := rest.MakeReq(requestURL)
+		resp, err := rest.MakeGeckoReq(requestURL, convert)
 		if err != nil {
 			fmt.Println(err)
 		}

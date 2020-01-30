@@ -45,7 +45,7 @@ func main() {
 
 	appCodec = app.MakeCodec()
 
-	DefaultCLIHome := os.ExpandEnv("$HOME/.kvcli")
+	DefaultCLIHome := os.ExpandEnv("$HOME/.kvtools")
 
 	// Add [--from], [--chain-id], [--rpc-url] to persistent flags and mark them required
 	rootCmd.PersistentFlags().String(FlagFrom, "", "Moniker of address on Kava blockchain")
@@ -108,10 +108,10 @@ var cdpCmd = &cobra.Command{
 
 func startPriceOracleCmd() *cobra.Command {
 	startPriceOracleCmd := &cobra.Command{
-		Use:     "oracle [coin1, coin2] [interval-minutes] --from=[moniker] --rpc-url=[rpc-url] --chain-id=[chain-id] --home=[key-dir]",
+		Use:     "oracle [moniker] [coin1, coin2] [interval-minutes] --rpc-url=[rpc-url] --chain-id=[chain-id] --home=[key-dir]",
 		Short:   "Starts an oracle that automatically updates kava's price feed",
-		Args:    cobra.ExactArgs(2),
-		Example: "kvtools pricefeed oracle bitcoin,kava 30 --from=accA --rpc-url=tcp://localhost:26657 --chain-id=testing --home=/Users/denali/.kvcli",
+		Args:    cobra.ExactArgs(3),
+		Example: "kvtools pricefeed oracle validator bitcoin,kava 30 --rpc-url=tcp://localhost:26657 --chain-id=testing --home=/Users/denali/.kvcli",
 		RunE:    RunStartPriceOracleCmd,
 	}
 
@@ -132,10 +132,11 @@ func startBidding() *cobra.Command {
 
 func generateCDPsCmd() *cobra.Command {
 	generateCDPsCmd := &cobra.Command{
-		Use:     "generate [collateral-denom] [debt-denom] [max-collateral] [interval-seconds] --from=[moniker] --rpc-url=[rpc-url] --chain-id=[chain-id]",
-		Short:   "Initalizes a feed which generates random CDPs within the parameterized bounds",
-		Args:    cobra.ExactArgs(4),
-		Example: "kvtools cdp generate btc usdx 50 20 --from=vlad --rpc-url=tcp://localhost:26657 --chain-id=testing",
+		Use:   "generate [collateral-denom] [debt-denom] [max-collateral] [interval-seconds] --from=[moniker] --rpc-url=[rpc-url] --chain-id=[chain-id]",
+		Short: "Initalizes a feed which generates random CDPs within the parameterized bounds",
+		Args:  cobra.ExactArgs(4),
+		// TODO: [max-collateral] [collateral-debt-limit]
+		Example: "kvtools cdp generate btc usdx 50000000 10000000 --from=accB --rpc-url=tcp://localhost:26657 --chain-id=testing --home=/Users/denali/.kvcli",
 		RunE:    RunGenerateCDPsCmd,
 	}
 
@@ -191,7 +192,13 @@ func RunStartBidding(cmd *cobra.Command, args []string) error {
 		WithFromAddress(accAddress).
 		WithFromName(from)
 
-	err := auctools.StartSubscription(
+	auctions, err := auctools.GetCurrentAuctions()
+	if err != nil {
+		return err
+	}
+	fmt.Println(auctions)
+
+	err = auctools.StartSubscription(
 		rpcURL,
 		chainID,
 		from,
@@ -205,22 +212,17 @@ func RunStartBidding(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// auctions, err := txs.GetCurrentAuctions()
-	// if err != nil {
-	// 	return err
-	// }
-	// fmt.Println(auctions)
-
 	return nil
 }
 
 // RunStartPriceOracleCmd runs the StartPriceOracleCmd
 func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
-	// Parse RPC URL
-	rpcURL := viper.GetString(FlagRPCURL)
-	if strings.TrimSpace(rpcURL) == "" {
-		return errors.New("Must specify an 'rpc-url'")
-	}
+	// Parse from moniker URL
+	// from := viper.GetString(FlagFrom)
+	// if strings.TrimSpace(from) == "" {
+	// 	return errors.New("Must specify a 'from' moniker")
+	// }
+	from := args[0]
 
 	// Parse chain's ID
 	chainID := viper.GetString(client.FlagChainID)
@@ -228,20 +230,20 @@ func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 		return errors.New("Must specify a 'chain-id'")
 	}
 
-	// Parse from moniker URL
-	oracleFrom := viper.GetString(FlagFrom)
-	if strings.TrimSpace(oracleFrom) == "" {
-		return errors.New("Must specify a 'from' moniker")
+	// Parse RPC URL
+	rpcURL := viper.GetString(FlagRPCURL)
+	if strings.TrimSpace(rpcURL) == "" {
+		return errors.New("Must specify a 'rpc-url'")
 	}
 
 	// Parse our coins
-	coins := strings.Split(args[0], ",")
+	coins := strings.Split(args[1], ",")
 	if 1 > len(coins) {
 		return errors.New("Must specify at least one coin")
 	}
 
 	// Parse the interval in minutes
-	interval, err := strconv.Atoi(args[1])
+	interval, err := strconv.Atoi(args[2])
 	if err != nil {
 		return err
 	}
@@ -250,19 +252,19 @@ func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the oracle's name and account address using their moniker
-	accAddress, _, sdkErr := context.GetFromFields(oracleFrom, false)
+	accAddress, oracleName, sdkErr := context.GetFromFields(from, false)
 	if sdkErr != nil {
 		return sdkErr
 	}
 
 	// Get the oracle's passphrase using their moniker
-	passphrase, sdkErr := keys.GetPassphrase(oracleFrom)
+	passphrase, sdkErr := keys.GetPassphrase(from)
 	if sdkErr != nil {
 		return sdkErr
 	}
 
 	// Test passphrase is correct
-	_, sdkErr = authtypes.MakeSignature(nil, oracleFrom, passphrase, authtypes.StdSignMsg{})
+	_, sdkErr = authtypes.MakeSignature(nil, from, passphrase, authtypes.StdSignMsg{})
 	if sdkErr != nil {
 		return sdkErr
 	}
@@ -271,12 +273,13 @@ func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 	cliCtx := context.NewCLIContext().
 		WithCodec(appCodec).
 		WithFromAddress(accAddress).
-		WithFromName(oracleFrom)
+		WithFromName(oracleName)
 
 	// Schedule cron for price collection and posting
-	gocron.Every(uint64(interval)).Seconds().Do(pftools.ExecutePostingIteration, coins, accAddress, chainID, appCodec, oracleFrom, passphrase, cliCtx, rpcURL)
-	<-gocron.Start()
-	gocron.Clear()
+	// gocron.Every(uint64(interval)).Seconds().Do(pftools.ExecutePostingIteration, coins, accAddress, chainID, appCodec, from, passphrase, cliCtx, rpcURL)
+	// <-gocron.Start()
+	// gocron.Clear()
+	pftools.ExecutePostingIteration(coins, accAddress, chainID, appCodec, oracleName, passphrase, cliCtx, rpcURL)
 
 	return nil
 }

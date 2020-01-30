@@ -45,10 +45,17 @@ func SpamTxCDP(
 
 	// If no existing CDP is found, create new CDP
 	if !found {
+		// TODO:
+		// 1. Get price via query
+		// 2. Multiply limit by 2
+		// 3. Divide limit by price = collateral amount
+		collateralAmount := sdk.NewInt(80000000)
+		principalAmount := sdk.NewInt(10000000)
+
 		// Create collateral and principal coin
-		collateralAmount := sdk.NewInt(int64(simulation.RandIntBetween(randSource, 1, int(maxCollateral))))
+		// collateralAmount := sdk.NewInt(int64(simulation.RandIntBetween(randSource, 1, int(maxCollateral))))
 		collateral := sdk.NewCoin(collateralDenom, collateralAmount)
-		principal := sdk.NewCoin(principalDenom, collateralAmount.Quo(sdk.NewInt(2)))
+		principal := sdk.NewCoin(principalDenom, principalAmount)
 		fmt.Printf("Creating new CDP. Collateral: %s, Principal: %s...\n", collateral, principal)
 		msg = []sdk.Msg{cdptypes.NewMsgCreateCDP(accAddress, sdk.NewCoins(collateral), sdk.NewCoins(principal))}
 	} else {

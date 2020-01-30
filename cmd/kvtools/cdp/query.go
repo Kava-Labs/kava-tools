@@ -37,3 +37,32 @@ func QueryCDP(cdc *codec.Codec,
 	cdc.MustUnmarshalJSON(res, &cdp)
 	return cdp, true, nil
 }
+
+// TODO:
+// QueryMarketPrice queries an individual market
+// func QueryMarketPrice(cdc *codec.Codec,
+// 	cliCtx context.CLIContext,
+// 	accAddress sdk.AccAddress,
+// 	collateralDenom string,
+// ) (cdptypes.CDP, bool, error) {
+
+// 	bz, err := cdc.MarshalJSON(pftypes.QueryMarketPRice{
+// 		CollateralDenom: collateralDenom,
+// 		Owner:           accAddress,
+// 	})
+// 	if err != nil {
+// 		return cdptypes.CDP{}, false, err
+// 	}
+
+// 	// Query
+// 	route := fmt.Sprintf("custom/pricefeed/price")
+// 	res, _, err := cliCtx.QueryWithData(route, bz)
+// 	if err != nil {
+// 		return cdptypes.CDP{}, false, err
+// 	}
+
+// 	// Decode and print results
+// 	var cdp cdptypes.CDP
+// 	cdc.MustUnmarshalJSON(res, &cdp)
+// 	return cdp, true, nil
+// }
