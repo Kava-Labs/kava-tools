@@ -1,4 +1,4 @@
-package feed
+package socket
 
 import (
 	"fmt"
@@ -10,8 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	amino "github.com/tendermint/go-amino"
 
-	"github.com/kava-labs/kava-tools/cmd/kvtools/txs"
-	"github.com/kava-labs/kava-tools/cmd/kvtools/types"
+	"github.com/kava-labs/kava-tools/cmd/kvtools/common/rest"
+	"github.com/kava-labs/kava-tools/cmd/kvtools/common/txs"
+	"github.com/kava-labs/kava-tools/cmd/kvtools/common/types"
 )
 
 // ExecutePostingIteration gets the current coin prices and posts them to kava
@@ -25,7 +26,7 @@ func ExecutePostingIteration(
 	cliCtx context.CLIContext,
 	rpcURL string,
 ) error {
-	assets := txs.GetCoinGeckoPrices(coins, "USD")
+	assets := rest.GetCoinGeckoPrices(coins, "USD")
 
 	fmt.Println("Time: ", time.Now().Format("15:04:05"))
 	for i := 0; i < len(assets); i++ {

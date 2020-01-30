@@ -14,8 +14,7 @@ import (
 	tmClient "github.com/tendermint/tendermint/rpc/client"
 	tmTypes "github.com/tendermint/tendermint/types"
 
-	"github.com/kava-labs/kava-tools/cmd/kvtools/txs"
-	"github.com/kava-labs/kava-tools/cmd/kvtools/utils"
+	"github.com/kava-labs/kava-tools/cmd/kvtools/common/txs"
 	"github.com/kava-labs/kava/x/auction/types"
 )
 
@@ -75,7 +74,7 @@ func StartSubscription(
 				// TODO: use coinDenom to determine if user is interested in this auction
 				case types.EventTypeAuctionStart:
 					logger.Info("New collateral auction started")
-					auction, err := utils.GetEventAttributes(event.GetAttributes())
+					auction, err := txs.GetEventAttributes(event.GetAttributes())
 					if err != nil {
 						logger.Error("%s", err)
 					}
@@ -127,4 +126,15 @@ func readBidDecision() (bool, error) {
 		return false, err
 	}
 	return placeBidDecision, nil
+}
+
+// readBidCoin reads the user's bid coin
+func readBidCoin() (sdk.Coin, error) {
+	var bidCoin sdk.Coin
+	fmt.Println("Enter coin denom and amount: (example 'bnb20')")
+	_, err := fmt.Scan(&bidCoin)
+	if err != nil {
+		return sdk.Coin{}, err
+	}
+	return bidCoin, nil
 }

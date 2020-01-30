@@ -25,7 +25,7 @@ import (
 	amino "github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/kava-labs/kava-tools/cmd/kvtools/socket"
+	"github.com/kava-labs/kava-tools/cmd/kvtools/common/socket"
 	// "github.com/kava-labs/bidding/txs"
 	"github.com/kava-labs/kava/app"
 )
