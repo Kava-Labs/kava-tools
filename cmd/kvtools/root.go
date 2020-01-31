@@ -108,11 +108,11 @@ var cdpCmd = &cobra.Command{
 
 func startPriceOracleCmd() *cobra.Command {
 	startPriceOracleCmd := &cobra.Command{
-		Use:     "oracle [moniker] [coin1, coin2] [interval-minutes] --rpc-url=[rpc-url] --chain-id=[chain-id] --home=[key-dir]",
+		Use:     "start [oracle-moniker] [coin1, coin2] [interval-minutes] --rpc-url=[rpc-url] --chain-id=[chain-id]",
 		Short:   "Starts an oracle that automatically updates kava's price feed",
 		Args:    cobra.ExactArgs(3),
-		Example: "kvtools pricefeed oracle validator bitcoin,kava 30 --rpc-url=tcp://localhost:26657 --chain-id=testing --home=/Users/denali/.kvcli",
-		RunE:    RunStartPriceOracleCmd,
+		Example: "kvoracle start vlad bitcoin,kava 30 --rpc-url=tcp://localhost:26657 --chain-id=testing",
+		RunE:    RunStartPriceFeedCmd,
 	}
 
 	return startPriceOracleCmd
@@ -215,14 +215,13 @@ func RunStartBidding(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// RunStartPriceOracleCmd runs the StartPriceOracleCmd
-func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
-	// Parse from moniker URL
-	// from := viper.GetString(FlagFrom)
-	// if strings.TrimSpace(from) == "" {
-	// 	return errors.New("Must specify a 'from' moniker")
-	// }
-	from := args[0]
+// RunStartPriceFeedCmd runs the RunStartPriceFeed cmd
+func RunStartPriceFeedCmd(cmd *cobra.Command, args []string) error {
+	// Parse RPC URL
+	rpcURL := viper.GetString(FlagRPCURL)
+	if strings.TrimSpace(rpcURL) == "" {
+		return errors.New("Must specify an 'rpc-url'")
+	}
 
 	// Parse chain's ID
 	chainID := viper.GetString(client.FlagChainID)
@@ -230,11 +229,8 @@ func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 		return errors.New("Must specify a 'chain-id'")
 	}
 
-	// Parse RPC URL
-	rpcURL := viper.GetString(FlagRPCURL)
-	if strings.TrimSpace(rpcURL) == "" {
-		return errors.New("Must specify a 'rpc-url'")
-	}
+	// Parse the oracle's moniker
+	oracleFrom := args[0]
 
 	// Parse our coins
 	coins := strings.Split(args[1], ",")
@@ -252,19 +248,19 @@ func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the oracle's name and account address using their moniker
-	accAddress, oracleName, sdkErr := context.GetFromFields(from, false)
+	accAddress, oracleName, sdkErr := context.GetFromFields(oracleFrom, false)
 	if sdkErr != nil {
 		return sdkErr
 	}
 
 	// Get the oracle's passphrase using their moniker
-	passphrase, sdkErr := keys.GetPassphrase(from)
+	passphrase, sdkErr := keys.GetPassphrase(oracleFrom)
 	if sdkErr != nil {
 		return sdkErr
 	}
 
 	// Test passphrase is correct
-	_, sdkErr = authtypes.MakeSignature(nil, from, passphrase, authtypes.StdSignMsg{})
+	_, sdkErr = authtypes.MakeSignature(nil, oracleFrom, passphrase, authtypes.StdSignMsg{})
 	if sdkErr != nil {
 		return sdkErr
 	}
@@ -276,10 +272,9 @@ func RunStartPriceOracleCmd(cmd *cobra.Command, args []string) error {
 		WithFromName(oracleName)
 
 	// Schedule cron for price collection and posting
-	// gocron.Every(uint64(interval)).Seconds().Do(pftools.ExecutePostingIteration, coins, accAddress, chainID, appCodec, from, passphrase, cliCtx, rpcURL)
-	// <-gocron.Start()
-	// gocron.Clear()
-	pftools.ExecutePostingIteration(coins, accAddress, chainID, appCodec, oracleName, passphrase, cliCtx, rpcURL)
+	gocron.Every(uint64(interval)).Seconds().Do(pftools.ExecutePostingIteration, coins, accAddress, chainID, appCodec, oracleName, passphrase, cliCtx, rpcURL)
+	<-gocron.Start()
+	gocron.Clear()
 
 	return nil
 }
@@ -374,11 +369,11 @@ func RunGenerateCDPsCmd(cmd *cobra.Command, args []string) error {
 }
 
 func initConfig(cmd *cobra.Command) error {
-	err := viper.BindPFlag(FlagFrom, cmd.PersistentFlags().Lookup(FlagFrom))
-	if err != nil {
-		return err
-	}
-	err = viper.BindPFlag(client.FlagChainID, cmd.PersistentFlags().Lookup(client.FlagChainID))
+	// err := viper.BindPFlag(FlagFrom, cmd.PersistentFlags().Lookup(FlagFrom))
+	// if err != nil {
+	// 	return err
+	// }
+	err := viper.BindPFlag(client.FlagChainID, cmd.PersistentFlags().Lookup(client.FlagChainID))
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ github.com/99designs/keyring v1.1.2 h1:JJauROcU6x6Nh9uZb+8JgXFvyo0GUESLo1ixhpA0K
 github.com/99designs/keyring v1.1.2/go.mod h1:657DQuMrBZRtuL/voxVyiyb6zpMehlm5vLB9Qwrv904=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Kava-Labs/kava-tools v0.0.0-20200130005326-befbf120bdcb h1:n2wIlK9VBqL4R8HjYpW03/BHICOlO1P9Zl16zU2N6Fs=
+github.com/Kava-Labs/kava-tools v0.0.0-20200130051511-e7179348f6dd h1:p6ymjhlulYYD21jpaWvXIO13xrkqcqiYHLhLDSkdbXk=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
 github.com/Workiva/go-datastructures v1.0.50/go.mod h1:Z+F2Rca0qCsVYDS8z7bAGm8f3UkzuWYS/oBZz5a7VVA=
