@@ -2,7 +2,7 @@ require('dotenv').config();
 const cosmosjs = require("@cosmostation/cosmosjs");
 const cron = require('node-cron');
 import { postTxKava, getTxKava } from './txs.js';
-import { newMsgCreateCDP } from './msg.js';
+import { newMsgCreateCDP, newMsgDeposit, newMsgWithdraw, newMsgDrawDebt, newMsgRepayDebt } from './msg.js';
 
 // Load chain details, credentials
 const mnemonic = process.env.MNEMONIC
@@ -25,15 +25,67 @@ const ecpairPriv = kava.getECPairPriv(mnemonic);
 var routine = async() => {
 	// Get existing CDP
 	await getTxKava(BaseUrl.concat("cdps/cdp/").concat(address+"/"+cDenom), null)
-	.then(resCDP => {
-		console.log(resCDP)
+	.then(resCDP => { 
+		if (resCDP == undefined) {
+			console.log("Response is undefined")
+			return
+		}
+		// Response contains a cdp
+		if(resCDP.cdp != undefined) {
+			console.log("CDP status:")
+			console.log("\tID:", resCDP.cdp.id)
+			console.log("\tCollateral Value:", resCDP.collateral_value)
+			console.log("\tCollateralization:", resCDP.collateralization_ratio)
+			console.log()
+
+			cdpAction(resCDP);
+			return
+		}
+		// Generic response - something went wrong
+		if(resCDP.response != undefined) {
+			if(resCDP.response.statusCode != undefined) {
+				if(resCDP.response.statusCode = 404) {
+					console.log("Status code:", resCDP.response.statusCode)
+					console.log("Request URL:", resCDP.response.responseUrl)
+					return
+				}
+				console.log("Unknown response status code")
+			} else {
+				// statusCode is undefined on Tendermint errors
+				let data = resCDP.response.data
+				if(data != undefined) {
+					let error = data.error
+					let errorObj = JSON.parse(error);
+					let code = errorObj.code
+					switch(code) {
+						// Code 7 is CDP module's ErrCDPNotFound
+						case 7:
+							console.log("Tendermint error:", errorObj.message)
+							cdpCreate();
+							break;
+						case 1:
+							console.log("Tendermint error:", errorObj.message)
+							break;
+						default:
+							console.log("Unkown Tendermint err. Code:", code)
+							break;
+					}
+				}				
+			}
+		}
+	})
+	.catch((err) => { 
+		console.log(err);
+		// TODO: Can put action in a try-catch here if we hit a strange error
 	})
 
-	// Get CDP module params
+};
+
+var cdpCreate = async() => {
 	await getTxKava(BaseUrl.concat("cdp/params"), null)
 	.then(resParams => {
 		let cAmount, pDenom, pAmount, liquidationRatio, marketID, price
-		const collaterals = resParams && resParams.collateral_params && resParams.collateral_params
+		let collaterals = resParams && resParams.collateral_params && resParams.collateral_params
 		for(var i = 0; i < collaterals.length; i++) {
 			if(collaterals[i].denom == cDenom) {
 				pDenom = collaterals[i].debt_limit[0].denom
@@ -50,41 +102,71 @@ var routine = async() => {
 			price = Number(0.238532999999999995)
 			cAmount = (pAmount / price) * (liquidationRatio * 1.01)
 		// })
-		const cAmountPerc = Number.parseFloat(cAmount).toPrecision(18).toString();
-		const pAmountPerc = Number.parseFloat(pAmount).toPrecision(18).toString();
+		console.log("Creating CDP. Collateral: ".concat(Math.trunc(cAmount) + cDenom).concat(" Principal: "+(Math.trunc(pAmount) + pDenom)+"."))
 		let msgCreateCDP = newMsgCreateCDP(address, cDenom, Math.trunc(cAmount), pDenom, Math.trunc(pAmount))
-
-		console.log(msgCreateCDP.value.sender)
-		console.log(msgCreateCDP.value.collateral[0])
-		console.log(msgCreateCDP.value.principal[0])
-
 		postTxKava(kava, chainID, address, ecpairPriv, msgCreateCDP)  
-
 	})
+}
 
-	// Set up new source of randomness
-	// Attempt to locate existing CDP for this user/collateral denom
-	// If no existing CDP is found, create new CDP
-    // If found:
-        // 1.  Get price via query
-		// 2. Multiply limit by 2
-		// 3. Divide limit by price = collateral amount
-        // Create collateral and principal coin
-        // Format msg as JSON
-    // Else:
-        // Load current CDP values for coin amount generation
-	    // Get random amount of collateral between 1-25% current collateral
-		// If collateralization ratio above limit, withdraw colllateral or draw principal
-		// If collateralization ratio is below limit, deposit collateral or repay principal
+var cdpAction = async(resCDP) => {
 
+	if(resCDP.cdp == null) {
+		return
+	}
 
-	// Send tx containing the msg
-    // postTxKava(kava, chainID, address, ecpairPriv, msgCreateCDP)  
-};
+	// Parse current CDP collateral, principal values
+	let cDenom = resCDP.cdp.collateral[0].denom
+	let currCAmount = Number(resCDP.cdp.collateral[0].amount)
+	let pDenom = resCDP.cdp.principal[0].denom
+	let currPAmount = Number(resCDP.cdp.principal[0].amount)
 
-routine()
+	// TODO: Incorporate real price once pricefeed changes are merged
+	let price = Number(0.24)
+	let cRatio = (currCAmount * price) / currPAmount
 
-// // Start cron job
-// cron.schedule('* * * * *', () => {
-//     routine()
-// });
+	// Get random amount between 0-9% of current collateral, principal
+	let cAmount = Math.floor(Math.random() * (currCAmount / 10));
+	let pAmount = Math.floor(Math.random() * (currPAmount / 10));
+
+	let evenOrOdd = Math.floor(Math.random() * 2) + 1;
+
+	if(Number(cRatio) > Number(2.2)) {
+	// If collateralization ratio above limit, withdraw colllateral or draw principal
+		if(evenOrOdd % 2 == 0) {
+			// Withdraw collateral
+			// NOTE: cannot withdraw an amount that puts the CDP below liquidation ratio
+			console.log("Attempting to withdraw ".concat(cAmount + cDenom.concat("...")))
+			let msgWithdraw = newMsgWithdraw(address, address, cDenom, cAmount)
+			postTxKava(kava, chainID, address, ecpairPriv, msgWithdraw)  
+		} else {
+			// Draw principal
+			// NOTE: Cannot draw principal beyond liquidation ratio 
+			console.log("Attempting to draw ".concat(pAmount + pDenom.concat("...")))
+			let msgDraw = newMsgDrawDebt(address, cDenom, pDenom, pAmount)
+			postTxKava(kava, chainID, address, ecpairPriv, msgDraw) 
+		}
+	} else {
+	// If collateralization ratio is below limit, deposit collateral or repay principal
+		if(evenOrOdd % 2 == 0) {
+			// Deposit collateral
+			// TODO: Limit deposit amount by account balances
+			console.log("Attempting to deposit ".concat(cAmount + cDenom.concat("...")))
+			let msgDeposit = newMsgDeposit(address, address, cDenom, cAmount)
+			postTxKava(kava, chainID, address, ecpairPriv, msgDeposit)  
+		} else {
+			// Repay principal
+			// TODO: Limit repay amount by debt minimum
+			// NOTE: Cannot repay more principal than has been drawn
+			console.log("Attempting to repay ".concat(pAmount + pDenom.concat("...")))
+			let msgRepay = newMsgRepayDebt(address, cDenom, pDenom, pAmount)
+			postTxKava(kava, chainID, address, ecpairPriv, msgRepay) 
+		}
+	}
+}
+
+// Start cron job
+var task = cron.schedule('* * * * *', () => {
+    routine()
+});
+
+task.start();

@@ -15,7 +15,7 @@ export const postTxKava = (kava, chainID, address, ecpairPriv, msg) => {
 		
 		// Sign transaction
 		const signedTx = kava.sign(stdSignMsg, ecpairPriv);
-
+		
 		// Broadcast transaction
 		kava.broadcast(signedTx).then(response => {
 			console.log("\tTx hash:", response.txhash)
