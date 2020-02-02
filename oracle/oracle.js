@@ -36,7 +36,7 @@ var routine = async() => {
     for(var i = 0; i < coinNames.length; i++) {
         let priceRaw = priceData.data[coinNames[i]].usd
         let price = Number.parseFloat(priceRaw).toPrecision(18).toString();
-        // Format msg as JSON and add to msgs array
+        // Format msg as JSON
         let msgPostPrice = newMsgPostPrice("pricefeed/MsgPostPrice", address, marketIDs[i], price)
         // Send to Kava blockchain
         console.log(coinNames[i], ": posting price", priceRaw)
