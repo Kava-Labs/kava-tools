@@ -133,16 +133,9 @@ var routine = async() => {
 				}
 				// Response doesn't contain a cdp
 				if(res.response != undefined) {
-					try {
-						parseResError(res)
-						.then(create => {
-							if(create == true) {
-								cdpCreate(cDenom, params, price);
-							}
-						})
-					} catch (err) {
-						console.log("Full error:", err)
-						console.log("\nTry restarting the rest-server.")
+					let create = parseResError(res)
+					if(create == true) {
+						cdpCreate(cDenom, params, price);
 					}
 				}
 			})
