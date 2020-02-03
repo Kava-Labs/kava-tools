@@ -14,12 +14,14 @@ export const postTxKava = (kava, chainID, address, ecpairPriv, msg) => {
 		});
 		
 		// Sign transaction
-		const signedTx = kava.sign(stdSignMsg, ecpairPriv);
-		
+		let modeType = "block"
+		let signedTx = kava.sign(stdSignMsg, ecpairPriv, modeType);
+
 		// Broadcast transaction
 		kava.broadcast(signedTx).then(response => {
 			console.log("\tTx hash:", response.txhash)
 			console.log("\tLogs:", response.raw_log)
+			console.log()
 		});
 	})
 }
@@ -29,7 +31,11 @@ export const postTxKava = (kava, chainID, address, ecpairPriv, msg) => {
 // 	id: 21
 // }
 export const getTxKava = (url, params) => {
-	return axios.get(url, params)
+	const options = {
+		headers: {'pragma': 'no-cache'}
+	  };
+
+	return axios.get(url, params, options)
 	.then(res => {
 		return res.data.result
 	})

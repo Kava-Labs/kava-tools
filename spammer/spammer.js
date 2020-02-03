@@ -27,7 +27,7 @@ var routine = async() => {
 	await getTxKava(BaseUrl.concat("cdps/cdp/").concat(address+"/"+cDenom), null)
 	.then(resCDP => { 
 		if (resCDP == undefined) {
-			console.log("Response is undefined")
+			console.log("Error: Kava query response is undefined")
 			return
 		}
 		// Response contains a cdp
@@ -43,15 +43,16 @@ var routine = async() => {
 		}
 		// Generic response - something went wrong
 		if(resCDP.response != undefined) {
+			// Check for 404
 			if(resCDP.response.statusCode != undefined) {
 				if(resCDP.response.statusCode = 404) {
 					console.log("Status code:", resCDP.response.statusCode)
 					console.log("Request URL:", resCDP.response.responseUrl)
-					return
+				} else {
+					console.log("Unknown response status code")
 				}
-				console.log("Unknown response status code")
 			} else {
-				// statusCode is undefined on Tendermint errors
+				// Status code is undefined on Tendermint errors
 				let data = resCDP.response.data
 				if(data != undefined) {
 					let error = data.error
@@ -76,7 +77,6 @@ var routine = async() => {
 	})
 	.catch((err) => { 
 		console.log(err);
-		// TODO: Can put action in a try-catch here if we hit a strange error
 	})
 
 };
@@ -109,7 +109,7 @@ var cdpCreate = async() => {
 }
 
 var cdpAction = async(resCDP) => {
-
+	// Sanity check
 	if(resCDP.cdp == null) {
 		return
 	}
@@ -134,7 +134,7 @@ var cdpAction = async(resCDP) => {
 	// If collateralization ratio above limit, withdraw colllateral or draw principal
 		if(evenOrOdd % 2 == 0) {
 			// Withdraw collateral
-			// NOTE: cannot withdraw an amount that puts the CDP below liquidation ratio
+			// TODO: limit withdraw to above amount that puts the CDP below liquidation ratio
 			console.log("Attempting to withdraw ".concat(cAmount + cDenom.concat("...")))
 			let msgWithdraw = newMsgWithdraw(address, address, cDenom, cAmount)
 			postTxKava(kava, chainID, address, ecpairPriv, msgWithdraw)  
@@ -170,3 +170,6 @@ var task = cron.schedule('* * * * *', () => {
 });
 
 task.start();
+
+// routine()
+
