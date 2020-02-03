@@ -46,7 +46,6 @@ var routine = async() => {
 };
 
 // Start cron job
-// cron.schedule('* * * * *', () => {
-//     routine()
-// });
-routine()
+cron.schedule('* * * * *', () => {
+    routine()
+});

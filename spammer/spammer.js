@@ -3,6 +3,8 @@ const cosmosjs = require("@cosmostation/cosmosjs");
 const cron = require('node-cron');
 import { postTxKava, getTxKava } from '../common/txs.js';
 import { newMsgCreateCDP, newMsgDeposit, newMsgWithdraw, newMsgDrawDebt, newMsgRepayDebt } from '../common/msg.js';
+import { parseCurrCDP, parseCollateralParams, parseResError } from './utils.js';
+
 
 // Load chain details, credentials
 const mnemonic = process.env.MNEMONIC
@@ -27,22 +29,11 @@ var loadModuleParams = async(cDenom) => {
 	return await getTxKava(BaseUrl.concat("cdp/parameters"), null)
 	.then(resParams => {
 		if(resParams.collateral_params == null) {
+			console.log("Bad response on CDP module params query:")
 			console.log(resParams)
-			console.log("Bad response on CDP module params query.")
 			return
 		}
-		let pDenom, pDebtLimit, liquidationRatio, marketID
-		let collaterals = resParams.collateral_params
-		for(var i = 0; i < collaterals.length; i++) {
-			if(collaterals[i].denom == cDenom) {
-				pDenom = collaterals[i].debt_limit[0].denom
-				pDebtLimit = Number(collaterals[i].debt_limit[0].amount)
-				liquidationRatio = Number(collaterals[i].liquidation_ratio)
-				marketID = collaterals[i].market_id
-				return {"pDenom": pDenom, "pDebtLimit": pDebtLimit, "liquidationRatio": liquidationRatio, "marketID": marketID}
-			}
-		}
-		return null
+		return parseCollateralParams(resParams, cDenom)
 	})
 }
 
@@ -62,43 +53,6 @@ var loadExistingCDP = async(address, cDenom) => {
 	})
 }
 
-// Parse CDP query response error and return bool controlling CDP creation.
-// If error = 'CDPNotFoundErr', then returns true. Otherwise returns false.
-var parseResError = async(res) => {
-	if(res.response != undefined) {
-		// Check for 404
-		if(res.response.statusCode != undefined) {
-			if(res.response.statusCode = 404) {
-				console.log("Status code:", res.response.statusCode)
-				console.log("Request URL:", res.response.responseUrl)
-			} else {
-				console.log("Unknown response status code")
-			}
-		} else {
-			// Status code is undefined on Tendermint errors
-			let data = res.response.data
-			if(data != undefined) {
-				let error = data.error
-				let errorObj = JSON.parse(error);
-				let code = errorObj.code
-				switch(code) {
-					// Code 7 is CDP module's ErrCDPNotFound
-					case 7:
-						console.log("Tendermint error:", errorObj.message)
-						return true
-					case 1:
-						console.log("Tendermint error:", errorObj.message)
-						break;
-					default:
-						console.log("Unkown Tendermint err. Code:", code)
-						break;
-				}
-			}				
-		}
-	}
-	return false
-}
-
 // Create a new CDP with the minimum debt limit
 var cdpCreate = async(cDenom, params, price) => {
 	let truncCAmount = Math.trunc((params.pDebtLimit / price) * (params.liquidationRatio * 1.01))
@@ -108,61 +62,40 @@ var cdpCreate = async(cDenom, params, price) => {
 	postTxKava(kava, chainID, address, ecpairPriv, msgCreateCDP)
 }
 
-// Parse CDP into workable structure
-var parseCurrCDP = (res) => {
-	return {
-		"ID": res.cdp.id,
-		"cDenom": res.cdp.collateral[0].denom,
-		"currCAmount": Number(res.cdp.collateral[0].amount),
-		"pDenom": res.cdp.principal[0].denom,
-		"currPAmount": Number(res.cdp.principal[0].amount),
-		"cValue": res.collateral_value,
-		"cRatio": res.collateralization_ratio
-	}
-}
-
 // Perform deposit, withdraw, draw, or repay action on existing CDP
 var cdpAction = async(cdp, debtLimit) => {
-	// Parse current CDP collateral, principal values
 	let cDenom = cdp.cDenom
-	let currCAmount = cdp.currCAmount
 	let pDenom = cdp.pDenom
-	let cRatio = cdp.cRatio
 
-	// Get random amount between 0-9% of current collateral, principal
-	let cAmount = Math.floor(Math.random() * (currCAmount / 10));
-	let pAmount = debtLimit
-	// let pAmount = Math.floor(Math.random() * (currPAmount / 10));
+	// Get random amount between 0-9% of current collateral
+	let cAmount = Math.floor(Math.random() * ( cdp.currCAmount / 10));
+
+	// Set principal amount to debt limit
+	let pAmount = debtLimit // TODO: revisit this
 
 	let evenOrOdd = Math.floor(Math.random() * 2) + 1;
-
-	if(Number(cRatio) > Number(2.2)) {
-	// If collateralization ratio above limit, withdraw colllateral or draw principal
+	if(Number(cdp.cRatio) > Number(2.2)) {
+	// If collateralization ratio is above 220%
 		if(evenOrOdd % 2 == 0) {
 			// Withdraw collateral
-			// TODO: limit withdraw to above amount that puts the CDP below liquidation ratio
 			console.log("\tAttempting to withdraw ".concat(cAmount + cDenom.concat("...")))
 			let msgWithdraw = newMsgWithdraw(address, address, cDenom, cAmount)
 			postTxKava(kava, chainID, address, ecpairPriv, msgWithdraw)  
 		} else {
 			// Draw principal
-			// NOTE: Cannot draw principal beyond liquidation ratio 
 			console.log("\tAttempting to draw ".concat(pAmount + pDenom.concat("...")))
 			let msgDraw = newMsgDrawDebt(address, cDenom, pDenom, pAmount)
 			postTxKava(kava, chainID, address, ecpairPriv, msgDraw) 
 		}
 	} else {
-	// If collateralization ratio is below limit, deposit collateral or repay principal
+	// If collateralization ratio is below 220%
 		if(evenOrOdd % 2 == 0) {
 			// Deposit collateral
-			// TODO: Limit deposit amount by account balances
 			console.log("\tAttempting to deposit ".concat(cAmount + cDenom.concat("...")))
 			let msgDeposit = newMsgDeposit(address, address, cDenom, cAmount)
 			postTxKava(kava, chainID, address, ecpairPriv, msgDeposit)  
 		} else {
 			// Repay principal
-			// TODO: Limit repay amount by debt minimum
-			// NOTE: Cannot repay more principal than has been drawn
 			console.log("\tAttempting to repay ".concat(pAmount + pDenom.concat("...")))
 			let msgRepay = newMsgRepayDebt(address, cDenom, pDenom, pAmount)
 			postTxKava(kava, chainID, address, ecpairPriv, msgRepay) 
@@ -200,24 +133,27 @@ var routine = async() => {
 				}
 				// Response doesn't contain a cdp
 				if(res.response != undefined) {
-					parseResError(res)
-					.then(create => {
-						if(create == true) {
-							cdpCreate(cDenom, params, price);
-						}
-					})
+					try {
+						parseResError(res)
+						.then(create => {
+							if(create == true) {
+								cdpCreate(cDenom, params, price);
+							}
+						})
+					} catch (err) {
+						console.log("Full error:", err)
+						console.log("\nTry restarting the rest-server.")
+					}
 				}
 			})
 		})
 	})
 }
 
-routine()
+// Start cron job
+var task = cron.schedule('* * * * *', () => {
+    routine()
+});
 
-// // Start cron job
-// var task = cron.schedule('* * * * *', () => {
-//     routine()
-// });
-
-// task.start();
+task.start();
 
