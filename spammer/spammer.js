@@ -24,9 +24,11 @@ const ecpairPriv = kava.getECPairPriv(mnemonic);
 
 // Load CDP module params
 var loadModuleParams = async(cDenom) => {
-	return await getTxKava(BaseUrl.concat("cdp/params"), null)
+	return await getTxKava(BaseUrl.concat("cdp/parameters"), null)
 	.then(resParams => {
 		if(resParams.collateral_params == null) {
+			console.log(resParams)
+			console.log("Bad response on CDP module params query.")
 			return
 		}
 		let pDenom, pDebtLimit, liquidationRatio, marketID
@@ -40,13 +42,21 @@ var loadModuleParams = async(cDenom) => {
 				return {"pDenom": pDenom, "pDebtLimit": pDebtLimit, "liquidationRatio": liquidationRatio, "marketID": marketID}
 			}
 		}
-		return {"pDenom": null, "pDebtLimit": null, "liquidationRatio": null, "marketID": null}
+		return null
+	})
+}
+
+// Loads assets current price
+var loadAssetPrice = async(marketID) => {
+	return await getTxKava(BaseUrl.concat("pricefeed/price/").concat(marketID), null)
+	.then(resPrice => {
+		return resPrice
 	})
 }
 
 // Load existing CDP
 var loadExistingCDP = async(address, cDenom) => {
-	return await getTxKava(BaseUrl.concat("cdps/cdp/").concat(address+"/"+cDenom), null)
+	return await getTxKava(BaseUrl.concat("cdp/cdps/cdp/").concat(address+"/"+cDenom), null)
 	.then(resCDP => {
 		return resCDP
 	})
@@ -90,21 +100,11 @@ var parseResError = async(res) => {
 }
 
 // Create a new CDP with the minimum debt limit
-var cdpCreate = async(cDenom, params) => {
-	let pDenom = params.pDenom
-	let pAmount = params.pAmount
-	let liquidationRatio = params.liquidationRatio
-	let marketID = params.marketID
-	
-	// TODO: Incorporate this request once pricefeed changes are merged
-	// getTxKava(BaseUrl.concat("/pricefeed/price/".concat(marketID)), null)
-	// .then(resPrice => {
-		// console.log(resPrice)
-		price = Number(0.238532999999999995)
-		cAmount = (pAmount / price) * (liquidationRatio * 1.01)
-	// })
-	console.log("Creating CDP. Collateral: ".concat(Math.trunc(cAmount) + cDenom).concat(" Principal: "+(Math.trunc(pAmount) + pDenom)+"."))
-	let msgCreateCDP = newMsgCreateCDP(address, cDenom, Math.trunc(cAmount), pDenom, Math.trunc(pAmount))
+var cdpCreate = async(cDenom, params, price) => {
+	let truncCAmount = Math.trunc((params.pDebtLimit / price) * (params.liquidationRatio * 1.01))
+	let truncPAmount =  Math.trunc(params.pDebtLimit)
+	console.log("Creating CDP. Collateral: ".concat(truncCAmount + cDenom).concat(" Principal: "+(truncPAmount + params.pDenom)+"."))
+	let msgCreateCDP = newMsgCreateCDP(address, cDenom, truncCAmount, params.pDenom, truncPAmount)
 	postTxKava(kava, chainID, address, ecpairPriv, msgCreateCDP)
 }
 
@@ -127,11 +127,7 @@ var cdpAction = async(cdp, debtLimit) => {
 	let cDenom = cdp.cDenom
 	let currCAmount = cdp.currCAmount
 	let pDenom = cdp.pDenom
-	let currPAmount = cdp.currPAmount
-
-	// TODO: Incorporate real price once pricefeed changes are merged
-	let price = Number(0.24)
-	let cRatio = (currCAmount * price) / currPAmount
+	let cRatio = cdp.cRatio
 
 	// Get random amount between 0-9% of current collateral, principal
 	let cAmount = Math.floor(Math.random() * (currCAmount / 10));
@@ -178,41 +174,50 @@ var cdpAction = async(cdp, debtLimit) => {
 var routine = async() => {
 	loadModuleParams(cDenom)
 	.then(params => {
-		loadExistingCDP(address, cDenom)
-		.then(res => {
-			if (res == undefined) {
-				console.log("Error: Kava query response is undefined. Cannot proceed.")
-				return
-			}
-			// Response contains a cdp
-			if(res.cdp != undefined) {
-				let cdp = parseCurrCDP(res)
+		if (params == null) {
+			return console.log("Exiting")
+		}
+		loadAssetPrice(params.marketID)
+		.then(resPrice => {
+			let price = Number(resPrice.price)
+			loadExistingCDP(address, cDenom)
+			.then(res => {
+				if (res == undefined) {
+					console.log("Error: Kava query response is undefined. Cannot proceed.")
+					return
+				}
+				// Response contains a cdp
+				if(res.cdp != undefined) {
+					let cdp = parseCurrCDP(res)
 
-				console.log("CDP ID:", cdp.ID)
-				console.log("\tCollateral Value:", cdp.cValue)
-				console.log("\tCollateralization:", cdp.cRatio)
-				console.log()
+					console.log("CDP ID:", cdp.ID)
+					console.log("\tCollateral Value:", cdp.cValue)
+					console.log("\tCollateralization:", cdp.cRatio)
+					console.log()
 
-				cdpAction(cdp, params.pDebtLimit);
-				return
-			}
-			// Response doesn't contain a cdp
-			if(res.response != undefined) {
-				parseResError(res)
-				.then(create => {
-					if(create == true) {
-						cdpCreate(cDenom, params.collateral_params);
-					}
-				})
-			}
+					cdpAction(cdp, params.pDebtLimit);
+					return
+				}
+				// Response doesn't contain a cdp
+				if(res.response != undefined) {
+					parseResError(res)
+					.then(create => {
+						if(create == true) {
+							cdpCreate(cDenom, params, price);
+						}
+					})
+				}
+			})
 		})
 	})
 }
 
-// Start cron job
-var task = cron.schedule('* * * * *', () => {
-    routine()
-});
+routine()
 
-task.start();
+// // Start cron job
+// var task = cron.schedule('* * * * *', () => {
+//     routine()
+// });
+
+// task.start();
 
