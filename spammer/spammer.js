@@ -70,8 +70,9 @@ var cdpAction = async(cdp, debtLimit) => {
 	// Get random amount between 0-9% of current collateral
 	let cAmount = Math.floor(Math.random() * ( cdp.currCAmount / 10));
 
-	// Set principal amount to debt limit
-	let pAmount = debtLimit // TODO: revisit this
+	// Set principal amount to debt limit 0-1% of current principal
+	let pAmount = Math.floor(Math.random() * ( cdp.currPAmount / 2));
+	// TODO: Revist: pAmount = debtLimit
 
 	let evenOrOdd = Math.floor(Math.random() * 2) + 1;
 	if(Number(cdp.cRatio) > Number(2.2)) {
