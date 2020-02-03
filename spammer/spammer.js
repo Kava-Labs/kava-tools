@@ -1,8 +1,8 @@
 require('dotenv').config();
 const cosmosjs = require("@cosmostation/cosmosjs");
 const cron = require('node-cron');
-import { postTxKava, getTxKava } from './txs.js';
-import { newMsgCreateCDP, newMsgDeposit, newMsgWithdraw, newMsgDrawDebt, newMsgRepayDebt } from './msg.js';
+import { postTxKava, getTxKava } from '../common/txs.js';
+import { newMsgCreateCDP, newMsgDeposit, newMsgWithdraw, newMsgDrawDebt, newMsgRepayDebt } from '../common/msg.js';
 
 // Load chain details, credentials
 const mnemonic = process.env.MNEMONIC
