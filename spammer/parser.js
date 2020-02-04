@@ -11,12 +11,8 @@ export const parseCurrCDP = (res) => {
 	}
 }
 
-// Parse collateral params
-export const parseCollateralParams = (res, cDenom) => {
-    if(res.collateral_params == undefined) {
-        return null
-    }
-    let collaterals = res.collateral_params
+// Parse the collateral params a named type from the module params
+export const parseModuleParams = (collaterals, cDenom) => {
     for(var i = 0; i < collaterals.length; i++) {
         if(collaterals[i].denom == cDenom) {
             let pDenom = collaterals[i].debt_limit[0].denom

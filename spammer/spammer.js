@@ -3,14 +3,12 @@ const cosmosjs = require("@cosmostation/cosmosjs");
 const cron = require('node-cron');
 import { postTxKava, getTxKava } from '../common/txs.js';
 import { newMsgCreateCDP, newMsgDeposit, newMsgWithdraw, newMsgDrawDebt, newMsgRepayDebt } from '../common/msg.js';
-import { parseCurrCDP, parseCollateralParams, parseResError } from './utils.js';
-
+import { parseCurrCDP, parseModuleParams, parseResError } from './parser.js';
 
 // Load chain details, credentials
 const mnemonic = process.env.MNEMONIC
 const lcdURL = process.env.LCD_URL
 const chainID = process.env.CHAIN_ID;
-const BaseUrl = "http://localhost:1317/"
 
 // Load params
 const cDenom = process.env.COLLATERAL_DENOM;
@@ -24,32 +22,53 @@ kava.setPath("m/44'/118'/0'/0/0");
 const address = kava.getAddress(mnemonic);
 const ecpairPriv = kava.getECPairPriv(mnemonic);
 
-// Load CDP module params
-var loadModuleParams = async(cDenom) => {
-	return await getTxKava(BaseUrl.concat("cdp/parameters"), null)
+// Start cron job
+var task = cron.schedule('* * * * *', () => {
+    routine(lcdURL, address, cDenom)
+});
+
+task.start();
+
+// Primary cron routine
+var routine = async(lcdURL, address, cDenom) => {
+	getTxKava(lcdURL, "/cdp/parameters", [])
 	.then(resParams => {
-		if(resParams.collateral_params == null) {
-			console.log("Bad response on CDP module params query:")
+		if (resParams.collateral_params == undefined) {
+			console.log("Request for CDP module params unsuccessful:\n")
 			console.log(resParams)
-			return
+			return console.log("\nExiting.")
 		}
-		return parseCollateralParams(resParams, cDenom)
-	})
-}
+		let params = parseModuleParams(resParams.collateral_params, cDenom)
+		getTxKava(lcdURL, "/cdp/cdps/cdp/", [address, cDenom])
+		.then(res => {
+			if (res == undefined) {
+				console.log("Error: Kava query response is undefined. Cannot proceed.")
+				return
+			}
+			// Response contains a cdp
+			if(res.cdp != undefined) {
+				let cdp = parseCurrCDP(res)
 
-// Loads assets current price
-var loadAssetPrice = async(marketID) => {
-	return await getTxKava(BaseUrl.concat("pricefeed/price/").concat(marketID), null)
-	.then(resPrice => {
-		return resPrice
-	})
-}
+				console.log("CDP ID:", cdp.ID)
+				console.log("\tCollateral Value:", cdp.cValue)
+				console.log("\tCollateralization:", cdp.cRatio)
+				console.log()
 
-// Load existing CDP
-var loadExistingCDP = async(address, cDenom) => {
-	return await getTxKava(BaseUrl.concat("cdp/cdps/cdp/").concat(address+"/"+cDenom), null)
-	.then(resCDP => {
-		return resCDP
+				cdpAction(cdp, params.pDebtLimit);
+				return
+			}
+			// Response doesn't contain a cdp
+			if(res.response != undefined) {
+				let create = parseResError(res)
+				if(create == true) {
+					getTxKava(lcdURL, "/pricefeed/price/", [params.marketID])
+					.then(resPrice => {
+						let price = Number(resPrice.price)
+						cdpCreate(cDenom, params, price);
+					})
+				}
+			}
+		})
 	})
 }
 
@@ -103,51 +122,3 @@ var cdpAction = async(cdp, debtLimit) => {
 		}
 	}
 }
-
-// Primary cron routine
-var routine = async() => {
-	loadModuleParams(cDenom)
-	.then(params => {
-		if (params == null) {
-			return console.log("Exiting")
-		}
-		loadAssetPrice(params.marketID)
-		.then(resPrice => {
-			let price = Number(resPrice.price)
-			loadExistingCDP(address, cDenom)
-			.then(res => {
-				if (res == undefined) {
-					console.log("Error: Kava query response is undefined. Cannot proceed.")
-					return
-				}
-				// Response contains a cdp
-				if(res.cdp != undefined) {
-					let cdp = parseCurrCDP(res)
-
-					console.log("CDP ID:", cdp.ID)
-					console.log("\tCollateral Value:", cdp.cValue)
-					console.log("\tCollateralization:", cdp.cRatio)
-					console.log()
-
-					cdpAction(cdp, params.pDebtLimit);
-					return
-				}
-				// Response doesn't contain a cdp
-				if(res.response != undefined) {
-					let create = parseResError(res)
-					if(create == true) {
-						cdpCreate(cDenom, params, price);
-					}
-				}
-			})
-		})
-	})
-}
-
-// Start cron job
-var task = cron.schedule('* * * * *', () => {
-    routine()
-});
-
-task.start();
-

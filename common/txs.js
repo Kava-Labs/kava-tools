@@ -26,13 +26,15 @@ export const postTxKava = (kava, chainID, address, ecpairPriv, msg) => {
 	})
 }
 
-export const getTxKava = (url, params) => {
+export const getTxKava = (url, path, params) => {
 	// TODO: Confirm that the request isn't being cached
 	const options = {
 		headers: {'pragma': 'no-cache'}
 	  };
 
-	return axios.get(url, params, options)
+	  let requestUrl = url.concat(path).concat(params.join("/"))
+
+	return axios.get(requestUrl, options)
 	.then(res => {
 		return res.data.result
 	})
