@@ -1,3 +1,8 @@
+// Parse the current block height
+export const parseBlockHeight = (res) => {
+	return res.height
+}
+
 // Parse current CDP
 export const parseCurrCDP = (res) => {
 	return {

@@ -22,29 +22,25 @@ kava.setPath("m/44'/118'/0'/0/0");
 const address = kava.getAddress(mnemonic);
 const ecpairPriv = kava.getECPairPriv(mnemonic);
 
-// Start cron job
-var task = cron.schedule('* * * * *', () => {
-    routine(lcdURL, address, cDenom)
-});
-
-task.start();
-
 // Primary cron routine
 var routine = async(lcdURL, address, cDenom) => {
-	getTxKava(lcdURL, "/cdp/parameters", [])
-	.then(resParams => {
+	getTxKava(lcdURL, "/cdp/parameters", {})
+	.then(modParams => {
+		let height = modParams["height"]
+		let resParams = modParams["result"]
 		if (resParams.collateral_params == undefined) {
 			console.log("Request for CDP module params unsuccessful:\n")
 			console.log(resParams)
 			return console.log("\nExiting.")
 		}
 		let params = parseModuleParams(resParams.collateral_params, cDenom)
-		getTxKava(lcdURL, "/cdp/cdps/cdp/", [address, cDenom])
-		.then(res => {
-			if (res == undefined) {
+		getTxKava(lcdURL, "/cdp/cdps/cdp/".concat(address+"/"+cDenom), {"height": height})
+		.then(resCdp => {
+			if (resCdp == undefined) {
 				console.log("Error: Kava query response is undefined. Cannot proceed.")
 				return
 			}
+			res = resCdp["result"]
 			// Response contains a cdp
 			if(res.cdp != undefined) {
 				let cdp = parseCurrCDP(res)
@@ -61,9 +57,10 @@ var routine = async(lcdURL, address, cDenom) => {
 			if(res.response != undefined) {
 				let create = parseResError(res)
 				if(create == true) {
-					getTxKava(lcdURL, "/pricefeed/price/", [params.marketID])
+					getTxKava(lcdURL, "/pricefeed/price/".concat(params.marketID), {"height": height})
 					.then(resPrice => {
-						let price = Number(resPrice.price)
+						let res = resPrice["result"]
+						let price = Number(res.price)
 						cdpCreate(cDenom, params, price);
 					})
 				}
@@ -122,3 +119,10 @@ var cdpAction = async(cdp, debtLimit) => {
 		}
 	}
 }
+
+// Start cron job
+var task = cron.schedule('* * * * *', () => {
+    routine(lcdURL, address, cDenom)
+});
+
+task.start();

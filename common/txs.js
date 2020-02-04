@@ -30,13 +30,27 @@ export const getTxKava = (url, path, params) => {
 	// TODO: Confirm that the request isn't being cached
 	const options = {
 		headers: {'pragma': 'no-cache'}
-	  };
+	};
 
-	  let requestUrl = url.concat(path).concat(params.join("/"))
+	let requestUrl = url.concat(path)
+
+	// Write params to end of path 
+	let paramKeys = Object.keys(params)
+	if(paramKeys.length > 0) {
+		requestUrl = requestUrl.concat("?")
+		for(let i = 0; i < paramKeys.length; i++) {
+			let key = paramKeys[i]
+			let value = params[paramKeys[i]]
+			requestUrl = requestUrl.concat(key+"="+value)
+			if(i != paramKeys.length - 1) {
+				requestUrl = requestUrl.concat("&")
+			}
+		}
+	}
 
 	return axios.get(requestUrl, options)
 	.then(res => {
-		return res.data.result
+		return { height: res.data.height, result: res.data.result}
 	})
 	.catch(err => {
 		return err
