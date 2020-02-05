@@ -24,7 +24,8 @@ export const parseModuleParams = (collaterals, cDenom) => {
             let pDebtLimit = Number(collaterals[i].debt_limit[0].amount)
             let liquidationRatio = Number(collaterals[i].liquidation_ratio)
             let marketID = collaterals[i].market_id
-            return {"pDenom": pDenom, "pDebtLimit": pDebtLimit, "liquidationRatio": liquidationRatio, "marketID": marketID}
+            let conversion = collaterals[i].conversion_factor
+            return {"pDenom": pDenom, "pDebtLimit": pDebtLimit, "liquidationRatio": liquidationRatio, "marketID": marketID, "conversion_factor": conversion}
         }
     }
     return null
@@ -61,7 +62,7 @@ export const parseResError = (res) => {
 						console.log("Unkown Tendermint err. Code:", code)
 						break;
 				}
-			}				
+			}
 		}
 	}
 	return false
