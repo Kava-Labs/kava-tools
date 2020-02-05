@@ -14,7 +14,7 @@ export const postTxKava = (kava, chainID, address, ecpairPriv, msg) => {
 		});
 		
 		// Sign transaction
-		let modeType = "block"
+		let modeType = "sync"
 		let signedTx = kava.sign(stdSignMsg, ecpairPriv, modeType);
 
 		// Broadcast transaction
