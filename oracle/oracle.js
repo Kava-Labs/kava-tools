@@ -34,19 +34,17 @@ var routine = async() => {
         vs_currencies: ['usd'],
     });
     let account = await kava.getAccounts(address)
-    console.log(account.result.value)
     let account_number = account.result.value.account_number
     let sequence = account.result.value.sequence
     for(var i = 0; i < coinNames.length; i++) {
         let priceRaw = priceData.data[coinNames[i]].usd
         let price = Number.parseFloat(priceRaw).toFixed(18).toString()
         let msgPostPrice = newMsgPostPrice(address, marketIDs[i], price)
-        console.log('sending tx')
         postTxKava(kava, chainID, account_number, String(Number(sequence) + i),  ecpairPriv, msgPostPrice).then(
           async(tx_hash) =>  {
             await new Promise(resolve => setTimeout(resolve, 10000))
             getTxKava(lcdURL, "/txs/".concat(tx_hash), {}).then(data => {
-              console.log(`Tx Result: ${data.raw_log}\n`)
+              console.log(`Tx Result for ${tx_hash}: ${data.raw_log}\n`)
               })
           }
         )
