@@ -27,7 +27,6 @@ export const postTxKava = (kava, chainID, address, ecpairPriv, msg) => {
 }
 
 export const getTxKava = (url, path, params) => {
-	// TODO: Confirm that the request isn't being cached
 	const options = {
 		headers: {'pragma': 'no-cache'}
 	};
@@ -50,7 +49,7 @@ export const getTxKava = (url, path, params) => {
 
 	return axios.get(requestUrl, options)
 	.then(res => {
-		return { height: res.data.height, result: res.data.result}
+		return res.data
 	})
 	.catch(err => {
 		return err

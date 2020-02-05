@@ -26,43 +26,44 @@ const ecpairPriv = kava.getECPairPriv(mnemonic);
 var routine = async(lcdURL, address, cDenom) => {
 	getTxKava(lcdURL, "/cdp/parameters", {})
 	.then(modParams => {
-		let height = modParams["height"]
-		let resParams = modParams["result"]
-		if (resParams.collateral_params == undefined) {
+		let height = modParams.height
+		let modResult = modParams.result
+		if (modResult.collateral_params == undefined) {
 			console.log("Request for CDP module params unsuccessful:\n")
-			console.log(resParams)
+			console.log(modResult)
 			return console.log("\nExiting.")
 		}
-		let params = parseModuleParams(resParams.collateral_params, cDenom)
+		let params = parseModuleParams(modResult.collateral_params, cDenom)
 		getTxKava(lcdURL, "/cdp/cdps/cdp/".concat(address+"/"+cDenom), {"height": height})
 		.then(resCdp => {
 			if (resCdp == undefined) {
 				console.log("Error: Kava query response is undefined. Cannot proceed.")
 				return
 			}
-			res = resCdp["result"]
-			// Response contains a cdp
-			if(res.cdp != undefined) {
-				let cdp = parseCurrCDP(res)
-
-				console.log("CDP ID:", cdp.ID)
-				console.log("\tCollateral Value:", cdp.cValue)
-				console.log("\tCollateralization:", cdp.cRatio)
-				console.log()
-
-				cdpAction(cdp, params.pDebtLimit);
-				return
-			}
 			// Response doesn't contain a cdp
-			if(res.response != undefined) {
-				let create = parseResError(res)
+			if(resCdp.response != undefined) {
+				let create = parseResError(resCdp)
 				if(create == true) {
 					getTxKava(lcdURL, "/pricefeed/price/".concat(params.marketID), {"height": height})
 					.then(resPrice => {
-						let res = resPrice["result"]
+						let res = resPrice.result
 						let price = Number(res.price)
 						cdpCreate(cDenom, params, price);
 					})
+				}
+			}
+			if(resCdp.result != undefined) {
+				// Response contains a cdp
+				if(resCdp.result.cdp != undefined) {
+					let cdp = parseCurrCDP(resCdp.result)
+
+					console.log("CDP ID:", cdp.ID)
+					console.log("\tCollateral Value:", cdp.cValue)
+					console.log("\tCollateralization:", cdp.cRatio)
+					console.log()
+
+					cdpAction(cdp, params.pDebtLimit);
+					return
 				}
 			}
 		})
