@@ -1,0 +1,4 @@
+node_modules
+
+oracle/.env
+spammer/.env
