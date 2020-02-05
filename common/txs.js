@@ -1,28 +1,23 @@
 const axios = require('axios')
 
-export const postTxKava = (kava, chainID, address, ecpairPriv, msg) => {
-	// Generate transaction
-	kava.getAccounts(address).then(data => {
+export const postTxKava = (kava, chainID, account_number, sequence, ecpairPriv, msg) => {
+	return new Promise((resolve, reject) => {
 		let stdSignMsg = kava.newStdMsg({
 			msgs: [ msg ],
 			chain_id: chainID,
 			// TODO: See if we can remove fee
 			fee: { amount: [], gas: String(500000) },
 			memo: "",
-			account_number: String(data.result.value.account_number),
-			sequence: String(data.result.value.sequence)
+			account_number: account_number,
+			sequence: sequence
 		});
-		
 		// Sign transaction
 		let modeType = "sync"
 		let signedTx = kava.sign(stdSignMsg, ecpairPriv, modeType);
-
 		// Broadcast transaction
 		kava.broadcast(signedTx).then(response => {
-			console.log("\tTx hash:", response.txhash)
-			console.log("\tLogs:", response.raw_log)
-			console.log()
-		});
+			resolve(response.txhash)
+		})
 	})
 }
 
@@ -33,7 +28,7 @@ export const getTxKava = (url, path, params) => {
 
 	let requestUrl = url.concat(path)
 
-	// Write params to end of path 
+	// Write params to end of path
 	let paramKeys = Object.keys(params)
 	if(paramKeys.length > 0) {
 		requestUrl = requestUrl.concat("?")
