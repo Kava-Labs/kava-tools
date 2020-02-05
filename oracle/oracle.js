@@ -50,27 +50,6 @@ var routine = async() => {
         )
         await new Promise(resolve => setTimeout(resolve, 10000))
     }
-    // .then(data => {
-    //     let account_number = data.result.value.account_number
-    //     let sequence = data.result.value.sequence
-    //     for(var i = 0; i < coinNames.length; i++) {
-    //         let priceRaw = priceData.data[coinNames[i]].usd
-    //         let price = Number.parseFloat(priceRaw).toFixed(18).toString();
-    //         // Format msg as JSON
-    //         let msgPostPrice = newMsgPostPrice(address, marketIDs[i], price)
-    //         // Send to Kava blockchain
-    //         console.log(coinNames[i], ": posting price", priceRaw)
-    //         postTxKava(kava, chainID, account_number, String(Number(sequence) + i),  ecpairPriv, msgPostPrice)
-    //         .then(tx_hash => {
-    //             new Promise(resolve => setTimeout(resolve, 10000))
-    //             console.log(`Querying results of tx ${tx_hash}`)
-    //             getTxKava(lcdURL, "/txs/".concat(tx_hash), {}).then(data => {
-    //                 console.log(`Tx Result: ${data.raw_log}\n`)
-    //             })
-    //         })
-    //     }
-
-    // })
 };
 
 // Start cron job
