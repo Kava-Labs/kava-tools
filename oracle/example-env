@@ -1,11 +1,11 @@
 # Chain
-CHAIN_ID="testing"
+CHAIN_ID="kava-testnet-4000"
 # REST endpoint
 LCD_URL = "http://localhost:1317"
 # Cron tab for how frequently prices will be posted (ex: 10 minutes)
 CRONTAB = "*/10 * * * *"
 # bip39 mnenomic of oracle
-MNEMONIC = "equip town gesture square tomorrow volume nephew minute witness beef rich gadget actress egg sing secret pole winter alarm law today check violin uncover"
+MNEMONIC = "≈"
 
 # List of markets the oracle will post prices for. See `pricefeed` parameters for the list of active markets.
 MARKET_IDS = "xrp:usd,btc:usd"

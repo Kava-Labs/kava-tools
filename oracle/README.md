@@ -19,17 +19,17 @@ Install the oracle software:
 npm i
 ```
 
-Configure the `.env` file in `kava-tools/oracle`:
+Configure a `.env` file in `kava-tools/oracle`:
 
 ```
 # Chain id of the kava blockchain
-CHAIN_ID="testing"
+CHAIN_ID="kava-testnet-4000"
 # REST endpoint the oracle will use to post transactions
 LCD_URL = "http://localhost:1317"
 # Cron tab for how frequently prices will be posted (ex: 10 minutes)
 CRONTAB = "*/10 * * * *"
 # bip39 mnenomic of oracle
-MNEMONIC = "equip town gesture square tomorrow volume nephew minute witness beef rich gadget actress egg sing secret pole winter alarm law today check violin uncover"
+MNEMONIC = "secret words go here"
 
 # markets that the oracle will post prices for. See `pricefeed` parameters for the list of active markets.
 MARKET_IDS = "xrp:usd,btc:usd"
@@ -65,4 +65,4 @@ sudo journalctl -u oracle -f
 
 ## How it works
 
-At the specified frequency, the oracle client will query the coin gecko API for price information about that asset. It will post a transaction to the kava blockchain with that price, along with an expiry for how long that price is valid. At each block, the median price of all oracles is selected.
+At the specified frequency, the oracle client will query the CoinGecko API for price information about that asset. It will post a transaction to the kava blockchain with that price, along with an expiry time for how long that price is valid. At each block, the median price of all oracles is selected as the asset's current price.
