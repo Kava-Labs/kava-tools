@@ -3,7 +3,7 @@ const cosmosjs = require("@cosmostation/cosmosjs");
 const CoinGecko = require('coingecko-api');
 const cron = require('node-cron');
 
-import { postTxKava } from '../common/txs.js';
+import { postTxKava, getTxKava } from '../common/txs.js';
 import { newMsgPostPrice } from '../common/msg.js';
 import { loadCoinNames } from './utils.js';
 
@@ -33,19 +33,26 @@ var routine = async() => {
         ids: coinNames,
         vs_currencies: ['usd'],
     });
-
+    let account = await kava.getAccounts(address)
+    let account_number = account.result.value.account_number
+    let sequence = account.result.value.sequence
     for(var i = 0; i < coinNames.length; i++) {
         let priceRaw = priceData.data[coinNames[i]].usd
-        let price = Number.parseFloat(priceRaw).toFixed(18).toString();
-        // Format msg as JSON
+        let price = Number.parseFloat(priceRaw).toFixed(18).toString()
         let msgPostPrice = newMsgPostPrice(address, marketIDs[i], price)
-        // Send to Kava blockchain
-        console.log(coinNames[i], ": posting price", priceRaw)
-        postTxKava(kava, chainID, address, ecpairPriv, msgPostPrice)
+        postTxKava(kava, chainID, account_number, String(Number(sequence) + i),  ecpairPriv, msgPostPrice).then(
+          async(tx_hash) =>  {
+            await new Promise(resolve => setTimeout(resolve, 10000))
+            getTxKava(lcdURL, "/txs/".concat(tx_hash), {}).then(data => {
+              console.log(`Tx Result for ${tx_hash}: ${data.raw_log}\n`)
+              })
+          }
+        )
+        await new Promise(resolve => setTimeout(resolve, 10000))
     }
 };
 
 // Start cron job
-cron.schedule('* * * * *', () => {
+cron.schedule(process.env.CRONTAB, () => {
     routine()
 });
