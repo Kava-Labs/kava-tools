@@ -58,6 +58,10 @@ sudo systemctl enable oracle.service
 sudo systemctl start oracle.service
 ```
 
+To view the logs or the oracle process:
+```
+sudo journalctl -u oracle -f
+
 ## How it works
 
 At the specified frequency, the oracle client will query the coin gecko API for price information about that asset. It will post a transaction to the kava blockchain with that price, along with an expiry for how long that price is valid. At each block, the median price of all oracles is selected.
