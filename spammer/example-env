@@ -1,5 +1,5 @@
 # Chain
-CHAIN_ID="testing"
+CHAIN_ID="kava-testnet-4000"
 LCD_URL = "http://localhost:1317"
 MNEMONIC = "secret words go here"
 
