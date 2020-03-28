@@ -1,13 +1,16 @@
 {
   "dependencies": {
-    "@cosmostation/cosmosjs": "^0.5.2",
+    "@binance-chain/javascript-sdk": "github:binance-chain/javascript-sdk",
+    "@cosmostation/cosmosjs": "^0.5.4",
     "@lunie/cosmos-api": "^0.2.5",
     "@lunie/cosmos-keys": "^0.2.1",
     "axios": "^0.19.2",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-register": "^6.26.0",
+    "bech32": "^1.1.3",
     "coingecko-api": "^1.0.10",
+    "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
     "node-cron": "^2.0.3",
     "node-fetch": "^2.6.0",
