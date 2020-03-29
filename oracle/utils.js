@@ -5,6 +5,9 @@ export const loadCoinNames = (marketIDs) => {
             case "xrp":
                 coinNames.push("ripple")
                 break
+            case "bnb":
+                coinNames.push("binancecoin")
+                break
             case "btc":
                 coinNames.push("bitcoin")
                 break
