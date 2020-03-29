@@ -16,7 +16,7 @@ const cDenom = process.env.COLLATERAL_DENOM;
 // Initiate Kava blockchain
 const kava = cosmosjs.network(lcdURL, chainID);
 kava.setBech32MainPrefix("kava");
-kava.setPath("m/44'/118'/0'/0/0");
+kava.setPath("m/44'/459'/0'/0/0");
 
 // // Load account credentials
 const address = kava.getAddress(mnemonic);
@@ -98,12 +98,12 @@ var cdpAction = async(cdp, debtLimit) => {
 			// Withdraw collateral
 			console.log("\tAttempting to withdraw ".concat(cAmount + cDenom.concat("...")))
 			let msgWithdraw = newMsgWithdraw(address, address, cDenom, cAmount)
-			postTxKava(kava, chainID, address, ecpairPriv, msgWithdraw)  
+			postTxKava(kava, chainID, address, ecpairPriv, msgWithdraw)
 		} else {
 			// Draw principal
 			console.log("\tAttempting to draw ".concat(pAmount + pDenom.concat("...")))
 			let msgDraw = newMsgDrawDebt(address, cDenom, pDenom, pAmount)
-			postTxKava(kava, chainID, address, ecpairPriv, msgDraw) 
+			postTxKava(kava, chainID, address, ecpairPriv, msgDraw)
 		}
 	} else {
 	// If collateralization ratio is below 220%
@@ -111,12 +111,12 @@ var cdpAction = async(cdp, debtLimit) => {
 			// Deposit collateral
 			console.log("\tAttempting to deposit ".concat(cAmount + cDenom.concat("...")))
 			let msgDeposit = newMsgDeposit(address, address, cDenom, cAmount)
-			postTxKava(kava, chainID, address, ecpairPriv, msgDeposit)  
+			postTxKava(kava, chainID, address, ecpairPriv, msgDeposit)
 		} else {
 			// Repay principal
 			console.log("\tAttempting to repay ".concat(pAmount + pDenom.concat("...")))
 			let msgRepay = newMsgRepayDebt(address, cDenom, pDenom, pAmount)
-			postTxKava(kava, chainID, address, ecpairPriv, msgRepay) 
+			postTxKava(kava, chainID, address, ecpairPriv, msgRepay)
 		}
 	}
 }

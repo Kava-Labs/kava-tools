@@ -19,7 +19,7 @@ const coinNames = loadCoinNames(marketIDs)
 // Initiate Kava blockchain
 const kava = cosmosjs.network(lcdURL, chainID);
 kava.setBech32MainPrefix("kava");
-kava.setPath("m/44'/118'/0'/0/0");
+kava.setPath("m/44'/459'/0'/0/0");
 
 // Load account credentials
 const address = kava.getAddress(mnemonic);
