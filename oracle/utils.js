@@ -1,4 +1,4 @@
-export const loadCoinNames = (marketIDs) => {
+const loadCoinNames = (marketIDs) => {
     let coinNames = []
     for(var i = 0; i < marketIDs.length; i++) {
         switch(marketIDs[i].split(":")[0]) {
@@ -21,3 +21,5 @@ export const loadCoinNames = (marketIDs) => {
     }
     return coinNames
 }
+
+exports.loadCoinNames = loadCoinNames

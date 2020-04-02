@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@cosmostation/cosmosjs": "^0.5.2",
+    "@kava-labs/javascript-sdk": "^1.0.1",
     "@lunie/cosmos-api": "^0.2.5",
     "@lunie/cosmos-keys": "^0.2.1",
     "axios": "^0.19.2",

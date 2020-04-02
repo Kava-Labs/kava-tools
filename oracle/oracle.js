@@ -1,58 +1,59 @@
 require('dotenv').config()
-const cosmosjs = require("@cosmostation/cosmosjs");
+const kava = require('@kava-labs/javascript-sdk');
 const CoinGecko = require('coingecko-api');
 const cron = require('node-cron');
 
-import { postTxKava, getTxKava } from '../common/txs.js';
-import { newMsgPostPrice } from '../common/msg.js';
-import { loadCoinNames } from './utils.js';
+const coinUtils = require('./utils.js');
 
-// Load chain details, credentials
-const mnemonic = process.env.MNEMONIC
-const lcdURL = process.env.LCD_URL
-const chainID = process.env.CHAIN_ID;
 
-// Load params
-const marketIDs = process.env.MARKET_IDS.split(",");
-const coinNames = loadCoinNames(marketIDs)
+var main = async () => {
+    // Load chain details, credentials
+    const mnemonic = process.env.MNEMONIC
+    const lcdURL = process.env.LCD_URL
+    const chainID = process.env.CHAIN_ID;
 
-// Initiate Kava blockchain
-const kava = cosmosjs.network(lcdURL, chainID);
-kava.setBech32MainPrefix("kava");
-kava.setPath("m/44'/459'/0'/0/0");
+    // Load params
+    const marketIDs = process.env.MARKET_IDS.split(",");
+    const coinNames = coinUtils.loadCoinNames(marketIDs)
 
-// Load account credentials
-const address = kava.getAddress(mnemonic);
-const ecpairPriv = kava.getECPairPriv(mnemonic);
+    // Initiate Kava blockchain
+    client = new kava.KavaClient.KavaClient(lcdURL);
+    client.setWallet(mnemonic);
+    try {
+        await client.initChain();
+    } catch (e) {
+        console.log("cannot connect to lcd server")
+        return
+    }
 
-// Initiate the CoinGecko API Client
-const CoinGeckoClient = new CoinGecko();
-
-var routine = async() => {
-    const priceData = await CoinGeckoClient.simple.price({
-        ids: coinNames,
-        vs_currencies: ['usd'],
-    });
-    let account = await kava.getAccounts(address)
-    let account_number = account.result.value.account_number
-    let sequence = account.result.value.sequence
+    // Initiate the CoinGecko API Client
+    const CoinGeckoClient = new CoinGecko();
+    let priceData = {}
+    try {
+        priceFetch = await CoinGeckoClient.simple.price({
+            ids: coinNames,
+            vs_currencies: ['usd'],
+        });
+        priceData = priceFetch
+    } catch (e) {
+        console.log("cannot fetch price from coin-gecko")
+        return
+    }
+    var accountData = await kava.tx.tx.loadMetaData(client.wallet.address, client.baseURI)
     for(var i = 0; i < coinNames.length; i++) {
         let priceRaw = priceData.data[coinNames[i]].usd
         let price = Number.parseFloat(priceRaw).toFixed(18).toString()
-        let msgPostPrice = newMsgPostPrice(address, marketIDs[i], price)
-        postTxKava(kava, chainID, account_number, String(Number(sequence) + i),  ecpairPriv, msgPostPrice).then(
-          async(tx_hash) =>  {
-            await new Promise(resolve => setTimeout(resolve, 10000))
-            getTxKava(lcdURL, "/txs/".concat(tx_hash), {}).then(data => {
-              console.log(`Tx Result for ${tx_hash}: ${data.raw_log}\n`)
-              })
-          }
-        )
-        await new Promise(resolve => setTimeout(resolve, 10000))
+        let expiryDate = new Date();
+        expiryDate = new Date(expiryDate.getTime() + 6000 * 1000);
+        // Remove ms from ISO format
+        let expiry = expiryDate.toISOString().split('.')[0]+"Z";
+        let sequence = String(Number(accountData.sequence) + i)
+        txHash = await client.postPrice(marketIDs[i], price, expiry, sequence)
+        console.log(txHash)
     }
 };
 
 // Start cron job
 cron.schedule(process.env.CRONTAB, () => {
-    routine()
+    main()
 });
