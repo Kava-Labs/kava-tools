@@ -17,7 +17,7 @@ var main = async () => {
     const coinNames = coinUtils.loadCoinNames(marketIDs)
 
     // Initiate Kava blockchain
-    client = new kava.KavaClient.KavaClient(lcdURL);
+    client = new kava.KavaClient(lcdURL);
     client.setWallet(mnemonic);
     try {
         await client.initChain();
@@ -36,10 +36,11 @@ var main = async () => {
         });
         priceData = priceFetch
     } catch (e) {
+        console.log(e)
         console.log("cannot fetch price from coin-gecko")
         return
     }
-    var accountData = await kava.tx.tx.loadMetaData(client.wallet.address, client.baseURI)
+    var accountData = await kava.tx.loadMetaData(client.wallet.address, client.baseURI)
     for(var i = 0; i < coinNames.length; i++) {
         let priceRaw = priceData.data[coinNames[i]].usd
         let price = Number.parseFloat(priceRaw).toFixed(18).toString()
