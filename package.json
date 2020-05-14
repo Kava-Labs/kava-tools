@@ -1,9 +1,10 @@
 {
   "dependencies": {
     "@cosmostation/cosmosjs": "^0.5.2",
-    "@kava-labs/javascript-sdk": "^1.0.2",
+    "@kava-labs/javascript-sdk": "file:../javascript-sdk",
     "@lunie/cosmos-api": "^0.2.5",
     "@lunie/cosmos-keys": "^0.2.1",
+    "@tendermint/sig": "^0.4.1",
     "axios": "^0.19.2",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",

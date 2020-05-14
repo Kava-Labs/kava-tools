@@ -1,25 +1,58 @@
-const loadCoinNames = (marketIDs) => {
-    let coinNames = []
-    for(var i = 0; i < marketIDs.length; i++) {
-        switch(marketIDs[i].split(":")[0]) {
-            case "xrp":
-                coinNames.push("ripple")
-                break
-            case "bnb":
-                coinNames.push("binancecoin")
-                break
-            case "btc":
-                coinNames.push("bitcoin")
-                break
-            case "atom":
-                coinNames.push("cosmos")
-                break
-            case "kava":
-                coinNames.push("kava")
-                break
-        }
-    }
-    return coinNames
+const loadCoinGeckoMarket = (marketID) => {
+  switch (marketID.split(':')[0]) {
+    case 'xrp':
+      return 'ripple';
+    case 'bnb':
+      return 'binancecoin';
+    case 'btc':
+      return 'bitcoin';
+    case 'atom':
+      return 'cosmos';
+    case 'kava':
+      return 'kava';
+    default:
+      throw `invalid market id ${marketID}`
+  }
+};
+
+const loadBinanceMarket = (marketID) => {
+  switch (marketID.split(':')[0]) {
+    case 'bnb':
+      return 'BNBUSDT';
+    case 'xrp':
+      return 'XRPUSDT';
+    case 'btc':
+      return 'BTCUSDT';
+    case 'kava':
+      return 'KAVAUSDT';
+    case 'atom':
+      return 'ATOMUSDT';
+    default:
+      throw `invalid market id ${marketID}`
+  }
+};
+
+
+const getPercentChange = (p1, p2) => {
+  return Math.abs(p1-p2) / p1
 }
 
-exports.loadCoinNames = loadCoinNames
+const getPreviousPrice = (address, prices) => {
+  var found = false
+  var index = 0
+  for (var i=0; i < prices.length; i++) {
+    if (prices[i].oracle_address == address) {
+      found = true
+      index = i
+      break
+    }
+  }
+  if (found) {
+    return prices[index].price
+  }
+}
+
+exports.getPercentChange = getPercentChange
+exports.loadCoinGeckoMarket = loadCoinGeckoMarket;
+exports.loadBinanceMarket = loadBinanceMarket
+exports.getPreviousPrice = getPreviousPrice
