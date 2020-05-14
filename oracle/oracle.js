@@ -62,6 +62,6 @@ var main = async () => {
 
 
 // Start cron job
-// cron.schedule(process.env.CRONTAB, () => {
+cron.schedule(process.env.CRONTAB, () => {
 main()
-// });
+});
