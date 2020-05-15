@@ -48,11 +48,18 @@ const getPreviousPrice = (address, prices) => {
     }
   }
   if (found) {
-    return prices[index].price
+    return prices[index]
   }
+}
+
+var checkPriceExpiring = (price) => {
+  let d1 = Math.floor((new Date(price.expiry)).getTime() / 1000)
+  let d2 = Math.floor(new Date().getTime() / 1000)
+  return (d1 - d2 < Number.parseInt(process.env.EXPIRY_THRESHOLD))
 }
 
 exports.getPercentChange = getPercentChange
 exports.loadCoinGeckoMarket = loadCoinGeckoMarket;
 exports.loadBinanceMarket = loadBinanceMarket
 exports.getPreviousPrice = getPreviousPrice
+exports.checkPriceExpiring = checkPriceExpiring

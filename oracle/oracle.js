@@ -1,16 +1,14 @@
 require('dotenv').config()
 const kava = require('@kava-labs/javascript-sdk');
-const prices = require(`./prices.js`)
-const utils = require('./utils.js')
+const prices = require(`./prices`)
+const utils = require('./utils')
 const cron = require('node-cron');
-
 
 var main = async () => {
     // Load chain details, credentials
     const mnemonic = process.env.MNEMONIC
     const lcdURL = process.env.LCD_URL
     const marketIDs = process.env.MARKET_IDS.split(",");
-
 
     // Initiate Kava blockchain
     client = new kava.KavaClient(lcdURL);
@@ -36,21 +34,24 @@ var main = async () => {
             }
         }
         try {
-           var previousPrices = await client.getRawPrices(marketIDs[i])
-           var previousPrice = utils.getPreviousPrice(client.wallet.address, previousPrices)
+           let previousPrices = await client.getRawPrices(marketIDs[i])
+           let previousPrice = utils.getPreviousPrice(client.wallet.address, previousPrices)
            if (typeof previousPrice !== 'undefined') {
-               var percentChange = utils.getPercentChange(Number.parseFloat(previousPrice), Number.parseFloat(retreivedPrice))
-               if (percentChange < Number.parseFloat(process.env.DEVIATION)) {
-                console.log(`previous price of ${previousPrice} and current price of ${retreivedPrice} for ${marketIDs[i]} below threshold for posting`)
-                   continue
+               if (!utils.checkPriceExpiring(previousPrice)) {
+                let percentChange = utils.getPercentChange(Number.parseFloat(previousPrice.price), Number.parseFloat(retreivedPrice))
+                if (percentChange < Number.parseFloat(process.env.DEVIATION)) {
+                 console.log(`previous price of ${previousPrice.price} and current price of ${retreivedPrice} for ${marketIDs[i]} below threshold for posting`)
+                    continue
+                }
                }
            }
            let postPrice = Number.parseFloat(retreivedPrice).toFixed(18).toString()
            let expiryDate = new Date();
-           expiryDate = new Date(expiryDate.getTime() + 6000 * 1000);
+           expiryDate = new Date(expiryDate.getTime() + Number.parseInt(process.env.EXPIRY)  * 1000);
            // Remove ms from ISO format
            let expiry = expiryDate.toISOString().split('.')[0]+"Z";
            let sequence = String(Number(accountData.sequence) + i)
+           console.log(`posting price ${postPrice} for ${marketIDs[i]}`)
            txHash = await client.postPrice(marketIDs[i], postPrice, expiry, sequence)
            console.log(txHash)
         } catch (e) {
