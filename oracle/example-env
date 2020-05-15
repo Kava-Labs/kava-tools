@@ -19,6 +19,6 @@ DEVIATION="0.005"
 # how long (in seconds) each price will remain valid - this value should be equal to the amount of time it takes for you to respond to a server outage (example 4 hours )
 EXPIRY="14400"
 
-# how long (in seconds) before the oracle will consider a price expiring and post a new price, regardless of the value of deviation. #
+# how long (in seconds) before the oracle will consider a price expiring and post a new price, regardless of the value of deviation.
 # for example, if this is set to 600, the oracle will post a price any time the current posted price is expiring in less than 600 seconds.
 EXPIRY_THRESHOLD="300"
