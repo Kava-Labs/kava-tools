@@ -1,5 +1,5 @@
 const CoinGecko = require('coingecko-api');
-const coinUtils = require('./utils.js');
+const coinUtils = require('./utils.js').utils;
 const axios = require('axios')
 
 const BINANCE_API_TICKER = 'https://api.binance.com/api/v3/ticker/24hr?symbol='
@@ -15,7 +15,7 @@ var getCoinGeckoPrice = async (marketID) => {
   }
   try {
     var priceFetch = await CoinGeckoClient.simple.price({
-      ids: market, // [market]?
+      ids: market,
       vs_currencies: ['usd'],
     });
   } catch (e) {
@@ -43,5 +43,7 @@ var getBinancePrice = async (marketID) => {
   return priceFetch.data.lastPrice
 }
 
-exports.getBinancePrice = getBinancePrice;
-exports.getCoinGeckoPrice = getCoinGeckoPrice
+module.exports.prices = {
+  getBinancePrice,
+  getCoinGeckoPrice,
+}
