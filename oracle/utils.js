@@ -32,19 +32,20 @@ const loadBinanceMarket = (marketID) => {
   }
 };
 
-
 const getPercentChange = (p1, p2) => {
   return Math.abs(p1-p2) / p1
 }
 
-const getPreviousPrice = (address, prices) => {
+const getPreviousPrice = (prices, marketID, address) => {
   var found = false
   var index = 0
   for (var i=0; i < prices.length; i++) {
-    if (prices[i].oracle_address == address) {
-      found = true
-      index = i
-      break
+    if (prices[i].market_id == marketID) {
+      if (prices[i].oracle_address == address) {
+        found = true
+        index = i
+        break
+      }
     }
   }
   if (found) {
@@ -52,14 +53,10 @@ const getPreviousPrice = (address, prices) => {
   }
 }
 
-var checkPriceExpiring = (price) => {
-  let d1 = Math.floor((new Date(price.expiry)).getTime() / 1000)
-  let d2 = Math.floor(new Date().getTime() / 1000)
-  return (d1 - d2 < Number.parseInt(process.env.EXPIRY_THRESHOLD))
-}
 
-exports.getPercentChange = getPercentChange
-exports.loadCoinGeckoMarket = loadCoinGeckoMarket;
-exports.loadBinanceMarket = loadBinanceMarket
-exports.getPreviousPrice = getPreviousPrice
-exports.checkPriceExpiring = checkPriceExpiring
+module.exports.utils = {
+  getPercentChange,
+  loadCoinGeckoMarket,
+  loadBinanceMarket,
+  getPreviousPrice
+};
