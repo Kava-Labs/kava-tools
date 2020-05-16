@@ -201,7 +201,7 @@ class PriceOracle {
         let d2 = Math.floor(new Date().getTime() / 1000)
         return (d1 - d2 < Number.parseInt(this.expiryThreshold))
     }
-}  
+}
 
 var main = async () => {
     // Load environment variables
@@ -215,7 +215,7 @@ var main = async () => {
     // Initiate price oracle
     oracle = new PriceOracle(marketIDs, expiry, expiryThreshold, deviation);
     await oracle.initClient(lcdURL, mnemonic);
-      
+
     // Start cron job
     cron.schedule(process.env.CRONTAB, () => {
         oracle.postPrices()
@@ -223,3 +223,6 @@ var main = async () => {
 }
 
 main();
+
+
+module.exports.PriceOracle = PriceOracle

@@ -1,4 +1,18 @@
 {
+  "name": "@kava-labs/kava-tools",
+  "description": "Tools for interacting with the Kava blockchain",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "author": "Kava Labs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kava-Labs/kava-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Kava-Labs/kava-tools/issues"
+  },
+  "homepage": "https://github.com/Kava-Labs/kava-tools#readme",
   "dependencies": {
     "@kava-labs/javascript-sdk": "^2.0.0-beta.0",
     "axios": "^0.19.2",
