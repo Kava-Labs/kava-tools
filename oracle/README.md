@@ -1,15 +1,15 @@
 # Oracle
 
-Client software for running an oracle on the kava blockchain. Currently tested against kava-testnet-4000.
+Client software for running an oracle on the kava blockchain. Currently tested against kava-testnet-6000.
 
 ## Requirements
 
-* NodeJS - tested against version 8.10.0+
+* NodeJS - tested against version 10.x+
 * npm
 
 ## Setup
 
-Choose a key that you will use for the oracle. Make sure you have saved the mnemonic for that key and that the key has enough funds to pay transaction fees. Use riot or telegram to communicate with a team member to get your key included in a governance proposal to become an oracle.
+Choose a key that you will use for the oracle. Make sure you have saved the mnemonic for that key and that the key has enough funds to pay transaction fees. Use discord to communicate with a team member to get your key included in a governance proposal to become an oracle.
 
 Setup a kava blockchain node with a REST endpoint. See [here](https://medium.com/kava-labs/kava-rest-server-guide-a13bdecfc5e4) for instructions.
 
@@ -22,20 +22,33 @@ npm i
 Configure a `.env` file in `kava-tools/oracle`:
 
 ```
-# Chain id of the kava blockchain
-CHAIN_ID="kava-testnet-4000"
-# REST endpoint the oracle will use to post transactions
-LCD_URL = "http://localhost:1317"
-# Cron tab for how frequently prices will be posted (ex: 10 minutes)
-CRONTAB = "*/10 * * * *"
-# bip39 mnenomic of oracle
-MNEMONIC = "secret words go here"
+# the chain-id
+CHAIN_ID="example-chain"
 
-# markets that the oracle will post prices for. See `pricefeed` parameters for the list of active markets.
-MARKET_IDS = "xrp:usd,btc:usd"
+# REST endpoint
+LCD_URL="http://localhost:1317"
+
+# Cron tab for how frequently prices will be posted (ex: 1 minute)
+CRONTAB="* * * * *"
+
+# bip39 mnemonic of oracle
+MNEMONIC="secret words go here"
+
+# List of markets the oracle will post prices for. See pricefeed parameters for the list of active markets. \\TODO add "all" method for next version
+MARKET_IDS="bnb:usd"
+
+# percentage deviation from previous price needed to trigger a new price - (example 0.5%)
+DEVIATION="0.005"
+
+# how long (in seconds) each price will remain valid - this value should be equal to the amount of time it takes for you to respond to a server outage (example 4 hours )
+EXPIRY="14400"
+
+# how long (in seconds) before the oracle will consider a price expiring and post a new price, regardless of the value of deviation.
+# for example, if this is set to 600, the oracle will post a price any time the current posted price is expiring in less than 600 seconds.
+EXPIRY_THRESHOLD="300"
 ```
 
-Setup a `systemd` file to run the oracle process. An example with user `ubuntu` is as follows:
+Setup a `systemd` file to run the oracle process. An example with user `ubuntu` is as follows (note that the `nodejs` process is at `/usr/bin/nodejs`, this may be different depending on how you install node ):
 
 ```
 [Service]
@@ -65,4 +78,4 @@ sudo journalctl -u oracle -f
 
 ## How it works
 
-At the specified frequency, the oracle client will query the CoinGecko API for price information about that asset. It will post a transaction to the kava blockchain with that price, along with an expiry time for how long that price is valid. At each block, the median price of all oracles is selected as the asset's current price.
+At the specified crontab frequency, the oracle client will query the Binance v3 API for price information about that asset. If Binance is down, it will fallback to CoinGecko. If the price meets the threshold for posting (default is 0.5% change from the previous posted price), is will submit a `postprice` transaction to the blockchain along with a time when that price should be considered expired. At the end of each block, the median price of all oracles is selected as the asset's current price.
