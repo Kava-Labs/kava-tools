@@ -19,11 +19,14 @@ Install the oracle software:
 npm i
 ```
 
-Configure a `.env` file in `kava-tools/oracle`:
+
+## Standalone Server Setup
+
+Configure a `.env` file in `kava-tools/oracle/scripts` (see [example](example-env)) :
 
 ```
 # the chain-id
-CHAIN_ID="example-chain"
+CHAIN_ID="kava-testnet-6000"
 
 # REST endpoint
 LCD_URL="http://localhost:1317"
@@ -54,8 +57,8 @@ Setup a `systemd` file to run the oracle process. An example with user `ubuntu` 
 [Service]
 User=ubuntu
 Group=ubuntu
-WorkingDirectory=/home/ubuntu/kava-tools/oracle
-ExecStart=/usr/bin/nodejs start.js
+WorkingDirectory=/home/ubuntu/kava-tools/scripts
+ExecStart=/usr/bin/nodejs oracle.js
 Restart=on-failure
 RestartSec=3
 LimitNOFILE=4096
@@ -75,6 +78,10 @@ To view the logs or the oracle process:
 ```
 sudo journalctl -u oracle -f
 ```
+
+## Chainlink Node Setup
+
+To run the oracle from a Chainlink node, you need to configure an external adapter for interacting with kava. Instructions can be found at [chainlink-adapter-kava](https://github.com/Kava-Labs/external-adapters-js/tree/master/kava)
 
 ## How it works
 

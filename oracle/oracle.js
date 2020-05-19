@@ -2,7 +2,6 @@ require('dotenv').config()
 const kava = require('@kava-labs/javascript-sdk');
 const prices = require(`./prices`).prices
 const utils = require('./utils').utils
-const cron = require('node-cron');
 
 /**
  * Price oracle class for posting prices to Kava.
