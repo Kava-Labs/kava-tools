@@ -22,7 +22,7 @@ npm i
 
 ## Standalone Server Setup
 
-Configure a `.env` file in `kava-tools/oracle/scripts` (see [example](example-env)) :
+Configure a `.env` file in `kava-tools/scripts` (see [example](example-env)) :
 
 ```
 # the chain-id
