@@ -1,14 +1,4 @@
-const {
-  lcd_url,
-  mnemonic,
-  auction_types,
-  ignored_addresses,
-  collaterals,
-  forward_bid_max,
-  forward_bid_margin,
-  reverse_bid_margin,
-  crontab,
-} = require('./config');
+require('log-timestamp');
 const kava = require('@kava-labs/javascript-sdk');
 const cron = require('node-cron');
 const prices = require('./prices');
