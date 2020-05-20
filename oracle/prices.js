@@ -1,3 +1,4 @@
+require('log-timestamp');
 const CoinGecko = require('coingecko-api');
 const coinUtils = require('./utils.js').utils;
 const axios = require('axios')
