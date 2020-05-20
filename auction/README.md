@@ -53,13 +53,13 @@ Currently, this bot can be configured to participate in collateral auctions. Col
 }
 ```
 
-In this example auction, a lot of 10 bnb is being sold for a maximum bid of 94.5$ usdx.
+In this example auction, a lot of 10 BNB is being sold for a maximum bid of 94.5$ USDX.
 
-Collateral auctions have two phases, forward and reverse. In the forward phase, bidders bid increasing amounts of usdx in exchange for the entire `lot`. Once the max bid is reached, the auction switches to the reverse phase. In the reverse phase, bidders bid decreasing lots of collateral (bnb in the example) they are willing to receive in exchange for `max_bid`. In the example, the max_bid is 94.5$ USDX for 10 bnb. At a current price of ~$16/bnb, the `max_bid` represents a considerable profit opportunity. Thus, a more competitive auction would expect to have `max_bid` reached and the final lot to be closer to 6bnb, with the 4 remaining bnb returned to the original CDP holder.
+Collateral auctions have two phases, forward and reverse. In the forward phase, bidders bid increasing amounts of USDX in exchange for the entire `lot`. Once the max bid is reached, the auction switches to the reverse phase. In the reverse phase, bidders bid decreasing lots of collateral (BNB in the example) they are willing to receive in exchange for `max_bid`. In the example, the max_bid is 94.5$ USDX for 10 BNB. At a current price of ~$16/BNB, the `max_bid` represents a considerable profit opportunity. Thus, a more competitive auction would expect to have `max_bid` reached and the final lot to be closer to 6 BNB, with the 4 remaining BNB returned to the original CDP holder.
 
 ## Standalone Server Setup
 
-To run an auction bot, you need to acquire some usdx that will be used for bidding and load that usdx onto an account that your server has access to the mnemonic of. Practice extreme care in securing your server.
+To run an auction bot, you need to acquire some USDX that will be used for bidding and load that USDX onto an account that your server has access to the mnemonic of. Practice extreme care in securing your server.
 
 Configure a `.env` file in `kava-tools/scripts` (see [example](example-env)) :
 This file configures what kind of collateral auctions the bot will bid on and what profit margins the bot will attempt to make.
