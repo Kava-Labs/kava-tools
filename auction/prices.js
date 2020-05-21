@@ -48,7 +48,7 @@ var getCoinGeckoPrice = async (denom) => {
   }
   try {
     var priceFetch = await CoinGeckoClient.simple.price({
-      ids: market, // [market]?
+      ids: market,
       vs_currencies: ['usd'],
     });
   } catch (e) {

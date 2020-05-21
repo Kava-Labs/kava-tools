@@ -86,6 +86,9 @@ IGNORED_ADDRESSES="kava1aphsdnz5hu2t5ty2au6znprug5kx3zpy6zwq29"
 # comma-separated list of collateral types that the auction bot will participate in
 COLLATERALS="bnb"
 
+# Percentage of the max bid that the bot will bid as it's initial (or minimum) bid - margin will still be checked before bid
+INITIAL_BID_FORWARD="0.95"
+
 # Percentage of the max bid that the bot will bid
 # NOTE: collateral auctions have a forward and reverse phase. Bidding 'max_bid' will trigger the auction to enter reverse phase. Bidding the max_bid is generally a significant discount to the underlying collateral value. For example, if $150 of collateral was backing $100 in debt, max_bid would be ~$100. If the value of the collateral has decreased by 10% due to market volatility, bidding max_bid and winning would have an expected value of $135. Theoretically, lower values of this parameter should result in winning fewer auctions. If this is set below one, the bot will never make bids on collateral auctions in the reverse phase
 FORWARD_BID_MAX="1"
