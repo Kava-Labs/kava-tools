@@ -217,8 +217,8 @@ class AuctionBot {
           Math.ceil(currentBid + currentBid * increment),
           1
         );
-        const initialBid = Math.ceil(maxBid * this.initialBidForward)
-        const nextBid = Math.max(newMinBid, initialBid)
+        const initialBid = Math.ceil(maxBid * this.initialBidForward);
+        const nextBid = Math.max(newMinBid, initialBid);
         return [Math.min(maxBid, nextBid), currentLot];
       case 'reverse':
         return [maxBid, Math.floor(currentLot - currentLot * increment)];
@@ -341,62 +341,67 @@ class AuctionBot {
       }
       switch (auction.type) {
         case 'collateral':
-          if (
-            !this.checkCollateralAuctionDenom(
-              auction.auction.value.base_auction.lot.denom
-            )
-          ) {
-            console.debug(
-              `auction ID ${id}: no bid: bot does not bid on ${auction.auction.value.base_auction.lot.denom} auctions`
-            );
-            return;
+          const placedBid = this.checkPlaceBidCollateral(auction, i);
+          if (placedBid) {
+            i++;
           }
-          const bidIncrement = await this.getMinBidIncrement(auction.type);
-          const [nextBid, nextLot] = this.calculateNextBidAndLot(
-            auction,
-            bidIncrement
-          );
-          if (!(await this.checkSufficientFunds(auction, nextBid))) {
-            console.debug(`auction ID ${id}: no bid: insufficient funds`);
-            return;
-          }
-          if (!(await this.checkBidMargin(auction, nextBid, nextLot))) {
-            console.debug(
-              `auction ID ${id}: no bid: insufficient profit margin`
-            );
-            return;
-          }
-          const sequence = String(Number(accountData.sequence) + i);
-          var coins = kava.utils.formatCoin(
-            String(nextBid),
-            auction.auction.value.base_auction.bid.denom
-          );
-          if (auction.phase === 'reverse') {
-            coins = kava.utils.formatCoin(
-              String(nextLot),
-              auction.auction.value.base_auction.lot.denom
-            );
-          }
-          console.log(`
-          proposed bid:
-          auction id: ${auction.auction.value.base_auction.id}
-          coins: ${JSON.stringify(coins)}
-          sequence: ${sequence}
-          `);
-          const txHash = await this.client.placeBid(
-            auction.auction.value.base_auction.id,
-            coins,
-            sequence
-          );
-          console.log(`transaction hash: ${txHash}`);
-
-          i++;
           return;
         default:
           // TODO debt, surplus
           return;
       }
     });
+  }
+
+  async checkPlaceBidCollateral(auction, sequenceCounter) {
+    const id = auction.auction.value.base_auction.id;
+    if (
+      !this.checkCollateralAuctionDenom(
+        auction.auction.value.base_auction.lot.denom
+      )
+    ) {
+      console.debug(
+        `auction ID ${id}: no bid: bot does not bid on ${auction.auction.value.base_auction.lot.denom} auctions`
+      );
+      return false;
+    }
+    const bidIncrement = await this.getMinBidIncrement(auction.type);
+    const [nextBid, nextLot] = this.calculateNextBidAndLot(
+      auction,
+      bidIncrement
+    );
+    if (!(await this.checkSufficientFunds(auction, nextBid))) {
+      console.debug(`auction ID ${id}: no bid: insufficient funds`);
+      return false;
+    }
+    if (!(await this.checkBidMargin(auction, nextBid, nextLot))) {
+      console.debug(`auction ID ${id}: no bid: insufficient profit margin`);
+      return false;
+    }
+    const sequence = String(Number(accountData.sequence) + sequenceCounter);
+    var coins = kava.utils.formatCoin(
+      String(nextBid),
+      auction.auction.value.base_auction.bid.denom
+    );
+    if (auction.phase === 'reverse') {
+      coins = kava.utils.formatCoin(
+        String(nextLot),
+        auction.auction.value.base_auction.lot.denom
+      );
+    }
+    console.log(`
+    proposed bid:
+    auction id: ${auction.auction.value.base_auction.id}
+    coins: ${JSON.stringify(coins)}
+    sequence: ${sequence}
+    `);
+    const txHash = await this.client.placeBid(
+      auction.auction.value.base_auction.id,
+      coins,
+      sequence
+    );
+    console.log(`transaction hash: ${txHash}`);
+    return true
   }
 
   async run() {
