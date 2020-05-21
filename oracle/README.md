@@ -74,7 +74,7 @@ sudo systemctl enable oracle.service
 sudo systemctl start oracle.service
 ```
 
-To view the logs or the oracle process:
+To view the logs of the oracle process:
 ```
 sudo journalctl -u oracle -f
 ```

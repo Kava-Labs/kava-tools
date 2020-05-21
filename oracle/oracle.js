@@ -193,7 +193,7 @@ class PriceOracle {
     }
 
   /**
-   * Checks if a price against the expiration threshold
+   * Checks if the current oracle price is expiring before the threshold
    * @param {String} price the price to validate
    */
     checkPriceExpiring(price) {
