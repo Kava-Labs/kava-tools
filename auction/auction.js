@@ -341,7 +341,7 @@ class AuctionBot {
       }
       switch (auction.type) {
         case 'collateral':
-          const placedBid = this.checkPlaceBidCollateral(auction, i);
+          const placedBid = await this.checkPlaceBidCollateral(auction, accountData, i);
           if (placedBid) {
             i++;
           }
@@ -353,7 +353,7 @@ class AuctionBot {
     });
   }
 
-  async checkPlaceBidCollateral(auction, sequenceCounter) {
+  async checkPlaceBidCollateral(auction, accountData, sequenceCounter) {
     const id = auction.auction.value.base_auction.id;
     if (
       !this.checkCollateralAuctionDenom(
