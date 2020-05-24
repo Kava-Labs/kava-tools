@@ -101,6 +101,7 @@ class AuctionBot {
     // Initiate and set Kava client
     this.client = new kava.KavaClient(this.lcdURL);
     this.client.setWallet(this.mnemonic);
+    this.client.setBroadcastMode('async');
     try {
       await this.client.initChain();
     } catch (e) {
@@ -341,7 +342,11 @@ class AuctionBot {
       }
       switch (auction.type) {
         case 'collateral':
-          const placedBid = await this.checkPlaceBidCollateral(auction, accountData, i);
+          const placedBid = await this.checkPlaceBidCollateral(
+            auction,
+            accountData,
+            i
+          );
           if (placedBid) {
             i++;
           }
@@ -379,7 +384,7 @@ class AuctionBot {
       return false;
     }
     const sequence = String(Number(accountData.sequence) + sequenceCounter);
-    var coins = kava.utils.formatCoin(
+    let coins = kava.utils.formatCoin(
       String(nextBid),
       auction.auction.value.base_auction.bid.denom
     );
@@ -395,13 +400,25 @@ class AuctionBot {
     coins: ${JSON.stringify(coins)}
     sequence: ${sequence}
     `);
-    const txHash = await this.client.placeBid(
-      auction.auction.value.base_auction.id,
-      coins,
-      sequence
-    );
-    console.log(`transaction hash: ${txHash}`);
-    return true
+    let txHash;
+    try {
+      txHash = await this.client.placeBid(
+        auction.auction.value.base_auction.id,
+        coins,
+        sequence
+      );
+      console.log(`transaction hash: ${txHash}`);
+    } catch (e) {
+      console.log(`could not bid on auction ${auction.auction.value.base_auction.id}`);
+      console.log(e);
+      return false;
+    }
+    try {
+      await this.client.checkTxHash(txHash, 25000);
+    } catch (e) {
+      console.log(`Tx not accepted by chain: ${e}`);
+    }
+    return true;
   }
 
   async run() {

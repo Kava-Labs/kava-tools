@@ -14,11 +14,14 @@
   },
   "homepage": "https://github.com/Kava-Labs/kava-tools#readme",
   "dependencies": {
-    "@kava-labs/javascript-sdk": "^2.0.0-beta.1",
+    "@kava-labs/javascript-sdk": "^2.0.0-beta.4",
     "axios": "^0.19.2",
     "coingecko-api": "^1.0.10",
     "dotenv": "^8.2.0",
     "log-timestamp": "^0.3.0",
     "node-cron": "^2.0.3"
+  },
+  "devDependencies": {
+    "prettier": "2.0.5"
   }
 }
