@@ -25,7 +25,7 @@ var main = async () => {
     reverse_bid_margin,
     crontab
   );
-  await auctionBot.initClient()
+  await auctionBot.initClient();
   await auctionBot.run();
 };
 
