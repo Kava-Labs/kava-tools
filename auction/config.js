@@ -1,7 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
-
 module.exports = {
   lcd_url: process.env.LCD_URL,
   mnemonic: process.env.MNEMONIC,
@@ -12,4 +11,4 @@ module.exports = {
   forward_bid_margin: process.env.FORWARD_BID_MARGIN,
   reverse_bid_margin: process.env.REVERSE_BID_MARGIN,
   crontab: process.env.CRONTAB,
-}
+};

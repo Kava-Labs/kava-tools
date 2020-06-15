@@ -1,7 +1,7 @@
 const CoinGecko = require('coingecko-api');
-const axios = require('axios')
+const axios = require('axios');
 
-const BINANCE_API_TICKER = 'https://api.binance.com/api/v3/ticker/24hr?symbol='
+const BINANCE_API_TICKER = 'https://api.binance.com/api/v3/ticker/24hr?symbol=';
 
 const getMarketCoinGecko = (denom) => {
   switch (denom) {
@@ -16,7 +16,7 @@ const getMarketCoinGecko = (denom) => {
     case 'kava':
       return 'kava';
     default:
-      throw `invalid denom ${denom}`
+      throw `invalid denom ${denom}`;
   }
 };
 
@@ -33,14 +33,14 @@ const getMarketBinance = (denom) => {
     case 'atom':
       return 'ATOMUSDT';
     default:
-      throw `invalid denom ${denom}`
+      throw `invalid denom ${denom}`;
   }
 };
 
 var getCoinGeckoPrice = async (denom) => {
   const CoinGeckoClient = new CoinGecko();
   try {
-   var market = getMarketCoinGecko(denom);
+    var market = getMarketCoinGecko(denom);
   } catch (e) {
     console.log(e);
     console.log(`could not fetch ${denom} price from coin-gecko`);
@@ -48,7 +48,7 @@ var getCoinGeckoPrice = async (denom) => {
   }
   try {
     var priceFetch = await CoinGeckoClient.simple.price({
-      ids: market, // [market]?
+      ids: market,
       vs_currencies: ['usd'],
     });
   } catch (e) {
@@ -61,32 +61,32 @@ var getCoinGeckoPrice = async (denom) => {
 
 var getBinancePrice = async (denom) => {
   try {
-    var market = getMarketBinance(denom)
+    var market = getMarketBinance(denom);
   } catch (e) {
-    console.log(e)
+    console.log(e);
     console.log(`could not fetch ${denom} price from binance`);
   }
   try {
-    const queryUrl = BINANCE_API_TICKER + market
-    var priceFetch = await axios.get(queryUrl)
+    const queryUrl = BINANCE_API_TICKER + market;
+    var priceFetch = await axios.get(queryUrl);
   } catch (e) {
-    console.log(e)
-    console.log(`could not fetch ${denom} price from binance`)
+    console.log(e);
+    console.log(`could not fetch ${denom} price from binance`);
   }
-  return priceFetch.data.lastPrice
-}
+  return priceFetch.data.lastPrice;
+};
 
 var getPrice = async (denom) => {
   try {
-    var price = await getBinancePrice(denom)
+    var price = await getBinancePrice(denom);
   } catch (e) {
     try {
-      var price = await getCoinGeckoPrice(denom)
+      var price = await getCoinGeckoPrice(denom);
     } catch (e) {
-      throw("could not fetch price from binance, coinGecko")
+      throw 'could not fetch price from binance, coinGecko';
     }
   }
-  return Number.parseFloat(price)
-}
+  return Number.parseFloat(price);
+};
 
-exports.getPrice = getPrice
+exports.getPrice = getPrice;

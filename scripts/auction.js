@@ -4,6 +4,7 @@ const {
   auction_types,
   ignored_addresses,
   collaterals,
+  initial_bid_forward,
   forward_bid_max,
   forward_bid_margin,
   reverse_bid_margin,
@@ -18,12 +19,13 @@ var main = async () => {
     auction_types,
     ignored_addresses,
     collaterals,
+    initial_bid_forward,
     forward_bid_max,
     forward_bid_margin,
     reverse_bid_margin,
     crontab
   );
-  await auctionBot.initClient()
+  await auctionBot.initClient();
   await auctionBot.run();
 };
 

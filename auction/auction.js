@@ -4,6 +4,7 @@ const cron = require('node-cron');
 const prices = require('./prices');
 const utils = require('./utils');
 
+const VALID_AUCTION_TYPES = ['collateral'];
 class AuctionBot {
   constructor(
     lcdUrl,
@@ -11,6 +12,7 @@ class AuctionBot {
     auctionTypes,
     ignoredAddresses,
     collaterals,
+    initialBidForward,
     forwardBidMax,
     forwardBidMargin,
     reverseBidMargin,
@@ -29,37 +31,44 @@ class AuctionBot {
       throw new Error('must specify at least one auction type');
     }
     this.auctionTypes = auctionTypes.split(',').map((x) => x.toLowerCase());
-
+    if (
+      !this.auctionTypes.some((auctionType) =>
+        VALID_AUCTION_TYPES.includes(auctionType)
+      )
+    ) {
+      throw new Error('must specify at least one valid auction type');
+    }
     if (this.auctionTypes.includes('collateral')) {
       console.debug('this bot will bid on collateral auctions');
       if (!collaterals) {
         throw new Error('must specify at least one collateral type to bid on');
       }
+      if (!initialBidForward) {
+        throw new Error('must specify initial forward bid percentage');
+      }
+      const initialBidForwardFloat = Number.parseFloat(initialBidForward);
+      if (initialBidForwardFloat < 0 || initialBidForwardFloat > 1.0) {
+        throw new Error('forward initial bid must be between 0 and 1');
+      }
       if (!forwardBidMax) {
         throw new Error('must specify forward bid maximum');
       }
-      if (
-        Number.parseFloat(forwardBidMax) < 0 ||
-        Number.parseFloat(forwardBidMax) > 1.0
-      ) {
+      const forwardBidMaxFloat = Number.parseFloat(forwardBidMax);
+      if (forwardBidMaxFloat < 0 || forwardBidMaxFloat > 1.0) {
         throw new Error('forward bid maximum must be between 0 and 1');
       }
       if (!forwardBidMargin) {
         throw new Error('must specify forward bid margin');
       }
-      if (
-        Number.parseFloat(forwardBidMargin) < 0 ||
-        Number.parseFloat(forwardBidMargin) > 1.0
-      ) {
+      const forwardBidMarginFloat = Number.parseFloat(forwardBidMargin);
+      if (forwardBidMarginFloat < 0 || forwardBidMarginFloat > 1.0) {
         throw new Error('forward bid margin must be between 0 and 1');
       }
       if (!reverseBidMargin) {
         throw new Error('must specify reverse bid margin');
       }
-      if (
-        Number.parseFloat(reverseBidMargin) < 0 ||
-        Number.parseFloat(reverseBidMargin) > 1.0
-      ) {
+      const reverseBidMarginFloat = Number.parseFloat(reverseBidMargin);
+      if (reverseBidMarginFloat < 0 || reverseBidMarginFloat > 1.0) {
         throw new Error('reverse bid margin must be between 0 and 1');
       }
     }
@@ -68,6 +77,7 @@ class AuctionBot {
     this.mnemonic = mnemonic;
     this.ignoredAddresses = ignoredAddresses ? ignoredAddresses.split(',') : [];
     this.collaterals = collaterals ? collaterals.split(',') : [];
+    this.initialBidForward = Number.parseFloat(initialBidForward);
     this.forwardBidMax = Number.parseFloat(forwardBidMax);
     this.forwardBidMargin = Number.parseFloat(forwardBidMargin);
     this.reverseBidMargin = Number.parseFloat(reverseBidMargin);
@@ -85,12 +95,13 @@ class AuctionBot {
       throw new Error("chain's rest-server url is required");
     }
     if (!this.mnemonic) {
-      throw new Error("oracle's mnemonic is required");
+      throw new Error('bidding address mnemonic is required');
     }
 
     // Initiate and set Kava client
     this.client = new kava.KavaClient(this.lcdURL);
     this.client.setWallet(this.mnemonic);
+    this.client.setBroadcastMode('async');
     try {
       await this.client.initChain();
     } catch (e) {
@@ -181,7 +192,7 @@ class AuctionBot {
         return Number.parseFloat(params.increment_surplus);
       default:
         console.error(
-          `attempt to fetch min bid increment for invalid auction type ${auctionType}`
+          `couldn't fetch min bid increment for invalid auction type ${auctionType}`
         );
         return;
     }
@@ -189,8 +200,8 @@ class AuctionBot {
 
   /**
    * calculates the next minimum bid and lot amount for the input collateral auction
-   * @param {object} auction auction object - must be a collateral auction
-   * @param {number} increment  - the percentage amount the bid must be incremented or the lot must be decremented to be accepted by the blockchain
+   * @param {object} auction object - must be a collateral auction
+   * @param {number} increment - the percentage amount the bid must be incremented or the lot must be decremented to be accepted by the blockchain
    * @returns {array[ number, number ] || undefined}
    */
   calculateNextBidAndLot(auction, increment) {
@@ -207,7 +218,9 @@ class AuctionBot {
           Math.ceil(currentBid + currentBid * increment),
           1
         );
-        return [Math.min(maxBid, newMinBid), currentLot];
+        const initialBid = Math.ceil(maxBid * this.initialBidForward);
+        const nextBid = Math.max(newMinBid, initialBid);
+        return [Math.min(maxBid, nextBid), currentLot];
       case 'reverse':
         return [maxBid, Math.floor(currentLot - currentLot * increment)];
       default:
@@ -319,62 +332,24 @@ class AuctionBot {
         );
         return;
       }
+      if (
+        !this.checkCompetitiveAuction(auction.auction.value.base_auction.bidder)
+      ) {
+        console.debug(
+          `auction ID ${id}: no bid: bot does not bid against ${auction.auction.value.base_auction.bidder}`
+        );
+        return;
+      }
       switch (auction.type) {
         case 'collateral':
-          if (
-            !this.checkCollateralAuctionDenom(
-              auction.auction.value.base_auction.lot.denom
-            )
-          ) {
-            console.debug(
-              `auction ID ${id}: no bid: bot does not bid on ${auction.auction.value.base_auction.lot.denom} auctions`
-            );
-            return;
-          }
-          if (
-            !this.checkCompetitiveAuction(
-              auction.auction.value.base_auction.bidder
-            )
-          ) {
-            console.debug(
-              `auction ID ${id}: no bid: bot does not bid against ${auction.auction.value.base_auction.bidder}`
-            );
-            return;
-          }
-          const bidIncrement = await this.getMinBidIncrement(auction.type);
-          const [nextBid, nextLot] = this.calculateNextBidAndLot(
+          const placedBid = await this.checkPlaceBidCollateral(
             auction,
-            bidIncrement
+            accountData,
+            i
           );
-          if (!(await this.checkSufficientFunds(auction, nextBid))) {
-            console.debug(`auction ID ${id}: no bid: insufficient funds`);
-            return;
+          if (placedBid) {
+            i++;
           }
-          if (!(await this.checkBidMargin(auction, nextBid, nextLot))) {
-            console.debug(`auction ID ${id}: no bid: insufficient profit`);
-            return;
-          }
-          const sequence = String(Number(accountData.sequence) + i);
-          var coins = kava.utils.formatCoin(
-            String(nextBid),
-            auction.auction.value.base_auction.bid.denom
-          );
-          if (auction.phase === 'reverse') {
-            coins = kava.utils.formatCoin(
-              String(nextLot),
-              auction.auction.value.base_auction.lot.denom
-            );
-          }
-          console.log(`
-          proposed bid:
-          auction id: ${auction.auction.value.base_auction.id}
-          coins: ${JSON.stringify(coins)}
-          sequence: ${sequence}
-          `);
-          // const txHash = await kavaClient.placeBid(auction.auction.value.base_auction.id, coins, sequence)
-          // console.log(txHash)
-
-          i++;
           return;
         default:
           // TODO debt, surplus
@@ -383,16 +358,74 @@ class AuctionBot {
     });
   }
 
+  async checkPlaceBidCollateral(auction, accountData, sequenceCounter) {
+    const id = auction.auction.value.base_auction.id;
+    if (
+      !this.checkCollateralAuctionDenom(
+        auction.auction.value.base_auction.lot.denom
+      )
+    ) {
+      console.debug(
+        `auction ID ${id}: no bid: bot does not bid on ${auction.auction.value.base_auction.lot.denom} auctions`
+      );
+      return false;
+    }
+    const bidIncrement = await this.getMinBidIncrement(auction.type);
+    const [nextBid, nextLot] = this.calculateNextBidAndLot(
+      auction,
+      bidIncrement
+    );
+    if (!(await this.checkSufficientFunds(auction, nextBid))) {
+      console.debug(`auction ID ${id}: no bid: insufficient funds`);
+      return false;
+    }
+    if (!(await this.checkBidMargin(auction, nextBid, nextLot))) {
+      console.debug(`auction ID ${id}: no bid: insufficient profit margin`);
+      return false;
+    }
+    const sequence = String(Number(accountData.sequence) + sequenceCounter);
+    let coins = kava.utils.formatCoin(
+      String(nextBid),
+      auction.auction.value.base_auction.bid.denom
+    );
+    if (auction.phase === 'reverse') {
+      coins = kava.utils.formatCoin(
+        String(nextLot),
+        auction.auction.value.base_auction.lot.denom
+      );
+    }
+    console.log(`
+    proposed bid:
+    auction id: ${auction.auction.value.base_auction.id}
+    coins: ${JSON.stringify(coins)}
+    sequence: ${sequence}
+    `);
+    let txHash;
+    try {
+      txHash = await this.client.placeBid(
+        auction.auction.value.base_auction.id,
+        coins,
+        sequence
+      );
+      console.log(`transaction hash: ${txHash}`);
+    } catch (e) {
+      console.log(`could not bid on auction ${auction.auction.value.base_auction.id}`);
+      console.log(e);
+      return false;
+    }
+    try {
+      await this.client.checkTxHash(txHash, 25000);
+    } catch (e) {
+      console.log(`Tx not accepted by chain: ${e}`);
+    }
+    return true;
+  }
+
   async run() {
     cron.schedule(this.crontab, async () => {
       await this.checkForNewBids();
     });
   }
 }
-
-process.on('unhandledRejection', (reason, p) => {
-  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
-  // application specific logging, throwing an error, or other logic here
-});
 
 module.exports.AuctionBot = AuctionBot;

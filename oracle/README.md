@@ -38,7 +38,7 @@ CRONTAB="* * * * *"
 MNEMONIC="secret words go here"
 
 # List of markets the oracle will post prices for. See pricefeed parameters for the list of active markets. \\TODO add "all" method for next version
-MARKET_IDS="bnb:usd"
+MARKET_IDS="bnb:usd,bnb:usd:30"
 
 # percentage deviation from previous price needed to trigger a new price - (example 0.5%)
 DEVIATION="0.005"

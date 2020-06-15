@@ -1,50 +1,73 @@
 require('log-timestamp');
-const CoinGecko = require('coingecko-api');
 const coinUtils = require('./utils.js').utils;
-const axios = require('axios')
-
-const BINANCE_API_TICKER = 'https://api.binance.com/api/v3/ticker/24hr?symbol='
+const axios = require('axios');
 
 var getCoinGeckoPrice = async (marketID) => {
-  const CoinGeckoClient = new CoinGecko();
   try {
-   var market = coinUtils.loadCoinGeckoMarket(marketID);
+    var url = coinUtils.loadCoinGeckoQuery(marketID);
   } catch (e) {
     console.log(e);
     console.log(`could not fetch ${marketID} price from coin-gecko`);
     return;
   }
   try {
-    var priceFetch = await CoinGeckoClient.simple.price({
-      ids: market,
-      vs_currencies: ['usd'],
-    });
+    var priceFetch = await axios.get(url);
   } catch (e) {
     console.log(e);
     console.log(`could not fetch ${marketID} price from coin-gecko`);
     return;
   }
-  return priceFetch.data[market].usd;
+  try {
+    const proposedPrice = coinUtils.postProcessCoinGeckoPrice(
+      marketID,
+      priceFetch.data
+    );
+    if (!proposedPrice) {
+      console.log(`could not fetch ${marketID} price from coin-gecko`);
+      return;
+    }
+    return proposedPrice;
+  } catch (e) {
+    console.log(e);
+    console.log(`failure to post-process coin-gecko price request for ${marketID}
+    data: ${priceFetch.data}`);
+    return;
+  }
 };
 
 var getBinancePrice = async (marketID) => {
   try {
-    var market = coinUtils.loadBinanceMarket(marketID)
+    var url = coinUtils.loadBinanceQuery(marketID);
   } catch (e) {
-    console.log(e)
+    console.log(e);
     console.log(`could not fetch ${marketID} price from binance`);
   }
   try {
-    const queryUrl = BINANCE_API_TICKER + market
-    var priceFetch = await axios.get(queryUrl)
+    var priceFetch = await axios.get(url);
   } catch (e) {
-    console.log(e)
-    console.log(`could not fetch ${marketID} price from binance`)
+    console.log(e);
+    console.log(`could not fetch ${marketID} price from binance`);
+    return;
   }
-  return priceFetch.data.lastPrice
-}
+  try {
+    const proposedPrice = coinUtils.postProcessBinancePrice(
+      marketID,
+      priceFetch.data
+    );
+    if (!proposedPrice) {
+      console.log(`could not fetch ${marketID} price from binance`);
+      return;
+    }
+    return proposedPrice;
+  } catch (e) {
+    console.log(e);
+    console.log(`failure to post-process binance price request for ${marketID}
+    data: ${priceFetch.data}`);
+  }
+  // return priceFetch.data.lastPrice
+};
 
 module.exports.prices = {
   getBinancePrice,
   getCoinGeckoPrice,
-}
+};
