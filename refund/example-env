@@ -7,7 +7,7 @@ KAVA_LCD_URL="https://kava3.data.kava.io"
 KAVA_MNEMONIC="secret words that unlock your kava address"
 
 # Binance Chain network details
-BINANCE_CHAIN_DEPUTY_ADDRESS = "tbnb10uypsspvl6jlxcx5xse02pag39l8xpe7a3468h"
+BINANCE_CHAIN_DEPUTY_ADDRESS = "bnb1jh7uv2rm6339yue8k4mj9406k3509kr4wt5nxn"
 
 BINANCE_CHAIN_LCD_URL="https://dex.binance.org"
 
