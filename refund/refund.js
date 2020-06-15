@@ -202,11 +202,14 @@ class RefundBot {
             if(swapBatch.length > 0) {
                 const refundableSwapsInBatch = swapBatch.filter(swap => swap.status == 1) // Status 1 is open
                 openSwaps = openSwaps.concat(refundableSwapsInBatch)
-                // Increment offset by limit for next iteration
-                if(incoming) {
-                    this.offsetIncoming = this.offsetIncoming + this.limit
-                } else {
-                    this.offsetOutgoing = this.offsetOutgoing + this.limit
+
+                // If it's a full batch, increment offset by limit for next iteration
+                if(swapBatch.length == this.limit) {
+                    if(incoming) {
+                        this.offsetIncoming = this.offsetIncoming + this.limit
+                    } else {
+                        this.offsetOutgoing = this.offsetOutgoing + this.limit
+                    }
                 }
             // If no swaps in batch, don't check the next batch
             } else {  
