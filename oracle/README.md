@@ -37,7 +37,7 @@ CRONTAB="* * * * *"
 # bip39 mnemonic of oracle
 MNEMONIC="secret words go here"
 
-# List of markets the oracle will post prices for. See pricefeed parameters for the list of active markets. \\TODO add "all" method for next version
+# List of markets the oracle will post prices for. See pricefeed parameters for the list of active markets.
 MARKET_IDS="bnb:usd,bnb:usd:30"
 
 # percentage deviation from previous price needed to trigger a new price - (example 0.5%)
@@ -49,6 +49,9 @@ EXPIRY="14400"
 # how long (in seconds) before the oracle will consider a price expiring and post a new price, regardless of the value of deviation.
 # for example, if this is set to 600, the oracle will post a price any time the current posted price is expiring in less than 600 seconds.
 EXPIRY_THRESHOLD="300"
+
+# if the oracle should use the legacy HD path for kava (118). Setting to "true" will use 118, false will use 459
+LEGACY_HD_PATH="false"
 ```
 
 Setup a `systemd` file to run the oracle process. An example with user `ubuntu` is as follows (note that the `nodejs` process is at `/usr/bin/nodejs`, this may be different depending on how you install node ):
