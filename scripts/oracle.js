@@ -20,9 +20,9 @@ var main = async () => {
   await oracle.initClient(lcdURL, mnemonic, legacyHDPath);
 
   // Start cron job
-  // cron.schedule(process.env.CRONTAB, () => {
-  //   oracle.postPrices();
-  // });
+  cron.schedule(process.env.CRONTAB, () => {
+    oracle.postPrices();
+  });
 };
 
 main();
