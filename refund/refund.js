@@ -83,7 +83,7 @@ class RefundBot {
      * Manages swap refunds
      */
     async refundSwaps() {
-        // await this.refundKavaSwaps()
+        await this.refundKavaSwaps()
         await this.refundBinanceChainSwaps()        
     }
 
