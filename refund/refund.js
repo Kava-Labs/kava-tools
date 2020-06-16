@@ -95,7 +95,12 @@ class RefundBot {
         console.log(`Kava refundable swap count: ${swapIDs.length}`)
 
         // Fetch account data so we can manually manage sequence when posting
-        var accountData = await Kava.tx.loadMetaData(this.kavaClient.wallet.address, this.kavaClient.baseURI)
+        let accountData
+        try {
+            accountData = await Kava.tx.loadMetaData(this.kavaClient.wallet.address, this.kavaClient.baseURI)
+        } catch(e) {
+            console.log(e)
+        }
 
         // Refund each swap
         for(let i = 0; i < swapIDs.length; i++) {
@@ -158,7 +163,7 @@ class RefundBot {
         const incomingSwaps = await this.getRefundableBinanceSwaps(true)
         const outgoingSwaps = await this.getRefundableBinanceSwaps(false)
         const swapIDs = incomingSwaps.concat(outgoingSwaps)
-    
+
         console.log(`Binance Chain refundable swap count: ${swapIDs.length}`)
 
         // Refund each swap
@@ -186,15 +191,17 @@ class RefundBot {
     async getRefundableBinanceSwaps(incoming = true) {
         let openSwaps = []
         let checkNextBatch = true
+        let offsetIncoming = this.offsetIncoming
+        let offsetOutgoing = this.offsetOutgoing
 
         while(checkNextBatch) {
             let swapBatch
             try {
                 let res
                 if(incoming) {
-                    res = await this.bnbClient.getSwapByCreator(this.bnbChainDeputy, this.limit, this.offsetIncoming);
+                    res = await this.bnbClient.getSwapByCreator(this.bnbChainDeputy, this.limit, offsetIncoming);
                 } else {
-                    res = await this.bnbClient.getSwapByRecipient(this.bnbChainDeputy, this.limit, this.offsetOutgoing);
+                    res = await this.bnbClient.getSwapByRecipient(this.bnbChainDeputy, this.limit, offsetOutgoing);
                 }
                 swapBatch = _.get(res, 'result.atomicSwaps');
                 
@@ -209,11 +216,11 @@ class RefundBot {
                 openSwaps = openSwaps.concat(refundableSwapsInBatch)
 
                 // If it's a full batch, increment offset by limit for next iteration
-                if(swapBatch.length == this.limit) {
+                if(swapBatch.length <= this.limit) {
                     if(incoming) {
-                        this.offsetIncoming = this.offsetIncoming + this.limit
+                        offsetIncoming = offsetIncoming + this.limit
                     } else {
-                        this.offsetOutgoing = this.offsetOutgoing + this.limit
+                        offsetOutgoing = offsetOutgoing + this.limit
                     }
                 }
             // If no swaps in batch, don't check the next batch
