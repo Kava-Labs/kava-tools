@@ -83,7 +83,7 @@ class RefundBot {
      * Manages swap refunds
      */
     async refundSwaps() {
-        await this.refundKavaSwaps()
+        // await this.refundKavaSwaps()
         await this.refundBinanceChainSwaps()        
     }
 
@@ -158,17 +158,22 @@ class RefundBot {
         const incomingSwaps = await this.getRefundableBinanceSwaps(true)
         const outgoingSwaps = await this.getRefundableBinanceSwaps(false)
         const swapIDs = incomingSwaps.concat(outgoingSwaps)
+    
         console.log(`Binance Chain refundable swap count: ${swapIDs.length}`)
 
         // Refund each swap
         for(var i = 0; i < swapIDs.length; i++) {
             console.log(`\tRefunding swap ${swapIDs[i]}`)
-            const res = await this.bnbClient.swap.refundHTLT(this.bnbChainAddress, swapIDs[i]);
-            if (res && res.status == 200) {
-                console.log(`\tTx hash: ${res.result[0].hash}`);
-            } else {
-                console.log(`\tCould not refund swap ${res}`)
+            try {
+                const res = await this.bnbClient.swap.refundHTLT(this.bnbChainAddress, swapIDs[i]);
+                if (res && res.status == 200) {
+                    console.log(`\tTx hash: ${res.result[0].hash}`);
+                }
             }
+            catch(e) {
+                console.log(`\t${e}`)
+            }
+           
             // TODO: Open PR to binance-chain/javascript-sdk to support custom sequences, then can remove sleep()
             await sleep(3000);
         }

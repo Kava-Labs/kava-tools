@@ -14,7 +14,7 @@ var main = async () => {
   // Initiate refund bot
   refundBot = new RefundBot(bnbChainDeputy);
   await refundBot.initKavaClient(kavaLcdURL, kavaMnemonic);
-  await refundBot.initBnbChainClient(bnbChainLcdURL, bnbChainMnemonic);
+  await refundBot.initBnbChainClient(bnbChainLcdURL, bnbChainMnemonic, "mainnet");
 
   // Start cron job
   cron.schedule(cronTimer, () => {
