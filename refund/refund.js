@@ -39,7 +39,7 @@ class RefundBot {
         try {
             await this.kavaClient.initChain();
         } catch (e) {
-            console.log("Error: cannot connect to Kava's lcd server")
+            console.log("Cannot connect to Kava's lcd server:", e)
             return
         }
         return this;
@@ -68,7 +68,7 @@ class RefundBot {
     try {
         await this.bnbClient.initChain();
     } catch (e) {
-        console.log("Error: cannot connect to Binance Chain's lcd server")
+        console.log("Cannot connect to Binance Chain's lcd server:", e)
         return
     }
 
@@ -100,10 +100,11 @@ class RefundBot {
             accountData = await Kava.tx.loadMetaData(this.kavaClient.wallet.address, this.kavaClient.baseURI)
         } catch(e) {
             console.log(e)
+            return
         }
 
         // Refund each swap
-        for(let i = 0; i < swapIDs.length; i++) {
+        for(var i = 0; i < swapIDs.length; i++) {
             const sequence = String(Number(accountData.sequence) + i)
             try {
                 console.log(`\tRefunding swap ${swapIDs[i]}`)
@@ -113,6 +114,7 @@ class RefundBot {
                 console.log(`\tCould not refund swap ${swapIDs[i]}`)
                 console.log(e)
             }
+            await sleep(7000); // Wait for the block to be confirmed
         }
     }
 
@@ -145,11 +147,11 @@ class RefundBot {
     
         // Calculate each swap's ID as it's not stored in the struct (it's on the interface)
         let swapIDs = []
-        for(let i = 0; i < expiredSwaps.length; i++) {
+        for(const expiredSwap of expiredSwaps) {
             const swapID = Kava.utils.calculateSwapID(
-                expiredSwaps[i].random_number_hash,
-                expiredSwaps[i].sender,
-                expiredSwaps[i].sender_other_chain,
+                expiredSwap.random_number_hash,
+                expiredSwap.sender,
+                expiredSwap.sender_other_chain,
             )
             swapIDs.push(swapID)
         }
@@ -167,10 +169,10 @@ class RefundBot {
         console.log(`Binance Chain refundable swap count: ${swapIDs.length}`)
 
         // Refund each swap
-        for(var i = 0; i < swapIDs.length; i++) {
-            console.log(`\tRefunding swap ${swapIDs[i]}`)
+        for(const swapID of swapIDs) {
+            console.log(`\tRefunding swap ${swapID}`)
             try {
-                const res = await this.bnbClient.swap.refundHTLT(this.bnbChainAddress, swapIDs[i]);
+                const res = await this.bnbClient.swap.refundHTLT(this.bnbChainAddress, swapID);
                 if (res && res.status == 200) {
                     console.log(`\tTx hash: ${res.result[0].hash}`);
                 }
@@ -178,9 +180,7 @@ class RefundBot {
             catch(e) {
                 console.log(`\t${e}`)
             }
-           
-            // TODO: Open PR to binance-chain/javascript-sdk to support custom sequences, then can remove sleep()
-            await sleep(3000);
+            await sleep(3000); // Wait for the block to be confirmed
         }
     }
 
