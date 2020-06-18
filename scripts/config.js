@@ -12,4 +12,5 @@ module.exports = {
   forward_bid_margin: process.env.FORWARD_BID_MARGIN,
   reverse_bid_margin: process.env.REVERSE_BID_MARGIN,
   crontab: process.env.CRONTAB,
+  legacy_hd_path: process.env.LEGACY_HD_PATH
 };

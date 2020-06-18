@@ -44,9 +44,10 @@ class PriceOracle {
    * Initialize the Kava client
    * @param {String} lcdURL api endpoint for Kava's rest-server
    * @param {String} mnemonic Kava address mnemonic
+   * @param {Boolean} legacyHDPath
    * @return {Promise}
    */
-  async initClient(lcdURL, mnemonic) {
+  async initClient(lcdURL, mnemonic, legacyHDPath=false) {
     if (!lcdURL) {
       throw new Error("chain's rest-server url is required");
     }
@@ -56,7 +57,7 @@ class PriceOracle {
 
     // Initiate and set Kava client
     this.client = new kava.KavaClient(lcdURL);
-    this.client.setWallet(mnemonic);
+    this.client.setWallet(mnemonic, '', legacyHDPath);
     this.client.setBroadcastMode('sync');
     try {
       await this.client.initChain();

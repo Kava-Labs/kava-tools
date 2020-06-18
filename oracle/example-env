@@ -22,3 +22,6 @@ EXPIRY="14400"
 # how long (in seconds) before the oracle will consider a price expiring and post a new price, regardless of the value of deviation.
 # for example, if this is set to 600, the oracle will post a price any time the current posted price is expiring in less than 600 seconds.
 EXPIRY_THRESHOLD="300"
+
+# if the oracle should use the legacy HD path for kava (118). Setting to "true" will use 118, false will use 459
+LEGACY_HD_PATH="false"

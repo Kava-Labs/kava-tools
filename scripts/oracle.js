@@ -10,10 +10,14 @@ var main = async () => {
   const expiry = process.env.EXPIRY;
   const expiryThreshold = process.env.EXPIRY_THRESHOLD;
   const deviation = process.env.DEVIATION;
+  let legacyHDPath = false
+  if (process.env.LEGACY_HD_PATH === 'true') {
+    legacyHDPath = true
+  }
 
   // Initiate price oracle
   oracle = new PriceOracle(marketIDs, expiry, expiryThreshold, deviation);
-  await oracle.initClient(lcdURL, mnemonic);
+  await oracle.initClient(lcdURL, mnemonic, legacyHDPath);
 
   // Start cron job
   cron.schedule(process.env.CRONTAB, () => {
