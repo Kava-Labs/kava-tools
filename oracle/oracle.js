@@ -74,10 +74,21 @@ class PriceOracle {
   async postPrices() {
     var i = 0;
     // fetch account data so we can manually manage sequence when posting
-    var accountData = await kava.tx.loadMetaData(
-      this.client.wallet.address,
-      this.client.baseURI
-    );
+    let accountData
+    try {
+      var accountData = await kava.tx.loadMetaData(
+        this.client.wallet.address,
+        this.client.baseURI
+      );
+    } catch {
+      // if the account is new, use the default values, these will be updated
+      // after the first tx is created with this account
+      accountData = {
+        account_number: '0',
+        sequence: '0',
+      }
+    }
+
     // Attempt to fetch and post prices for each market for valid new prices
     await asyncForEach(this.marketIDs, async (market) => {
       const fetchedPrice = await this.fetchPrice(market);
@@ -169,7 +180,7 @@ class PriceOracle {
       previousPrices = await this.client.getRawPrices(marketID);
     } catch (e) {
       console.log(`couldn't get previous prices for ${marketID}, skipping...`);
-      return false;
+      return true;
     }
 
     // Get this oracle's previously posted price for this market
