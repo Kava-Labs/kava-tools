@@ -122,7 +122,7 @@ class PriceOracle {
   async fetchPrice(marketID) {
     let res = await this.fetchPriceBinance(marketID);
     if (!res.success) {
-      res = await this.fetchPriceBinance(marketID);
+      res = await this.fetchPriceCoinGecko(marketID);
     }
     return res;
   }
