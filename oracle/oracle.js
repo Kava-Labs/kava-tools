@@ -76,7 +76,7 @@ class PriceOracle {
     // fetch account data so we can manually manage sequence when posting
     let accountData
     try {
-      var accountData = await kava.tx.loadMetaData(
+      accountData = await kava.tx.loadMetaData(
         this.client.wallet.address,
         this.client.baseURI
       );
