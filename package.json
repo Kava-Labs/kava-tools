@@ -1,7 +1,7 @@
 {
   "name": "@kava-labs/kava-tools",
   "description": "Tools for interacting with the Kava blockchain",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "license": "Apache-2.0",
   "main": "index.js",
   "author": "Kava Labs",
