@@ -5,7 +5,6 @@ export const postTxKava = (kava, chainID, account_number, sequence, ecpairPriv, 
 		let stdSignMsg = kava.newStdMsg({
 			msgs: [ msg ],
 			chain_id: chainID,
-			// TODO: See if we can remove fee
 			fee: { amount: [], gas: String(500000) },
 			memo: "",
 			account_number: account_number,

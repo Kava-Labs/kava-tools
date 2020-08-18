@@ -1,6 +1,6 @@
 # Auction Bot
 
-Client software for a running an auction bot on the kava blockchain. Currently tested against kava-testnet-6000.
+Client software for a running an auction bot on the kava blockchain. Currently tested against kava-testnet-8000.
 
 **Note** this is highly experimental software that requires a funded hot wallet to use. Running this software requires advanced technical skills and involves risks which are outside of the control of Kava Labs. Any use of this open source Apache 2.0 licensed software is done at your own risk and on a “AS IS” basis, without warranties or conditions of any kind, and any and all liability of Kava Labs for damages arising in connection to the software is excluded. Please exercise extreme caution!
 
@@ -68,7 +68,7 @@ This file configures what kind of collateral auctions the bot will bid on and wh
 
 #-------------------------Kava blockchain config----------------
 # REST endpoint - the REST endpoint of the kava blockchain node you will communicate with
-LCD_URL="http://54.196.2.124:1317"
+LCD_URL="https://kava-testnet-8000.kava.io"
 # bip39 mnemonic of bidder
 MNEMONIC="secret words go here"
 

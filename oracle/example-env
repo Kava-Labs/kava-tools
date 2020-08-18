@@ -1,5 +1,5 @@
 # the chain-id
-CHAIN_ID="kava-testnet-6000"
+CHAIN_ID="kava-testnet-8000"
 
 # REST endpoint
 LCD_URL="http://localhost:1317"
