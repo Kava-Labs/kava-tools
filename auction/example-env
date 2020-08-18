@@ -1,7 +1,7 @@
 
 #-------------------------Kava blockchain config----------------
 # REST endpoint - the REST endpoint of the kava blockchain node you will communicate with
-LCD_URL="http://54.196.2.124:1317"
+LCD_URL="https://kava-testnet-8000.kava.io"
 # bip39 mnemonic of bidder
 MNEMONIC="secret words go here"
 
@@ -40,4 +40,3 @@ REVERSE_BID_MARGIN="0.05"
 
 # Cron tab for how frequently auctions will be checked
 CRONTAB="*/30 * * * * *"
-

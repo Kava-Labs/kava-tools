@@ -1,6 +1,6 @@
 # Oracle
 
-Client software for running an oracle on the kava blockchain. Currently tested against kava-testnet-6000.
+Client software for running an oracle on the kava blockchain. Currently tested against kava-testnet-8000.
 
 ## Requirements
 
@@ -26,7 +26,7 @@ Configure a `.env` file in `kava-tools/scripts` (see [example](example-env)) :
 
 ```
 # the chain-id
-CHAIN_ID="kava-testnet-6000"
+CHAIN_ID="kava-testnet-8000"
 
 # REST endpoint
 LCD_URL="http://localhost:1317"
