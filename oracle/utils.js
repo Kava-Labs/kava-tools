@@ -77,6 +77,8 @@ const postProcessCoinGeckoPrice = (marketID, data) => {
   switch (marketID) {
     case 'bnb:usd:30':
       return calculateAveragePriceCoinGecko(data);
+    case 'btc:usd:30':
+      return calculateAveragePriceCoinGecko(data);
     default:
       const market = loadCoinGeckoMarket(marketID);
       return data[market].usd;
