@@ -23,6 +23,8 @@ const loadCoinGeckoMarket = (marketID) => {
       return 'binancecoin';
     case 'btc:usd':
       return 'bitcoin';
+    case 'btc:usd:30':
+      return 'bitcoin';
     case 'atom:usd':
       return 'cosmos';
     case 'kava:usd':
