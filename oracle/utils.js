@@ -52,6 +52,16 @@ const loadCoinGeckoQuery = (marketID) => {
         String(past30Minutes),
         String(currentTime)
       );
+    case 'btc:usd:30':
+      const currentTime = Math.floor(new Date().getTime() * 10 ** -3);
+      const past30Minutes = currentTime - 1800;
+      return util.format(
+        COINGECKO_V3_MARKET_RANGE_REQUEST,
+        'bitcoin',
+        'usd',
+        String(past30Minutes),
+        String(currentTime)
+      );
     case 'btc:usd':
       return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'bitcoin', 'usd');
     case 'atom:usd':
@@ -91,6 +101,8 @@ const loadBinanceMarket = (marketID) => {
       return 'XRPUSDT';
     case 'btc:usd':
       return 'BTCUSDT';
+    case 'btc:usd:30':
+      return 'BTCUSDT';
     case 'kava:usd':
       return 'KAVAUSDT';
     case 'atom:usd':
@@ -110,6 +122,8 @@ const loadBinanceQuery = (marketID) => {
       return util.format(BINANCE_V3_TICKER_REQUEST, 'XRPUSDT');
     case 'btc:usd':
       return util.format(BINANCE_V3_TICKER_REQUEST, 'BTCUSDT');
+    case 'btc:usd:30':
+      return util.format(BINANCE_V3_KLINES_REQUEST, 'BTCUSDT');
     case 'kava:usd':
       return util.format(BINANCE_V3_TICKER_REQUEST, 'KAVAUSDT');
     case 'atom:usd':
