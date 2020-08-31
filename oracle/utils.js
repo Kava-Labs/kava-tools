@@ -33,6 +33,8 @@ const loadCoinGeckoMarket = (marketID) => {
 };
 
 const loadCoinGeckoQuery = (marketID) => {
+  let currentTime = Math.floor(new Date().getTime() * 10 ** -3);
+  let past30Minutes = currentTime - 1800;
   switch (marketID) {
     case 'xrp:usd':
       return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'ripple', 'usd');
@@ -43,8 +45,6 @@ const loadCoinGeckoQuery = (marketID) => {
         'usd'
       );
     case 'bnb:usd:30':
-      let currentTime = Math.floor(new Date().getTime() * 10 ** -3);
-      let past30Minutes = currentTime - 1800;
       return util.format(
         COINGECKO_V3_MARKET_RANGE_REQUEST,
         'binancecoin',
@@ -53,8 +53,6 @@ const loadCoinGeckoQuery = (marketID) => {
         String(currentTime)
       );
     case 'btc:usd:30':
-      let currentTime = Math.floor(new Date().getTime() * 10 ** -3);
-      let past30Minutes = currentTime - 1800;
       return util.format(
         COINGECKO_V3_MARKET_RANGE_REQUEST,
         'bitcoin',
