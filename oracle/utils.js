@@ -137,6 +137,8 @@ const postProcessBinancePrice = (marketID, data) => {
   switch (marketID) {
     case 'bnb:usd:30':
       return calculateAveragePriceBinance(data);
+    case 'btc:usd:30':
+      return calculateAveragePriceBinance(data);
     default:
       return data.lastPrice;
   }
