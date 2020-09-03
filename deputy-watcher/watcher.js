@@ -51,9 +51,7 @@ class DeputyWatcher {
   }
 
   async refillBnbDeputy() {
-    console.log(this.bnbChainDeputy)
     const deputyBalance = await this.bnbClient.getBalance(this.bnbChainDeputy)
-    console.log(deputyBalance)
     for (const balance of deputyBalance) {
       if (balance.symbol == 'BNB') {
         if (Number(balance.free) < this.balance_threshold) {
