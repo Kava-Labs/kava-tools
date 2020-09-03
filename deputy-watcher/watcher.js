@@ -56,7 +56,7 @@ class DeputyWatcher {
       if (balance.symbol == 'BNB') {
         if (Number(balance.free) < this.balance_threshold) {
           console.log("Attempting to refill deputy")
-          await this.bnbClient.transfer(this.bnbChainAddress, this.deputyBalance, "100000", "BNB" )
+          await this.bnbClient.transfer(this.bnbChainAddress, this.deputyBalance, "0.00375", "BNB" )
         } else {
           console.log("deputy does not need refill")
         }
