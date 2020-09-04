@@ -54,7 +54,7 @@ class DeputyWatcher {
     const deputyBalance = await this.bnbClient.getBalance(this.bnbChainDeputy)
     for (const balance of deputyBalance) {
       if (balance.symbol == 'BNB') {
-        if (Number(balance.free) < this.balance_threshold) {
+        if (Number(balance.free) < Number(this.balanceThreshold)) {
           console.log("Attempting to refill deputy")
           await this.sendFundsToDeputy()
         } else {
