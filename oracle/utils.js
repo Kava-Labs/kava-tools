@@ -17,12 +17,20 @@ const loadCoinGeckoMarket = (marketID) => {
   switch (marketID) {
     case 'xrp:usd':
       return 'ripple';
+    case 'xrp:usd:30':
+      return 'ripple';
     case 'bnb:usd':
       return 'binancecoin';
     case 'bnb:usd:30':
       return 'binancecoin';
     case 'btc:usd':
       return 'bitcoin';
+    case 'btc:usd:30':
+      return 'bitcoin';
+    case 'busd:usd':
+      return 'binance-usd';
+    case 'busd:usd:30':
+      return 'binance-usd';
     case 'atom:usd':
       return 'cosmos';
     case 'kava:usd':
@@ -33,9 +41,19 @@ const loadCoinGeckoMarket = (marketID) => {
 };
 
 const loadCoinGeckoQuery = (marketID) => {
+  let currentTime = Math.floor(new Date().getTime() * 10 ** -3);
+  let past30Minutes = currentTime - 1800;
   switch (marketID) {
     case 'xrp:usd':
       return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'ripple', 'usd');
+    case 'xrp:usd:30':
+      return util.format(
+        COINGECKO_V3_MARKET_RANGE_REQUEST,
+        'ripple',
+        'usd',
+        String(past30Minutes),
+        String(currentTime)
+      );
     case 'bnb:usd':
       return util.format(
         COINGECKO_V3_SIMPLE_PRICE_REQUEST,
@@ -43,8 +61,6 @@ const loadCoinGeckoQuery = (marketID) => {
         'usd'
       );
     case 'bnb:usd:30':
-      const currentTime = Math.floor(new Date().getTime() * 10 ** -3);
-      const past30Minutes = currentTime - 1800;
       return util.format(
         COINGECKO_V3_MARKET_RANGE_REQUEST,
         'binancecoin',
@@ -54,10 +70,22 @@ const loadCoinGeckoQuery = (marketID) => {
       );
     case 'btc:usd':
       return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'bitcoin', 'usd');
+    case 'btc:usd:30':
+      return util.format(
+        COINGECKO_V3_MARKET_RANGE_REQUEST,
+        'bitcoin',
+        'usd',
+        String(past30Minutes),
+        String(currentTime)
+      );
     case 'atom:usd':
       return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'cosmos', 'usd');
     case 'kava:usd':
       return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'kava', 'usd');
+    case 'busd:usd':
+      return ""
+    case 'busd:usd:30':
+      return ""
     default:
       throw `invalid market id ${marketID}`;
   }
@@ -66,6 +94,10 @@ const loadCoinGeckoQuery = (marketID) => {
 const postProcessCoinGeckoPrice = (marketID, data) => {
   switch (marketID) {
     case 'bnb:usd:30':
+      return calculateAveragePriceCoinGecko(data);
+    case 'btc:usd:30':
+      return calculateAveragePriceCoinGecko(data);
+    case 'xrp:usd:30':
       return calculateAveragePriceCoinGecko(data);
     default:
       const market = loadCoinGeckoMarket(marketID);
@@ -87,9 +119,17 @@ const loadBinanceMarket = (marketID) => {
       return 'BNBUSDT';
     case 'bnb:usd:30':
       return 'BNBUSDT';
+    case 'busd:usd':
+      return 'BUSDUSDT';
+    case 'busd:usd:30':
+      return 'BUSDUSDT';
     case 'xrp:usd':
       return 'XRPUSDT';
+    case 'xrp:usd:30':
+      return 'XRPUSDT';
     case 'btc:usd':
+      return 'BTCUSDT';
+    case 'btc:usd:30':
       return 'BTCUSDT';
     case 'kava:usd':
       return 'KAVAUSDT';
@@ -108,12 +148,20 @@ const loadBinanceQuery = (marketID) => {
       return util.format(BINANCE_V3_KLINES_REQUEST, 'BNBUSDT');
     case 'xrp:usd':
       return util.format(BINANCE_V3_TICKER_REQUEST, 'XRPUSDT');
+    case 'xrp:usd:30':
+      return util.format(BINANCE_V3_KLINES_REQUEST, 'XRPUSDT');
     case 'btc:usd':
       return util.format(BINANCE_V3_TICKER_REQUEST, 'BTCUSDT');
+    case 'btc:usd:30':
+      return util.format(BINANCE_V3_KLINES_REQUEST, 'BTCUSDT');
     case 'kava:usd':
       return util.format(BINANCE_V3_TICKER_REQUEST, 'KAVAUSDT');
     case 'atom:usd':
       return util.format(BINANCE_V3_TICKER_REQUEST, 'ATOMUSDT');
+    case 'busd:usd':
+      return ""
+    case 'busd:usd:30':
+      return ""
     default:
       throw `invalid market id ${marketID}`;
   }
@@ -122,6 +170,10 @@ const loadBinanceQuery = (marketID) => {
 const postProcessBinancePrice = (marketID, data) => {
   switch (marketID) {
     case 'bnb:usd:30':
+      return calculateAveragePriceBinance(data);
+    case 'xrp:usd:30':
+      return calculateAveragePriceBinance(data);
+    case 'btc:usd:30':
       return calculateAveragePriceBinance(data);
     default:
       return data.lastPrice;

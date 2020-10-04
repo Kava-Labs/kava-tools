@@ -3,6 +3,9 @@ const coinUtils = require('./utils.js').utils;
 const axios = require('axios');
 
 var getCoinGeckoPrice = async (marketID) => {
+  if (marketID === "busd:usd" || marketID === "busd:usd:30" ) {
+    return 1.0
+  }
   try {
     var url = coinUtils.loadCoinGeckoQuery(marketID);
   } catch (e) {
@@ -36,6 +39,9 @@ var getCoinGeckoPrice = async (marketID) => {
 };
 
 var getBinancePrice = async (marketID) => {
+  if (marketID === "busd:usd" || marketID === "busd:usd:30" ) {
+    return 1.0
+  }
   try {
     var url = coinUtils.loadBinanceQuery(marketID);
   } catch (e) {
