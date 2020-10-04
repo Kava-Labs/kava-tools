@@ -2,8 +2,10 @@ require('log-timestamp');
 const coinUtils = require('./utils.js').utils;
 const axios = require('axios');
 
+const WHITELIST_STABLE_COINS = ["busd:usd", "busd:usd:30"]
+
 var getCoinGeckoPrice = async (marketID) => {
-  if (marketID === "busd:usd" || marketID === "busd:usd:30" ) {
+  if (WHITELIST_STABLE_COINS.indexOf(marketID) > -1 ) {
     return 1.0
   }
   try {
@@ -39,7 +41,7 @@ var getCoinGeckoPrice = async (marketID) => {
 };
 
 var getBinancePrice = async (marketID) => {
-  if (marketID === "busd:usd" || marketID === "busd:usd:30" ) {
+  if (WHITELIST_STABLE_COINS.indexOf(marketID) > -1 ) {
     return 1.0
   }
   try {
