@@ -46,14 +46,13 @@ var getBinancePrice = async (marketID) => {
     var url = coinUtils.loadBinanceQuery(marketID);
   } catch (e) {
     console.log(e);
-    console.log(`could not fetch ${marketID} price from binance`);
+    throw new Error(`could not load ${marketID} query from binance`)
   }
   try {
     var priceFetch = await axios.get(url);
   } catch (e) {
     console.log(e);
-    console.log(`could not fetch ${marketID} price from binance`);
-    return;
+    throw new Error(`could not fetch ${marketID} price from binance`)
   }
   try {
     const proposedPrice = coinUtils.postProcessBinancePrice(
@@ -61,14 +60,14 @@ var getBinancePrice = async (marketID) => {
       priceFetch.data
     );
     if (!proposedPrice) {
-      console.log(`could not fetch ${marketID} price from binance`);
-      return;
+      throw new Error(`could not post-process ${marketID} price from binance`)
     }
     return proposedPrice;
   } catch (e) {
     console.log(e);
     console.log(`failure to post-process binance price request for ${marketID}
     data: ${priceFetch.data}`);
+    throw new Error(`could not post-process ${marketID} price from binance`)
   }
   // return priceFetch.data.lastPrice
 };
