@@ -234,7 +234,7 @@ class PriceOracle {
     console.log(
       `posting price ${newPrice} for ${marketID} with sequence ${sequence}`
     );
-    return await this.client.postPrice(marketID, newPrice, newExpiry, sequence);
+    return await this.client.postPrice(marketID, newPrice, newExpiry, undefined, sequence);
   }
 
   /**
