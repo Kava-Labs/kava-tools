@@ -1,8 +1,0 @@
-# Chain
-CHAIN_ID="kava-testnet-4000"
-LCD_URL = "http://localhost:1317"
-MNEMONIC = "secret words go here"
-
-
-# CDP spammer
-COLLATERAL_DENOM = "xrp"
