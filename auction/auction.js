@@ -405,6 +405,7 @@ class AuctionBot {
       txHash = await this.client.placeBid(
         auction.auction.value.base_auction.id,
         coins,
+        undefined,
         sequence
       );
       console.log(`transaction hash: ${txHash}`);
