@@ -131,8 +131,18 @@ class PriceOracle {
    * @param {String} marketID the market's ID
    */
   async fetchPrice(marketID) {
-    let res = await this.fetchPriceBinance(marketID);
-    if (!res.success) {
+    var binanceError = false
+    var res
+    try {
+      res = await this.fetchPriceBinance(marketID);
+      if (!res.success) {
+        binanceError = true
+      }
+    } catch (error) {
+      binanceError = true
+    }
+    if (binanceError) {
+      console.log("trying coingecko after error")
       res = await this.fetchPriceCoinGecko(marketID);
     }
     return res;
@@ -234,7 +244,7 @@ class PriceOracle {
     console.log(
       `posting price ${newPrice} for ${marketID} with sequence ${sequence}`
     );
-    return await this.client.postPrice(marketID, newPrice, newExpiry, sequence);
+    return await this.client.postPrice(marketID, newPrice, newExpiry, undefined, sequence);
   }
 
   /**

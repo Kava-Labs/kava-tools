@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@kava-labs/javascript-sdk@^2.0.0-beta.6":
-  version "2.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@kava-labs/javascript-sdk/-/javascript-sdk-2.0.0-beta.6.tgz#d3677c246a70f7ed7e8af3b28b0b96cd798eff41"
-  integrity sha512-OvXSAuJ5inHLWJ++8mZIdBs5UNKooixPg48rFPJ9Y2r1wYQcfDQsnr5Rbs+ROKkmiC0RdYuRo4/pjEXcA8Jrug==
+"@kava-labs/javascript-sdk@^3.0.0-beta.1":
+  version "3.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@kava-labs/javascript-sdk/-/javascript-sdk-3.0.0-beta.1.tgz#a0d90dfbdf6d39a35b7886bf9bf65510baeb80b8"
+  integrity sha512-8VTLk/JKK5bKTRBFPPvsjwOZzZL3voU6B9iAi50X5f4bRHHYrJa30RMTNGlsnCrzzcm0rvtsw1CuHtkFcystTw==
   dependencies:
     "@kava-labs/sig" "^0.1.0"
     axios "^0.19.2"
@@ -13,7 +13,7 @@
     big.js "^5.2.2"
     bip39 "^3.0.2"
     crypto-js "^4.0.0"
-    lodash "^4.17.15"
+    lodash "^4.17.19"
     url "^0.11.0"
 
 "@kava-labs/sig@^0.1.0":
@@ -280,10 +280,10 @@ inherits@^2.0.1, inherits@^2.0.3:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
-lodash@^4.17.15:
-  version "4.17.15"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
-  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
+lodash@^4.17.19:
+  version "4.17.20"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
+  integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
 
 log-prefix@0.1.1:
   version "0.1.1"

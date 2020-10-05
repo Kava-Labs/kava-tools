@@ -2,7 +2,12 @@ require('log-timestamp');
 const coinUtils = require('./utils.js').utils;
 const axios = require('axios');
 
+const WHITELIST_STABLE_COINS = ["busd:usd", "busd:usd:30"]
+
 var getCoinGeckoPrice = async (marketID) => {
+  if (WHITELIST_STABLE_COINS.indexOf(marketID) > -1 ) {
+    return 1.0
+  }
   try {
     var url = coinUtils.loadCoinGeckoQuery(marketID);
   } catch (e) {
@@ -36,18 +41,20 @@ var getCoinGeckoPrice = async (marketID) => {
 };
 
 var getBinancePrice = async (marketID) => {
+  if (WHITELIST_STABLE_COINS.indexOf(marketID) > -1 ) {
+    return 1.0
+  }
   try {
     var url = coinUtils.loadBinanceQuery(marketID);
   } catch (e) {
     console.log(e);
-    console.log(`could not fetch ${marketID} price from binance`);
+    throw new Error(`could not load ${marketID} query from binance`)
   }
   try {
     var priceFetch = await axios.get(url);
   } catch (e) {
     console.log(e);
-    console.log(`could not fetch ${marketID} price from binance`);
-    return;
+    throw new Error(`could not fetch ${marketID} price from binance`)
   }
   try {
     const proposedPrice = coinUtils.postProcessBinancePrice(
@@ -55,14 +62,14 @@ var getBinancePrice = async (marketID) => {
       priceFetch.data
     );
     if (!proposedPrice) {
-      console.log(`could not fetch ${marketID} price from binance`);
-      return;
+      throw new Error(`could not post-process ${marketID} price from binance`)
     }
     return proposedPrice;
   } catch (e) {
     console.log(e);
     console.log(`failure to post-process binance price request for ${marketID}
     data: ${priceFetch.data}`);
+    throw new Error(`could not post-process ${marketID} price from binance`)
   }
   // return priceFetch.data.lastPrice
 };
