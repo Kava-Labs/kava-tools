@@ -117,10 +117,18 @@ class PriceOracle {
         console.log(e);
         return;
       }
+      var checkTxError = false
       try {
         await this.client.checkTxHash(txHash, 25000);
       } catch (e) {
-        console.log(`Tx not accepted by chain: ${e}`);
+        checkTxError = true
+      }
+      if (checkTxError) {
+        try {
+          await this.client.checkTxHash(txHash, 25000);
+        } catch (error) {
+          console.log(`Tx not accepted by chain: ${error}`);
+        }
       }
       i++;
     });
