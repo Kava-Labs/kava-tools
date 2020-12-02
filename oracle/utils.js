@@ -35,6 +35,8 @@ const loadCoinGeckoMarket = (marketID) => {
       return 'cosmos';
     case 'kava:usd':
       return 'kava';
+    case 'kava:usd:30':
+      return 'kava';
     default:
       throw `invalid market id ${marketID}`;
   }
@@ -82,6 +84,14 @@ const loadCoinGeckoQuery = (marketID) => {
       return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'cosmos', 'usd');
     case 'kava:usd':
       return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'kava', 'usd');
+    case 'kava:usd:30':
+      return util.format(
+        COINGECKO_V3_MARKET_RANGE_REQUEST,
+        'kava',
+        'usd',
+        String(past30Minutes),
+        String(currentTime)
+      );
     case 'busd:usd':
       return ""
     case 'busd:usd:30':
@@ -98,6 +108,8 @@ const postProcessCoinGeckoPrice = (marketID, data) => {
     case 'btc:usd:30':
       return calculateAveragePriceCoinGecko(data);
     case 'xrp:usd:30':
+      return calculateAveragePriceCoinGecko(data);
+    case 'kava:usd:30':
       return calculateAveragePriceCoinGecko(data);
     default:
       const market = loadCoinGeckoMarket(marketID);
@@ -133,6 +145,8 @@ const loadBinanceMarket = (marketID) => {
       return 'BTCUSDT';
     case 'kava:usd':
       return 'KAVAUSDT';
+    case 'kava:usd:30':
+      return 'KAVAUSDT';
     case 'atom:usd':
       return 'ATOMUSDT';
     default:
@@ -156,6 +170,8 @@ const loadBinanceQuery = (marketID) => {
       return util.format(BINANCE_V3_KLINES_REQUEST, 'BTCUSDT');
     case 'kava:usd':
       return util.format(BINANCE_V3_TICKER_REQUEST, 'KAVAUSDT');
+    case 'kava:usd:30':
+      return util.format(BINANCE_V3_KLINES_REQUEST, 'KAVAUSDT');
     case 'atom:usd':
       return util.format(BINANCE_V3_TICKER_REQUEST, 'ATOMUSDT');
     case 'busd:usd':
@@ -175,6 +191,8 @@ const postProcessBinancePrice = (marketID, data) => {
       return calculateAveragePriceBinance(data);
     case 'btc:usd:30':
       return calculateAveragePriceBinance(data);
+    case 'kava:usd:30':
+        return calculateAveragePriceBinance(data);
     default:
       return data.lastPrice;
   }
