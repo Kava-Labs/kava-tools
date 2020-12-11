@@ -37,6 +37,10 @@ const loadCoinGeckoMarket = (marketID) => {
       return 'kava';
     case 'kava:usd:30':
       return 'kava';
+    case 'hard:usd':
+      return 'hard-protocol';
+    case 'hard:usd:30':
+      return 'hard-protocol';
     default:
       throw `invalid market id ${marketID}`;
   }
@@ -111,6 +115,8 @@ const postProcessCoinGeckoPrice = (marketID, data) => {
       return calculateAveragePriceCoinGecko(data);
     case 'kava:usd:30':
       return calculateAveragePriceCoinGecko(data);
+    case 'hard:usd:30':
+      return calculateAveragePriceCoinGecko(data);
     default:
       const market = loadCoinGeckoMarket(marketID);
       return data[market].usd;
@@ -147,6 +153,10 @@ const loadBinanceMarket = (marketID) => {
       return 'KAVAUSDT';
     case 'kava:usd:30':
       return 'KAVAUSDT';
+    case 'hard:usd':
+      return 'HARDUSDT';
+    case 'hard:usd:30':
+      return 'HARDUSDT';
     case 'atom:usd':
       return 'ATOMUSDT';
     default:
@@ -172,6 +182,10 @@ const loadBinanceQuery = (marketID) => {
       return util.format(BINANCE_V3_TICKER_REQUEST, 'KAVAUSDT');
     case 'kava:usd:30':
       return util.format(BINANCE_V3_KLINES_REQUEST, 'KAVAUSDT');
+    case 'hard:usd':
+      return util.format(BINANCE_V3_TICKER_REQUEST, 'HARDUSDT');
+    case 'hard:usd:30':
+      return util.format(BINANCE_V3_KLINES_REQUEST, 'HARDUSDT');
     case 'atom:usd':
       return util.format(BINANCE_V3_TICKER_REQUEST, 'ATOMUSDT');
     case 'busd:usd':
@@ -192,6 +206,8 @@ const postProcessBinancePrice = (marketID, data) => {
     case 'btc:usd:30':
       return calculateAveragePriceBinance(data);
     case 'kava:usd:30':
+        return calculateAveragePriceBinance(data);
+    case 'hard:usd:30':
         return calculateAveragePriceBinance(data);
     default:
       return data.lastPrice;
