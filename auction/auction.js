@@ -290,9 +290,12 @@ class AuctionBot {
     const price = await prices.getPrice(
       auction.auction.value.base_auction.lot.denom
     );
+    console.log(`price ${auction.auction.value.base_auction.lot.denom}: ${price}`)
     const bidValue = Math.max(bidAmount * 10 ** -conversionFactorBid, 0.001);
+    console.log(`bidValue: ${bidValue}`)
     const lotValue =
       price * (Number.parseInt(lotAmount) * 10 ** -conversionFactorLot);
+    console.log(`lotValue: ${lotValue}`)
     switch (auction.phase) {
       case 'forward':
         if (
@@ -300,6 +303,7 @@ class AuctionBot {
             Number.parseInt(auction.auction.value.max_bid.amount) <
           bidAmount
         ) {
+          console.log("exiting due to forward max bid condition")
           return false;
         }
         return (
@@ -405,6 +409,7 @@ class AuctionBot {
       txHash = await this.client.placeBid(
         auction.auction.value.base_auction.id,
         coins,
+        kava.utils.formatCoins("50000", "ukava"),
         undefined,
         sequence
       );

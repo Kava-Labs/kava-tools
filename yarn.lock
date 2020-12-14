@@ -2,10 +2,9 @@
 # yarn lockfile v1
 
 
-"@kava-labs/javascript-sdk@^3.0.0-beta.1":
-  version "3.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@kava-labs/javascript-sdk/-/javascript-sdk-3.0.0-beta.1.tgz#a0d90dfbdf6d39a35b7886bf9bf65510baeb80b8"
-  integrity sha512-8VTLk/JKK5bKTRBFPPvsjwOZzZL3voU6B9iAi50X5f4bRHHYrJa30RMTNGlsnCrzzcm0rvtsw1CuHtkFcystTw==
+"@kava-labs/javascript-sdk@kava-labs/javascript-sdk#kd-add-fees":
+  version "3.0.0-beta.2"
+  resolved "https://codeload.github.com/kava-labs/javascript-sdk/tar.gz/1f6bee7c1a6494abf6de649f712b05f31a273649"
   dependencies:
     "@kava-labs/sig" "^0.1.0"
     axios "^0.19.2"

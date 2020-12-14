@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/Kava-Labs/kava-tools#readme",
   "dependencies": {
-    "@kava-labs/javascript-sdk": "^3.0.0-beta.1",
+    "@kava-labs/javascript-sdk": "kava-labs/javascript-sdk#kd-add-fees",
     "axios": "^0.19.2",
     "coingecko-api": "^1.0.10",
     "dotenv": "^8.2.0",

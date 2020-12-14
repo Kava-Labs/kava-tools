@@ -15,6 +15,8 @@ const getMarketCoinGecko = (denom) => {
       return 'cosmos';
     case 'kava':
       return 'kava';
+    case 'busd':
+      return 'binanceusd'
     default:
       throw `invalid denom ${denom}`;
   }
@@ -32,12 +34,15 @@ const getMarketBinance = (denom) => {
       return 'KAVAUSDT';
     case 'atom':
       return 'ATOMUSDT';
+    case 'busd':
+      return 'BUSDUSDT'
     default:
       throw `invalid denom ${denom}`;
   }
 };
 
 var getCoinGeckoPrice = async (denom) => {
+  if (denom === 'busd') return 1.0
   const CoinGeckoClient = new CoinGecko();
   try {
     var market = getMarketCoinGecko(denom);
@@ -60,6 +65,7 @@ var getCoinGeckoPrice = async (denom) => {
 };
 
 var getBinancePrice = async (denom) => {
+  if (denom === 'busd') return 1.0
   try {
     var market = getMarketBinance(denom);
   } catch (e) {
