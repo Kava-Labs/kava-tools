@@ -13,7 +13,7 @@ const getMarketCoinGecko = (denom) => {
       return 'bitcoin';
     case 'atom':
       return 'cosmos';
-    case 'kava':
+    case 'ukava':
       return 'kava';
     default:
       throw `invalid denom ${denom}`;
@@ -28,7 +28,7 @@ const getMarketBinance = (denom) => {
       return 'XRPUSDT';
     case 'btc':
       return 'BTCUSDT';
-    case 'kava':
+    case 'ukava':
       return 'KAVAUSDT';
     case 'atom':
       return 'ATOMUSDT';
