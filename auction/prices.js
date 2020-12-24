@@ -5,12 +5,14 @@ const BINANCE_API_TICKER = 'https://api.binance.com/api/v3/ticker/24hr?symbol=';
 
 const getMarketCoinGecko = (denom) => {
   switch (denom) {
-    case 'xrp':
+    case 'xrpb':
       return 'ripple';
     case 'bnb':
       return 'binancecoin';
-    case 'btc':
+    case 'btcb':
       return 'bitcoin';
+    case 'hard':
+      return 'hard-protocol';
     case 'atom':
       return 'cosmos';
     case 'ukava':
@@ -24,12 +26,14 @@ const getMarketBinance = (denom) => {
   switch (denom) {
     case 'bnb':
       return 'BNBUSDT';
-    case 'xrp':
+    case 'xrpb':
       return 'XRPUSDT';
-    case 'btc':
+    case 'btcb':
       return 'BTCUSDT';
     case 'ukava':
       return 'KAVAUSDT';
+    case 'hard':
+      return 'HARDUSDT';
     case 'atom':
       return 'ATOMUSDT';
     default:
