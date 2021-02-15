@@ -74,7 +74,37 @@ var getBinancePrice = async (marketID) => {
   // return priceFetch.data.lastPrice
 };
 
+var getBitmaxPrice = async (marketID) => {
+  try {
+    var url = coinUtils.loadBinanceQuery(marketID)
+  } catch (e) {
+    throw new Error(`could not load ${marketID} query from bitmax`)
+  }
+  try {
+    var priceFetch = await axios.get(url)
+  } catch(e) {
+    console.log(e)
+    throw new Error(`could not fetch ${marketID} price from bitmax`)
+  }
+  try {
+    const proposedPrice = coinUtils.postProcessBitmaxPrice(
+      marketID,
+      priceFetch.data
+    )
+    if (!proposedPrice) {
+      throw new Error(`could not post-process ${marketID} from bitmax`)
+    }
+    return proposedPrice
+  } catch (e) {
+    console.log(e)
+    console.log(`failure to post-process bitmax price request for ${marketID}
+    data: ${priceFetch.data}`)
+    throw new Error(`could not post-process ${marketID} price for bitmax`)
+  }
+}
+
 module.exports.prices = {
   getBinancePrice,
   getCoinGeckoPrice,
+  getBitmaxPrice,
 };

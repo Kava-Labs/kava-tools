@@ -25,8 +25,8 @@ class PriceOracle {
     // Validate each market ID on Binance and CoinGecko
     for (let i = 0; i < marketIDs.length; i++) {
       try {
-        utils.loadBinanceMarket(marketIDs[i]);
-        utils.loadCoinGeckoMarket(marketIDs[i]);
+        utils.loadPrimaryMarket(marketIDs[i]);
+        utils.loadBackupMarket(marketIDs[i]);
       } catch (e) {
         console.log("couldn't load remote market from market ID, error:", e);
         return;
@@ -142,7 +142,7 @@ class PriceOracle {
     var binanceError = false
     var res
     try {
-      res = await this.fetchPriceBinance(marketID);
+      res = await this.fetchPrimaryPrice(marketID);
       if (!res.success) {
         binanceError = true
       }
@@ -150,10 +150,31 @@ class PriceOracle {
       binanceError = true
     }
     if (binanceError) {
-      console.log("trying coingecko after error")
-      res = await this.fetchPriceCoinGecko(marketID);
+      console.log("trying backup price source after error")
+      res = await this.fetchBackupPrice(marketID);
     }
     return res;
+  }
+
+    /**
+   * Fetches price from the primary source for a market
+   * @param {String} marketID the market's ID
+   */
+  async fetchPrimaryPrice(marketID) {
+    switch (marketID) {
+      case 'usdx:usd':
+        return this.fetchPriceBitmax(marketID)
+      default:
+        return this.fetchPriceBinance(marketID)
+    }
+  }
+
+      /**
+   * Fetches price from the backup source for a market
+   * @param {String} marketID the market's ID
+   */
+  async fetchBackupPrice(marketID) {
+    return this.fetchPriceCoinGecko(marketID)
   }
 
   /**
@@ -181,6 +202,21 @@ class PriceOracle {
       retreivedPrice = await prices.getCoinGeckoPrice(marketID);
     } catch (e) {
       console.log(`could not get ${marketID} price from Coin Gecko`);
+      return { price: null, success: false };
+    }
+    return { price: retreivedPrice, success: true };
+  }
+
+    /**
+   * Fetches price from Coin Gecko
+   * @param {String} marketID the market's ID
+   */
+  async fetchPriceBitmax(marketID) {
+    let retreivedPrice;
+    try {
+      retreivedPrice = await prices.getBitmaxPrice(marketID);
+    } catch (e) {
+      console.log(`could not get ${marketID} price from Bitmax`);
       return { price: null, success: false };
     }
     return { price: retreivedPrice, success: true };

@@ -12,6 +12,9 @@ const COINGECKO_V3_MARKET_RANGE_REQUEST = util.format(
 const COINGECKO_V3_SIMPLE_PRICE_REQUEST = util.format(
   'https://api.coingecko.com/api/v3/simple/price/?ids=%s&vs_currencies=%s'
 );
+const BITMAX_V1_TICKER_REQUEST = util.format(
+  'https://bitmax.io/api/pro/v1/ticker?symbol=%s/%s'
+)
 
 const loadCoinGeckoMarket = (marketID) => {
   switch (marketID) {
@@ -42,7 +45,7 @@ const loadCoinGeckoMarket = (marketID) => {
     case 'hard:usd:30':
       return 'hard-protocol';
     default:
-      throw `invalid market id ${marketID}`;
+      throw `invalid coin gecko market id ${marketID}`;
   }
 };
 
@@ -101,7 +104,7 @@ const loadCoinGeckoQuery = (marketID) => {
     case 'busd:usd:30':
       return ""
     default:
-      throw `invalid market id ${marketID}`;
+      throw `invalid coingecko market id ${marketID}`;
   }
 };
 
@@ -130,6 +133,19 @@ const calculateAveragePriceCoinGecko = (data) => {
   const prices = data.prices.map((p) => p[1]);
   return prices.reduce((a, b) => a + b, 0) / data.prices.length;
 };
+
+const loadPrimaryMarket = (marketID) => {
+  switch (marketID) {
+    case 'usdx:usd':
+      return loadBitmaxMarket(marketID)
+    default:
+      return loadBinanceMarket(marketID)
+  }
+}
+
+const loadBackupMarket = (marketID) => {
+  return loadCoinGeckoMarket(marketID)
+}
 
 const loadBinanceMarket = (marketID) => {
   switch (marketID) {
@@ -160,9 +176,18 @@ const loadBinanceMarket = (marketID) => {
     case 'atom:usd':
       return 'ATOMUSDT';
     default:
-      throw `invalid market id ${marketID}`;
+      throw `invalid binance market id ${marketID}`;
   }
 };
+
+const loadBitmaxMarket = (marketID) => {
+  switch (marketID) {
+    case 'usdx:usd':
+      return 'USDXUSDT';
+    default:
+      throw `invalid bitmax market id ${marketID}`
+  }
+}
 
 const loadBinanceQuery = (marketID) => {
   switch (marketID) {
@@ -193,7 +218,7 @@ const loadBinanceQuery = (marketID) => {
     case 'busd:usd:30':
       return ""
     default:
-      throw `invalid market id ${marketID}`;
+      throw `invalid binance market id ${marketID}`;
   }
 };
 
@@ -243,13 +268,34 @@ const getPreviousPrice = (prices, marketID, address) => {
   }
 };
 
+const loadBitmaxQuery = (marketID) => {
+  switch (marketID) {
+    case 'usdx:usd':
+      return util.format(BITMAX_V1_TICKER_REQUEST, "USDX", "USDT");
+    default:
+      throw `invalid bitmax market id ${marketID}`
+  }
+}
+
+const postProcessBitmaxPrice = (marketID, data) => {
+  switch (marketID) {
+    default:
+      return data.close;
+  }
+};
+
 module.exports.utils = {
   loadCoinGeckoMarket,
   loadCoinGeckoQuery,
   postProcessCoinGeckoPrice,
+  loadPrimaryMarket,
+  loadBackupMarket,
   loadBinanceMarket,
   loadBinanceQuery,
+  loadBitmaxMarket,
+  loadBitmaxQuery,
   postProcessBinancePrice,
   getPreviousPrice,
   getPercentChange,
+  postProcessBitmaxPrice
 };
