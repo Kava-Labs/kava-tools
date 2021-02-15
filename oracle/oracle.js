@@ -174,8 +174,14 @@ class PriceOracle {
    * @param {String} marketID the market's ID
    */
   async fetchBackupPrice(marketID) {
-    return this.fetchPriceCoinGecko(marketID)
+    switch (marketID) {
+      case 'usdx:usd':
+        return this.fetchPriceBitmax(marketID)
+      default:
+          return this.fetchPriceCoinGecko(marketID)
+    }
   }
+
 
   /**
    * Fetches price from Binance

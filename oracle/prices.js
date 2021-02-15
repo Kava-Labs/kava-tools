@@ -76,7 +76,7 @@ var getBinancePrice = async (marketID) => {
 
 var getBitmaxPrice = async (marketID) => {
   try {
-    var url = coinUtils.loadBinanceQuery(marketID)
+    var url = coinUtils.loadBitmaxQuery(marketID)
   } catch (e) {
     throw new Error(`could not load ${marketID} query from bitmax`)
   }
@@ -89,7 +89,7 @@ var getBitmaxPrice = async (marketID) => {
   try {
     const proposedPrice = coinUtils.postProcessBitmaxPrice(
       marketID,
-      priceFetch.data
+      priceFetch.data.data
     )
     if (!proposedPrice) {
       throw new Error(`could not post-process ${marketID} from bitmax`)

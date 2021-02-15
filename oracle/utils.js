@@ -144,7 +144,12 @@ const loadPrimaryMarket = (marketID) => {
 }
 
 const loadBackupMarket = (marketID) => {
-  return loadCoinGeckoMarket(marketID)
+  switch (marketID) {
+    case 'usdx:usd':
+      return loadBitmaxMarket(marketID)
+    default:
+      return loadCoinGeckoMarket(marketID)
+  }
 }
 
 const loadBinanceMarket = (marketID) => {
