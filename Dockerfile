@@ -7,8 +7,9 @@ COPY index.js index.js
 COPY scripts scripts
 COPY oracle oracle
 COPY auction auction
+COPY yarn.lock yarn.lock
 
-RUN npm install
+RUN yarn
 RUN mv ./scripts/.env  .env
 
 CMD ["node", "./scripts/oracle.js"]
