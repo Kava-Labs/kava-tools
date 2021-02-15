@@ -7,9 +7,8 @@ COPY index.js index.js
 COPY scripts scripts
 COPY oracle oracle
 COPY auction auction
-COPY refund refund
 
 RUN npm install
-RUN mv ./scripts/.env .env
+RUN mv ./scripts/.env  .env
 
 CMD ["node", "./scripts/oracle.js"]
