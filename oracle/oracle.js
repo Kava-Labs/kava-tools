@@ -8,7 +8,7 @@ const utils = require('./utils').utils;
  * Price oracle class for posting prices to Kava.
  */
 class PriceOracle {
-  constructor(marketIDs, expiry, expiryThreshold, deviation) {
+  constructor(marketIDs, expiry, expiryThreshold, deviation, fee) {
     if (!marketIDs) {
       throw new Error('must specify at least one market ID');
     }
@@ -20,6 +20,9 @@ class PriceOracle {
     }
     if (!deviation) {
       throw new Error('must specify percentage deviation');
+    }
+    if (!fee) {
+      throw new Error('must specify fee')
     }
 
     // Validate each market ID on Binance and CoinGecko
@@ -38,6 +41,7 @@ class PriceOracle {
     this.expiry = expiry;
     this.expiryThreshold = expiryThreshold;
     this.deviation = deviation;
+    this.fee = fee
   }
 
   /**
@@ -119,13 +123,13 @@ class PriceOracle {
       }
       var checkTxError = false
       try {
-        await this.client.checkTxHash(txHash, 25000);
+        await this.client.checkTxHash(txHash, 120000);
       } catch (e) {
         checkTxError = true
       }
       if (checkTxError) {
         try {
-          await this.client.checkTxHash(txHash, 25000);
+          await this.client.checkTxHash(txHash, 120000);
         } catch (error) {
           console.log(`Tx not accepted by chain: ${error}`);
         }
@@ -294,7 +298,8 @@ class PriceOracle {
     console.log(
       `posting price ${newPrice} for ${marketID} with sequence ${sequence}`
     );
-    return await this.client.postPrice(marketID, newPrice, newExpiry, undefined, sequence);
+    let fee = { amount: [], gas: String(150000) }
+    return await this.client.postPrice(marketID, newPrice, newExpiry, fee, sequence);
   }
 
   /**
