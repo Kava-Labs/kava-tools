@@ -298,8 +298,7 @@ class PriceOracle {
     console.log(
       `posting price ${newPrice} for ${marketID} with sequence ${sequence}`
     );
-    let fee = { amount: [], gas: String(150000) }
-    return await this.client.postPrice(marketID, newPrice, newExpiry, fee, sequence);
+    return await this.client.postPrice(marketID, newPrice, newExpiry, this.fee, sequence);
   }
 
   /**
