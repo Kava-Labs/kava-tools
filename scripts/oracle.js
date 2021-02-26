@@ -1,4 +1,4 @@
-require('dotenv').config({path: '.env-oracle-localnet'} );
+require('dotenv').config({path: process.env.ENV_FILE} );
 const PriceOracle = require('..').PriceOracle;
 const cron = require('node-cron');
 
