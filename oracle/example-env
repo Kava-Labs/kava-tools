@@ -25,3 +25,5 @@ EXPIRY_THRESHOLD="300"
 
 # if the oracle should use the legacy HD path for kava (118). Setting to "true" will use 118, false will use 459
 LEGACY_HD_PATH="false"
+
+FEE="25000"
