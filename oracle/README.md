@@ -1,6 +1,6 @@
 # Oracle
 
-Client software for running an oracle on the kava blockchain. Currently tested against kava-testnet-11000.
+Client software for running an oracle on the kava blockchain. Currently tested against kava-testnet-12000.
 
 ## How it works
 
