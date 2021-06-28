@@ -167,7 +167,7 @@ class PriceOracle {
   async fetchPrimaryPrice(marketID) {
     switch (marketID) {
       case 'usdx:usd':
-        return this.fetchPriceBitmax(marketID)
+        return this.fetchPriceAscendex(marketID)
       default:
         return this.fetchPriceBinance(marketID)
     }
@@ -180,7 +180,7 @@ class PriceOracle {
   async fetchBackupPrice(marketID) {
     switch (marketID) {
       case 'usdx:usd':
-        return this.fetchPriceBitmax(marketID)
+        return this.fetchPriceAscendex(marketID)
       default:
           return this.fetchPriceCoinGecko(marketID)
     }
@@ -221,12 +221,12 @@ class PriceOracle {
    * Fetches price from Coin Gecko
    * @param {String} marketID the market's ID
    */
-  async fetchPriceBitmax(marketID) {
+  async fetchPriceAscendex(marketID) {
     let retreivedPrice;
     try {
-      retreivedPrice = await prices.getBitmaxPrice(marketID);
+      retreivedPrice = await prices.getAscendexPrice(marketID);
     } catch (e) {
-      console.log(`could not get ${marketID} price from Bitmax`);
+      console.log(`could not get ${marketID} price from Ascendex`);
       return { price: null, success: false };
     }
     return { price: retreivedPrice, success: true };
