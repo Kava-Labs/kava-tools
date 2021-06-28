@@ -74,37 +74,37 @@ var getBinancePrice = async (marketID) => {
   // return priceFetch.data.lastPrice
 };
 
-var getBitmaxPrice = async (marketID) => {
+var getAscendexPrice = async (marketID) => {
   try {
-    var url = coinUtils.loadBitmaxQuery(marketID)
+    var url = coinUtils.loadAscendexQuery(marketID)
   } catch (e) {
-    throw new Error(`could not load ${marketID} query from bitmax`)
+    throw new Error(`could not load ${marketID} query from ascendex`)
   }
   try {
     var priceFetch = await axios.get(url)
   } catch(e) {
     console.log(e)
-    throw new Error(`could not fetch ${marketID} price from bitmax`)
+    throw new Error(`could not fetch ${marketID} price from ascendex`)
   }
   try {
-    const proposedPrice = coinUtils.postProcessBitmaxPrice(
+    const proposedPrice = coinUtils.postProcessAscendexPrice(
       marketID,
       priceFetch.data.data
     )
     if (!proposedPrice) {
-      throw new Error(`could not post-process ${marketID} from bitmax`)
+      throw new Error(`could not post-process ${marketID} from ascendex`)
     }
     return proposedPrice
   } catch (e) {
     console.log(e)
-    console.log(`failure to post-process bitmax price request for ${marketID}
+    console.log(`failure to post-process ascendex price request for ${marketID}
     data: ${priceFetch.data}`)
-    throw new Error(`could not post-process ${marketID} price for bitmax`)
+    throw new Error(`could not post-process ${marketID} price for ascendex`)
   }
 }
 
 module.exports.prices = {
   getBinancePrice,
   getCoinGeckoPrice,
-  getBitmaxPrice,
+  getAscendexPrice,
 };

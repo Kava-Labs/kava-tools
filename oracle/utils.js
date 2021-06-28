@@ -12,8 +12,8 @@ const COINGECKO_V3_MARKET_RANGE_REQUEST = util.format(
 const COINGECKO_V3_SIMPLE_PRICE_REQUEST = util.format(
   'https://api.coingecko.com/api/v3/simple/price/?ids=%s&vs_currencies=%s'
 );
-const BITMAX_V1_TICKER_REQUEST = util.format(
-  'https://bitmax.io/api/pro/v1/ticker?symbol=%s/%s'
+const ASCENDEX_V1_TICKER_REQUEST = util.format(
+  'https://ascendex.com/api/pro/v1/ticker?symbol=%s/%s'
 )
 
 const loadCoinGeckoMarket = (marketID) => {
@@ -137,7 +137,7 @@ const calculateAveragePriceCoinGecko = (data) => {
 const loadPrimaryMarket = (marketID) => {
   switch (marketID) {
     case 'usdx:usd':
-      return loadBitmaxMarket(marketID)
+      return loadAscendexMarket(marketID)
     default:
       return loadBinanceMarket(marketID)
   }
@@ -146,7 +146,7 @@ const loadPrimaryMarket = (marketID) => {
 const loadBackupMarket = (marketID) => {
   switch (marketID) {
     case 'usdx:usd':
-      return loadBitmaxMarket(marketID)
+      return loadAscendexMarket(marketID)
     default:
       return loadCoinGeckoMarket(marketID)
   }
@@ -185,12 +185,12 @@ const loadBinanceMarket = (marketID) => {
   }
 };
 
-const loadBitmaxMarket = (marketID) => {
+const loadAscendexMarket = (marketID) => {
   switch (marketID) {
     case 'usdx:usd':
       return 'USDXUSDT';
     default:
-      throw `invalid bitmax market id ${marketID}`
+      throw `invalid ascendex market id ${marketID}`
   }
 }
 
@@ -273,16 +273,16 @@ const getPreviousPrice = (prices, marketID, address) => {
   }
 };
 
-const loadBitmaxQuery = (marketID) => {
+const loadAscendexQuery = (marketID) => {
   switch (marketID) {
     case 'usdx:usd':
-      return util.format(BITMAX_V1_TICKER_REQUEST, "USDX", "USDT");
+      return util.format(ASCENDEX_V1_TICKER_REQUEST, "USDX", "USDT");
     default:
-      throw `invalid bitmax market id ${marketID}`
+      throw `invalid ascendex market id ${marketID}`
   }
 }
 
-const postProcessBitmaxPrice = (marketID, data) => {
+const postProcessAscendexPrice = (marketID, data) => {
   switch (marketID) {
     default:
       return data.close;
@@ -297,10 +297,10 @@ module.exports.utils = {
   loadBackupMarket,
   loadBinanceMarket,
   loadBinanceQuery,
-  loadBitmaxMarket,
-  loadBitmaxQuery,
+  loadAscendexMarket,
+  loadAscendexQuery,
   postProcessBinancePrice,
   getPreviousPrice,
   getPercentChange,
-  postProcessBitmaxPrice
+  postProcessAscendexPrice
 };
