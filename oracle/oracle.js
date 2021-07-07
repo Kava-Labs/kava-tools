@@ -168,6 +168,8 @@ class PriceOracle {
     switch (marketID) {
       case 'usdx:usd':
         return this.fetchPriceAscendex(marketID)
+      case 'usdx:usd:30':
+        return this.fetchPriceAscendex(marketID)
       default:
         return this.fetchPriceBinance(marketID)
     }
@@ -181,6 +183,8 @@ class PriceOracle {
     switch (marketID) {
       case 'usdx:usd':
         return this.fetchPriceAscendex(marketID)
+        case 'usdx:usd:30':
+          return this.fetchPriceAscendex(marketID)
       default:
           return this.fetchPriceCoinGecko(marketID)
     }
