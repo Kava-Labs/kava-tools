@@ -51,7 +51,7 @@ class PriceOracle {
    * @param {Boolean} legacyHDPath
    * @return {Promise}
    */
-  async initClient(lcdURL, mnemonic, legacyHDPath=false) {
+  async initClient(lcdURL, mnemonic, legacyHDPath = false) {
     if (!lcdURL) {
       throw new Error("chain's rest-server url is required");
     }
@@ -160,33 +160,45 @@ class PriceOracle {
     return res;
   }
 
-    /**
-   * Fetches price from the primary source for a market
-   * @param {String} marketID the market's ID
-   */
+  /**
+ * Fetches price from the primary source for a market
+ * @param {String} marketID the market's ID
+ */
   async fetchPrimaryPrice(marketID) {
     switch (marketID) {
       case 'usdx:usd':
         return this.fetchPriceAscendex(marketID)
       case 'usdx:usd:30':
         return this.fetchPriceAscendex(marketID)
+      case 'usdx:usd:720':
+        return this.fetchPriceAscendex(marketID)
+      case 'swp:usd':
+        return this.fetchPriceAscendex(marketID)
+      case 'swp:usd:30':
+        return this.fetchPriceAscendex(marketID)
       default:
         return this.fetchPriceBinance(marketID)
     }
   }
 
-      /**
-   * Fetches price from the backup source for a market
-   * @param {String} marketID the market's ID
-   */
+  /**
+* Fetches price from the backup source for a market
+* @param {String} marketID the market's ID
+*/
   async fetchBackupPrice(marketID) {
     switch (marketID) {
       case 'usdx:usd':
         return this.fetchPriceAscendex(marketID)
-        case 'usdx:usd:30':
-          return this.fetchPriceAscendex(marketID)
+      case 'usdx:usd:30':
+        return this.fetchPriceAscendex(marketID)
+      case 'usdx:usd:720':
+        return this.fetchPriceAscendex(marketID)  
+      case 'swp:usd':
+        return this.fetchPriceAscendex(marketID)
+      case 'swp:usd:30':
+        return this.fetchPriceAscendex(marketID)
       default:
-          return this.fetchPriceCoinGecko(marketID)
+        return this.fetchPriceCoinGecko(marketID)
     }
   }
 
@@ -221,10 +233,10 @@ class PriceOracle {
     return { price: retreivedPrice, success: true };
   }
 
-    /**
-   * Fetches price from Coin Gecko
-   * @param {String} marketID the market's ID
-   */
+  /**
+ * Fetches price from Coin Gecko
+ * @param {String} marketID the market's ID
+ */
   async fetchPriceAscendex(marketID) {
     let retreivedPrice;
     try {
