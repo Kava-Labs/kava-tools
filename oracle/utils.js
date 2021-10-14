@@ -16,8 +16,11 @@ const ASCENDEX_V1_TICKER_REQUEST = util.format(
   'https://ascendex.com/api/pro/v1/ticker?symbol=%s/%s'
 );
 
-const ASCENDEX_V1_BARHIST_REQUEST = util.format(
-  'https://ascendex.com/api/pro/v1/barhist?symbol=%s/%s&interval=60&n=30'
+const ASCENDEX_V1_30MIN_BARHIST_REQUEST = util.format(
+  'https://ascendex.com/api/pro/v1/barhist?symbol=%s/%s&interval=1&n=30'
+);
+const ASCENDEX_V1_12HR_BARHIST_REQUEST = util.format(
+  'https://ascendex.com/api/pro/v1/barhist?symbol=%s/%s&interval=15&n=48'
 );
 
 const loadCoinGeckoMarket = (marketID) => {
@@ -144,6 +147,12 @@ const loadPrimaryMarket = (marketID) => {
       return loadAscendexMarket(marketID);
     case 'usdx:usd:30':
       return loadAscendexMarket(marketID);
+    case 'usdx:usd:720':
+      return loadAscendexMarket(marketID);
+    case 'swp:usd':
+      return loadAscendexMarket(marketID);
+    case 'swp:usd:30':
+      return loadAscendexMarket(marketID);
     default:
       return loadBinanceMarket(marketID);
   }
@@ -154,6 +163,12 @@ const loadBackupMarket = (marketID) => {
     case 'usdx:usd':
       return loadAscendexMarket(marketID);
     case 'usdx:usd:30':
+      return loadAscendexMarket(marketID);
+    case 'usdx:usd:720':
+      return loadAscendexMarket(marketID);
+    case 'swp:usd':
+      return loadAscendexMarket(marketID);
+    case 'swp:usd:30':
       return loadAscendexMarket(marketID);
     default:
       return loadCoinGeckoMarket(marketID);
@@ -199,6 +214,12 @@ const loadAscendexMarket = (marketID) => {
       return 'USDXUSDT';
     case 'usdx:usd:30':
       return 'USDXUSDT';
+    case 'usdx:usd:720':
+      return 'USDXUSDT';
+    case 'swp:usd':
+      return 'SWPUSDT';
+    case 'swp:usd:30':
+      return 'SWPUSDT';
     default:
       throw `invalid ascendex market id ${marketID}`;
   }
@@ -287,8 +308,14 @@ const loadAscendexQuery = (marketID) => {
   switch (marketID) {
     case 'usdx:usd':
       return util.format(ASCENDEX_V1_TICKER_REQUEST, 'USDX', 'USDT');
+    case 'swp:usd':
+      return util.format(ASCENDEX_V1_TICKER_REQUEST, 'SWP', 'USDT');
     case 'usdx:usd:30':
-      return util.format(ASCENDEX_V1_BARHIST_REQUEST, 'USDX', 'USDT');
+      return util.format(ASCENDEX_V1_30MIN_BARHIST_REQUEST, 'USDX', 'USDT');
+    case 'swp:usd:30':
+      return util.format(ASCENDEX_V1_30MIN_BARHIST_REQUEST, 'SWP', 'USDT');
+    case 'usdx:usd:720':
+      return util.format(ASCENDEX_V1_12HR_BARHIST_REQUEST, 'USDX', 'USDT');
     default:
       throw `invalid ascendex market id ${marketID}`;
   }
@@ -297,6 +324,10 @@ const loadAscendexQuery = (marketID) => {
 const postProcessAscendexPrice = (marketID, data) => {
   switch (marketID) {
     case 'usdx:usd:30':
+      return calculateAveragePriceAscendex(data);
+    case 'usdx:usd:720':
+      return calculateAveragePriceAscendex(data);
+    case 'swp:usd:30':
       return calculateAveragePriceAscendex(data);
     default:
       return data.close;
