@@ -43,10 +43,20 @@ const loadCoinGeckoMarket = (marketID) => {
       return 'binance-usd';
     case 'atom:usd':
       return 'cosmos';
+    case 'atom:usd:30':
+      return 'cosmos';
     case 'kava:usd':
       return 'kava';
     case 'kava:usd:30':
       return 'kava';
+    case 'luna:usd':
+      return 'terra-luna';
+    case 'luna:usd:30':
+      return 'terra-luna';
+    case 'akt:usd':
+      return 'akash-network'
+    case 'akt:usd:30':
+      return 'akash-network'
     case 'hard:usd':
       return 'hard-protocol';
     case 'hard:usd:30':
@@ -96,12 +106,30 @@ const loadCoinGeckoQuery = (marketID) => {
       );
     case 'atom:usd':
       return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'cosmos', 'usd');
+    case 'atom:usd:30':
+      return util.format(
+        COINGECKO_V3_MARKET_RANGE_REQUEST,
+        'cosmos',
+        'usd',
+        String(past30Minutes),
+        String(currentTime)
+      );
     case 'kava:usd':
       return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'kava', 'usd');
     case 'kava:usd:30':
       return util.format(
         COINGECKO_V3_MARKET_RANGE_REQUEST,
         'kava',
+        'usd',
+        String(past30Minutes),
+        String(currentTime)
+      );
+    case 'luna:usd':
+      return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'terra-luna', 'usd');
+    case 'luna:usd:30':
+      return util.format(
+        COINGECKO_V3_MARKET_RANGE_REQUEST,
+        'terra-luna',
         'usd',
         String(past30Minutes),
         String(currentTime)
@@ -153,6 +181,10 @@ const loadPrimaryMarket = (marketID) => {
       return loadAscendexMarket(marketID);
     case 'swp:usd:30':
       return loadAscendexMarket(marketID);
+    case 'akt:usd':
+      return loadAscendexMarket(marketID);
+    case 'akt:usd:30':
+      return loadAscendexMarket(marketID);
     default:
       return loadBinanceMarket(marketID);
   }
@@ -169,6 +201,10 @@ const loadBackupMarket = (marketID) => {
     case 'swp:usd':
       return loadAscendexMarket(marketID);
     case 'swp:usd:30':
+      return loadAscendexMarket(marketID);
+    case 'akt:usd':
+      return loadAscendexMarket(marketID);
+    case 'akt:usd:30':
       return loadAscendexMarket(marketID);
     default:
       return loadCoinGeckoMarket(marketID);
@@ -203,6 +239,12 @@ const loadBinanceMarket = (marketID) => {
       return 'HARDUSDT';
     case 'atom:usd':
       return 'ATOMUSDT';
+    case 'atom:usd:30':
+      return 'ATOMUSDT';
+    case 'luna:usd':
+      return 'LUNAUSDT';
+    case 'luna:usd:30':
+      return 'LUNAUSDT';
     default:
       throw `invalid binance market id ${marketID}`;
   }
@@ -220,6 +262,10 @@ const loadAscendexMarket = (marketID) => {
       return 'SWPUSDT';
     case 'swp:usd:30':
       return 'SWPUSDT';
+    case 'akt:usd':
+      return 'AKTUSDT';
+    case 'akt:usd:30':
+      return 'AKTUSDT';
     default:
       throw `invalid ascendex market id ${marketID}`;
   }
@@ -249,12 +295,18 @@ const loadBinanceQuery = (marketID) => {
       return util.format(BINANCE_V3_KLINES_REQUEST, 'HARDUSDT');
     case 'atom:usd':
       return util.format(BINANCE_V3_TICKER_REQUEST, 'ATOMUSDT');
+    case 'atom:usd:30':
+      return util.format(BINANCE_V3_KLINES_REQUEST, 'ATOMUSDT');
+    case 'luna:usd':
+      return util.format(BINANCE_V3_TICKER_REQUEST, 'LUNAUSDT');
+    case 'luna:usd:30':
+      return util.format(BINANCE_V3_KLINES_REQUEST, 'LUNAUSDT');
     case 'busd:usd':
       return '';
     case 'busd:usd:30':
       return '';
     default:
-      throw `invalid binance market id ${marketID}`;
+      throw `invalid binance (query) market id ${marketID}`;
   }
 };
 
@@ -269,6 +321,10 @@ const postProcessBinancePrice = (marketID, data) => {
     case 'kava:usd:30':
       return calculateAveragePriceBinance(data);
     case 'hard:usd:30':
+      return calculateAveragePriceBinance(data);
+    case 'atom:usd:30':
+      return calculateAveragePriceBinance(data);
+    case 'luna:usd:30':
       return calculateAveragePriceBinance(data);
     default:
       return data.lastPrice;
@@ -316,8 +372,12 @@ const loadAscendexQuery = (marketID) => {
       return util.format(ASCENDEX_V1_30MIN_BARHIST_REQUEST, 'SWP', 'USDT');
     case 'usdx:usd:720':
       return util.format(ASCENDEX_V1_12HR_BARHIST_REQUEST, 'USDX', 'USDT');
+    case 'akt:usd:30':
+      return util.format(ASCENDEX_V1_30MIN_BARHIST_REQUEST, 'AKT', 'USDT');
+    case 'akt:usd':
+      return util.format(ASCENDEX_V1_TICKER_REQUEST, 'AKT', 'USDT');
     default:
-      throw `invalid ascendex market id ${marketID}`;
+      throw `invalid ascendex (query) market id ${marketID}`;
   }
 };
 
@@ -328,6 +388,8 @@ const postProcessAscendexPrice = (marketID, data) => {
     case 'usdx:usd:720':
       return calculateAveragePriceAscendex(data);
     case 'swp:usd:30':
+      return calculateAveragePriceAscendex(data);
+    case 'akt:usd:30':
       return calculateAveragePriceAscendex(data);
     default:
       return data.close;

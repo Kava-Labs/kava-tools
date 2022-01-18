@@ -176,6 +176,10 @@ class PriceOracle {
         return this.fetchPriceAscendex(marketID)
       case 'swp:usd:30':
         return this.fetchPriceAscendex(marketID)
+      case 'akt:usd':
+        return this.fetchPriceAscendex(marketID)
+      case 'akt:usd:30':
+        return this.fetchPriceAscendex(marketID)
       default:
         return this.fetchPriceBinance(marketID)
     }
@@ -196,6 +200,10 @@ class PriceOracle {
       case 'swp:usd':
         return this.fetchPriceAscendex(marketID)
       case 'swp:usd:30':
+        return this.fetchPriceAscendex(marketID)
+      case 'akt:usd':
+        return this.fetchPriceAscendex(marketID)
+      case 'akt:usd:30':
         return this.fetchPriceAscendex(marketID)
       default:
         return this.fetchPriceCoinGecko(marketID)
