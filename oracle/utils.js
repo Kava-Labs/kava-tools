@@ -346,6 +346,9 @@ const getPercentChange = (p1, p2) => {
 const getPreviousPrice = (prices, marketID, address) => {
   var found = false;
   var index = 0;
+  if (prices === null) {
+    return
+  }
   for (var i = 0; i < prices.length; i++) {
     if (prices[i].market_id == marketID) {
       if (prices[i].oracle_address == address) {
