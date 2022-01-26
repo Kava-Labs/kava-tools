@@ -41,6 +41,10 @@ const loadCoinGeckoMarket = (marketID) => {
       return 'binance-usd';
     case 'busd:usd:30':
       return 'binance-usd';
+    case 'ust:usd':
+      return 'TerraUSD'
+    case 'ust:usd:30':
+      return 'TerraUSD'
     case 'atom:usd':
       return 'cosmos';
     case 'atom:usd:30':
@@ -138,6 +142,10 @@ const loadCoinGeckoQuery = (marketID) => {
       return '';
     case 'busd:usd:30':
       return '';
+    case 'ust:usd':
+      return '';
+    case 'ust:usd:30':
+      return '';
     default:
       throw `invalid coingecko market id ${marketID}`;
   }
@@ -221,6 +229,10 @@ const loadBinanceMarket = (marketID) => {
       return 'BUSDUSDT';
     case 'busd:usd:30':
       return 'BUSDUSDT';
+    case 'ust:usd':
+      return 'USTUSDT';
+    case 'ust:usd:30':
+      return 'USTUSDT';
     case 'xrp:usd':
       return 'XRPUSDT';
     case 'xrp:usd:30':
@@ -304,6 +316,10 @@ const loadBinanceQuery = (marketID) => {
     case 'busd:usd':
       return '';
     case 'busd:usd:30':
+      return '';
+    case 'ust:usd':
+      return '';
+    case 'ust:usd:30':
       return '';
     default:
       throw `invalid binance (query) market id ${marketID}`;
