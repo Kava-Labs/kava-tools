@@ -14,7 +14,7 @@ docker-login:
 
 .PHONY: docker-build
 docker-build:
-	$(DOCKER) buildx build --platform linux/amd64 -t $(IMAGE_NAME):$(COMMIT_ID_SHORT) --push . 
+	$(DOCKER) buildx build --platform linux/amd64 -t $(DOCKER_REPOSITORY_URL):$(COMMIT_ID_SHORT) --push . 
 .PHONY: docker-tag
 docker-tag:
 	$(DOCKER) tag $(IMAGE_NAME):$(COMMIT_ID_SHORT) $(DOCKER_REPOSITORY_URL):$(COMMIT_ID_SHORT)
