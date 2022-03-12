@@ -14,9 +14,7 @@ docker-login:
 
 .PHONY: docker-build
 docker-build:
-	$(DOCKER) build -t $(IMAGE_NAME):$(COMMIT_ID_SHORT) .
-# oracle-service:75a6d3b
-# 843137275421.dkr.ecr.us-east-1.amazonaws.com/oracle-service:75a6d3b
+	$(DOCKER) buildx build --platform linux/amd64 -t $(IMAGE_NAME):$(COMMIT_ID_SHORT) --push . 
 .PHONY: docker-tag
 docker-tag:
 	$(DOCKER) tag $(IMAGE_NAME):$(COMMIT_ID_SHORT) $(DOCKER_REPOSITORY_URL):$(COMMIT_ID_SHORT)
