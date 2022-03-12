@@ -65,6 +65,10 @@ const loadCoinGeckoMarket = (marketID) => {
       return 'hard-protocol';
     case 'hard:usd:30':
       return 'hard-protocol';
+    case 'osmo:usd':
+      return 'osmosis';
+    case 'osmo:usd:30':
+      return 'osmosis';  
     default:
       throw `invalid coin gecko market id ${marketID}`;
   }
@@ -138,6 +142,16 @@ const loadCoinGeckoQuery = (marketID) => {
         String(past30Minutes),
         String(currentTime)
       );
+    case 'osmo:usd':
+      return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'osmosis', 'usd');
+    case 'osmo:usd:30':
+      return util.format(
+        COINGECKO_V3_MARKET_RANGE_REQUEST,
+        'osmosis',
+        'usd',
+        String(past30Minutes),
+        String(currentTime)
+      );
     case 'busd:usd':
       return '';
     case 'busd:usd:30':
@@ -162,6 +176,8 @@ const postProcessCoinGeckoPrice = (marketID, data) => {
     case 'kava:usd:30':
       return calculateAveragePriceCoinGecko(data);
     case 'hard:usd:30':
+      return calculateAveragePriceCoinGecko(data);
+    case 'osmo:usd:30':
       return calculateAveragePriceCoinGecko(data);
     default:
       const market = loadCoinGeckoMarket(marketID);
@@ -193,6 +209,10 @@ const loadPrimaryMarket = (marketID) => {
       return loadAscendexMarket(marketID);
     case 'akt:usd:30':
       return loadAscendexMarket(marketID);
+    case 'osmo:usd':
+      return loadCoinGeckoMarket(marketID);
+    case 'osmo:usd:30':
+      return loadCoinGeckoMarket(marketID);
     default:
       return loadBinanceMarket(marketID);
   }

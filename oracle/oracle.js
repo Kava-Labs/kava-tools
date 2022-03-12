@@ -180,6 +180,10 @@ class PriceOracle {
         return this.fetchPriceAscendex(marketID)
       case 'akt:usd:30':
         return this.fetchPriceAscendex(marketID)
+      case 'osmo:usd':
+        return this.fetchPriceCoinGecko(marketID)
+      case 'osmo:usd:30':
+        return this.fetchPriceCoinGecko(marketID)
       default:
         return this.fetchPriceBinance(marketID)
     }
