@@ -2,7 +2,7 @@ require('log-timestamp');
 const coinUtils = require('./utils.js').utils;
 const axios = require('axios');
 
-const WHITELIST_STABLE_COINS = ["busd:usd", "busd:usd:30", "ust:usd", "ust:usd:30"]
+const WHITELIST_STABLE_COINS = ["busd:usd", "busd:usd:30"]
 
 var getCoinGeckoPrice = async (marketID) => {
   if (WHITELIST_STABLE_COINS.indexOf(marketID) > -1 ) {

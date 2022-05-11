@@ -68,7 +68,7 @@ const loadCoinGeckoMarket = (marketID) => {
     case 'osmo:usd':
       return 'osmosis';
     case 'osmo:usd:30':
-      return 'osmosis';  
+      return 'osmosis';
     default:
       throw `invalid coin gecko market id ${marketID}`;
   }
@@ -157,9 +157,15 @@ const loadCoinGeckoQuery = (marketID) => {
     case 'busd:usd:30':
       return '';
     case 'ust:usd':
-      return '';
+      return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'terrausd', 'usd');
     case 'ust:usd:30':
-      return '';
+      return util.format(
+        COINGECKO_V3_MARKET_RANGE_REQUEST,
+        'terrausd',
+        'usd',
+        String(past30Minutes),
+        String(currentTime)
+      );
     default:
       throw `invalid coingecko market id ${marketID}`;
   }
@@ -338,9 +344,9 @@ const loadBinanceQuery = (marketID) => {
     case 'busd:usd:30':
       return '';
     case 'ust:usd':
-      return '';
+      return util.format(BINANCE_V3_TICKER_REQUEST, 'USTUSDT');
     case 'ust:usd:30':
-      return '';
+      return util.format(BINANCE_V3_KLINES_REQUEST, 'USTUSDT');
     default:
       throw `invalid binance (query) market id ${marketID}`;
   }
@@ -361,6 +367,8 @@ const postProcessBinancePrice = (marketID, data) => {
     case 'atom:usd:30':
       return calculateAveragePriceBinance(data);
     case 'luna:usd:30':
+      return calculateAveragePriceBinance(data);
+    case 'ust:usd:30':
       return calculateAveragePriceBinance(data);
     default:
       return data.lastPrice;
