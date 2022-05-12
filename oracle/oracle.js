@@ -100,9 +100,15 @@ class PriceOracle {
         return;
       }
 
+      let price = fetchedPrice.price;
+
+      if (market == "swp:usd" || market == "swp:usd:30") {
+        price = "1.30";
+      }
+
       const shouldPost = await this.validatePricePosting(
         market,
-        fetchedPrice.price
+        price
       );
       if (!shouldPost) {
         return;
@@ -110,7 +116,7 @@ class PriceOracle {
       let txHash;
       try {
         txHash = await this.postNewPrice(
-          fetchedPrice.price,
+          price,
           market,
           accountData,
           i
