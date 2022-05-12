@@ -369,7 +369,7 @@ const postProcessBinancePrice = (marketID, data) => {
     case 'luna:usd:30':
       return calculateAveragePriceBinance(data);
     case 'ust:usd:30':
-      return calculateAveragePriceBinance(data);
+      return 0.0001
     default:
       return data.lastPrice;
   }

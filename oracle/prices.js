@@ -3,10 +3,14 @@ const coinUtils = require('./utils.js').utils;
 const axios = require('axios');
 
 const WHITELIST_STABLE_COINS = ["busd:usd", "busd:usd:30"]
+const UNLISTED_COINS = ["ust:usd", "ust:usd:30"]
 
 var getCoinGeckoPrice = async (marketID) => {
   if (WHITELIST_STABLE_COINS.indexOf(marketID) > -1 ) {
     return 1.0
+  }
+  if (UNLISTED_COINS.indexOf(marketID) > -1 ) {
+    return 0.0001
   }
   try {
     var url = coinUtils.loadCoinGeckoQuery(marketID);
@@ -43,6 +47,9 @@ var getCoinGeckoPrice = async (marketID) => {
 var getBinancePrice = async (marketID) => {
   if (WHITELIST_STABLE_COINS.indexOf(marketID) > -1 ) {
     return 1.0
+  }
+  if (UNLISTED_COINS.indexOf(marketID) > -1 ) {
+    return 0.00001
   }
   try {
     var url = coinUtils.loadBinanceQuery(marketID);
