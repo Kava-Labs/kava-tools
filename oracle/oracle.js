@@ -102,7 +102,7 @@ class PriceOracle {
 
       let price = fetchedPrice.price;
 
-      if (market == "swp:usd" || market = "swp:usd:30") {
+      if (market == "swp:usd" || market == "swp:usd:30") {
         price = "1.30";
       }
 
