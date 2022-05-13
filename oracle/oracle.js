@@ -252,15 +252,30 @@ class PriceOracle {
   }
 
   /**
- * Fetches price from Coin Gecko
- * @param {String} marketID the market's ID
- */
+   * Fetches price from Ascendex
+   * @param {String} marketID the market's ID
+   */
   async fetchPriceAscendex(marketID) {
     let retreivedPrice;
     try {
       retreivedPrice = await prices.getAscendexPrice(marketID);
     } catch (e) {
       console.log(`could not get ${marketID} price from Ascendex`);
+      return { price: null, success: false };
+    }
+    return { price: retreivedPrice, success: true };
+  }
+
+  /**
+   * Fetches price from KuCoin
+   * @param {String} marketID the market's ID
+   */
+  async fetchPriceKuCoin(marketID) {
+    let retreivedPrice;
+    try {
+      retreivedPrice = await prices.getKuCoinPrice(marketID);
+    } catch (e) {
+      console.log(`could not get ${marketID} price from KuCoin`);
       return { price: null, success: false };
     }
     return { price: retreivedPrice, success: true };
