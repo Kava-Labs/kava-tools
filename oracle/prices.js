@@ -9,9 +9,11 @@ var getCoinGeckoPrice = async (marketID) => {
   if (WHITELIST_STABLE_COINS.indexOf(marketID) > -1 ) {
     return 1.0
   }
-  if (UNLISTED_COINS.indexOf(marketID) > -1 ) {
+
+  if (isUnlistedMarket(marketID)) {
     return 0
   }
+
   try {
     var url = coinUtils.loadCoinGeckoQuery(marketID);
   } catch (e) {
@@ -48,9 +50,11 @@ var getBinancePrice = async (marketID) => {
   if (WHITELIST_STABLE_COINS.indexOf(marketID) > -1 ) {
     return 1.0
   }
-  if (UNLISTED_COINS.indexOf(marketID) > -1 ) {
+
+  if (isUnlistedMarket(marketID)) {
     return 0
   }
+
   try {
     var url = coinUtils.loadBinanceQuery(marketID);
   } catch (e) {
@@ -110,8 +114,13 @@ var getAscendexPrice = async (marketID) => {
   }
 }
 
+function isUnlistedMarket(marketID) {
+  return UNLISTED_COINS.indexOf(marketID) > -1
+}
+
 module.exports.prices = {
   getBinancePrice,
   getCoinGeckoPrice,
   getAscendexPrice,
+  isUnlistedMarket,
 };
