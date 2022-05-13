@@ -10,7 +10,7 @@ var getCoinGeckoPrice = async (marketID) => {
     return 1.0
   }
   if (UNLISTED_COINS.indexOf(marketID) > -1 ) {
-    return 0.0001
+    return 0
   }
   try {
     var url = coinUtils.loadCoinGeckoQuery(marketID);
@@ -49,7 +49,7 @@ var getBinancePrice = async (marketID) => {
     return 1.0
   }
   if (UNLISTED_COINS.indexOf(marketID) > -1 ) {
-    return 0.00001
+    return 0
   }
   try {
     var url = coinUtils.loadBinanceQuery(marketID);
