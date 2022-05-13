@@ -314,7 +314,7 @@ class PriceOracle {
    * @param {Number} index the iteration count of the market IDs
    */
   async postNewPrice(fetchedPrice, marketID, accountData, index) {
-    if (!fetchedPrice && fetchedPrice !== 0) {
+    if (!fetchedPrice && (fetchedPrice !== 0 || !prices.isUnlistedMarket(marketID))) {
       throw new Error(
         'a retreived price is required in order to post a new price'
       );
