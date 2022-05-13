@@ -102,7 +102,7 @@ class PriceOracle {
 
       const shouldPost = await this.validatePricePosting(
         market,
-        fetchPrice.price
+        fetchedPrice.price
       );
       if (!shouldPost) {
         return;
@@ -280,13 +280,15 @@ class PriceOracle {
    * @param {String} marketID the market's ID
    */
   async fetchExchangePrice(marketID) {
-    const priceResult1 = this.fetchPriceAscendex(marketID);
+    const priceResult1 = await this.fetchPriceAscendex(marketID);
     if (!priceResult1.success) {
+      console.log(`could not get ${marketID} ascendex price`)
       return { price: null, success: false }
     }
 
-    const priceResult2 = this.fetchPriceKucoin(marketID);
+    const priceResult2 = await this.fetchPriceKuCoin(marketID);
     if (!priceResult2.success) {
+      console.log(`could not get ${marketID} kucoin price`)
       return { price: null, success: false }
     }
 
