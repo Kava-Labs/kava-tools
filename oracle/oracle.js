@@ -100,15 +100,9 @@ class PriceOracle {
         return;
       }
 
-      let price = fetchedPrice.price;
-
-      if (market == "swp:usd" || market == "swp:usd:30") {
-        price = "1.30";
-      }
-
       const shouldPost = await this.validatePricePosting(
         market,
-        price
+        fetchedPrice.price
       );
       if (!shouldPost) {
         return;
@@ -116,7 +110,7 @@ class PriceOracle {
       let txHash;
       try {
         txHash = await this.postNewPrice(
-          price,
+          fetchedPrice.price,
           market,
           accountData,
           i
@@ -179,9 +173,9 @@ class PriceOracle {
       case 'usdx:usd:720':
         return this.fetchPriceAscendex(marketID)
       case 'swp:usd':
-        return this.fetchPriceAscendex(marketID)
+        return this.fetchExchangePrice(marketID)
       case 'swp:usd:30':
-        return this.fetchPriceAscendex(marketID)
+        return this.fetchExchangePrice(marketID)
       case 'akt:usd':
         return this.fetchPriceAscendex(marketID)
       case 'akt:usd:30':
@@ -206,11 +200,11 @@ class PriceOracle {
       case 'usdx:usd:30':
         return this.fetchPriceAscendex(marketID)
       case 'usdx:usd:720':
-        return this.fetchPriceAscendex(marketID)  
+        return this.fetchPriceAscendex(marketID)
       case 'swp:usd':
-        return this.fetchPriceAscendex(marketID)
+        return this.fetchExchangePrice(marketID)
       case 'swp:usd:30':
-        return this.fetchPriceAscendex(marketID)
+        return this.fetchExchangePrice(marketID)
       case 'akt:usd':
         return this.fetchPriceAscendex(marketID)
       case 'akt:usd:30':
@@ -252,9 +246,9 @@ class PriceOracle {
   }
 
   /**
- * Fetches price from Coin Gecko
- * @param {String} marketID the market's ID
- */
+   * Fetches price from Ascendex
+   * @param {String} marketID the market's ID
+   */
   async fetchPriceAscendex(marketID) {
     let retreivedPrice;
     try {
@@ -264,6 +258,56 @@ class PriceOracle {
       return { price: null, success: false };
     }
     return { price: retreivedPrice, success: true };
+  }
+
+  /**
+   * Fetches price from KuCoin
+   * @param {String} marketID the market's ID
+   */
+  async fetchPriceKuCoin(marketID) {
+    let retreivedPrice;
+    try {
+      retreivedPrice = await prices.getKuCoinPrice(marketID);
+    } catch (e) {
+      console.log(`could not get ${marketID} price from KuCoin`);
+      return { price: null, success: false };
+    }
+    return { price: retreivedPrice, success: true };
+  }
+
+  /**
+   * Fetches price from Ascendex and KuCoin
+   * @param {String} marketID the market's ID
+   */
+  async fetchExchangePrice(marketID) {
+    const priceResult1 = await this.fetchPriceAscendex(marketID);
+    if (!priceResult1.success) {
+      console.log(`could not get ${marketID} ascendex price`)
+      return { price: null, success: false }
+    }
+
+    const priceResult2 = await this.fetchPriceKuCoin(marketID);
+    if (!priceResult2.success) {
+      console.log(`could not get ${marketID} kucoin price`)
+      return { price: null, success: false }
+    }
+
+    const price1 = Number(priceResult1.price);
+    const price2 = Number(priceResult2.price);
+
+    const absPriceDiff = Math.abs(price1 - price2);
+
+    if (price1 == 0 || price2 == 0) {
+      console.log(`could not get ${marketID} price: exchange price zero`)
+      return { price: null, success: false }
+    }
+
+    if (absPriceDiff / price1 > 0.2 || absPriceDiff / price2 > 0.2 ) {
+      console.log(`could not get ${marketID} price: price difference too high`);
+      return { price: null, success: false }
+    }
+
+    return { price: (price1 + price2) / 2, success: true };
   }
 
   /**

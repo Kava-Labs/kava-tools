@@ -1,26 +1,46 @@
 const util = require('util');
 
+//
+// Binance
+//
 const BINANCE_V3_TICKER_REQUEST = util.format(
   'https://api.binance.com/api/v3/ticker/24hr?symbol=%s'
 );
 const BINANCE_V3_KLINES_REQUEST = util.format(
   'https://api.binance.com/api/v3/klines?symbol=%s&interval=1m&limit=30'
 );
+
+//
+// Coingecko
+//
 const COINGECKO_V3_MARKET_RANGE_REQUEST = util.format(
   'https://api.coingecko.com/api/v3/coins/%s/market_chart/range?vs_currency=%s&from=%s&to=%s'
 );
 const COINGECKO_V3_SIMPLE_PRICE_REQUEST = util.format(
   'https://api.coingecko.com/api/v3/simple/price/?ids=%s&vs_currencies=%s'
 );
+
+//
+// Ascendex
+//
 const ASCENDEX_V1_TICKER_REQUEST = util.format(
   'https://ascendex.com/api/pro/v1/ticker?symbol=%s/%s'
 );
-
 const ASCENDEX_V1_30MIN_BARHIST_REQUEST = util.format(
   'https://ascendex.com/api/pro/v1/barhist?symbol=%s/%s&interval=1&n=30'
 );
 const ASCENDEX_V1_12HR_BARHIST_REQUEST = util.format(
   'https://ascendex.com/api/pro/v1/barhist?symbol=%s/%s&interval=15&n=48'
+);
+
+//
+// KuCoin
+//
+const KUCOIN_V1_TICKER_REQUEST = util.format(
+  'https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=%s-%s'
+);
+const KUCOIN_V1_30MIN_BARHIST_REQUEST = util.format(
+  'https://api.kucoin.com/api/v1/market/candles?type=1min&symbol=%s-%s&start_at=%s'
 );
 
 const loadCoinGeckoMarket = (marketID) => {
@@ -451,6 +471,34 @@ const calculateAveragePriceAscendex = (data) => {
   return prices.reduce((a, b) => a + b, 0) / data.length;
 };
 
+const loadKuCoinQuery = (marketID) => {
+  switch (marketID) {
+    case 'swp:usd':
+      return util.format(KUCOIN_V1_TICKER_REQUEST, 'SWP', 'USDT');
+    case 'swp:usd:30':
+      return util.format(KUCOIN_V1_30MIN_BARHIST_REQUEST, 'SWP', 'USDT', Math.round(((new Date()).getTime() - 60000 * 30) / 1000));
+    default:
+      throw `invalid ascendex (query) market id ${marketID}`;
+  }
+};
+
+const postProcessKuCoinPrice = (marketID, data) => {
+  switch (marketID) {
+    case 'swp:usd:30':
+      return calculateAveragePriceKuCoin(data);
+    default:
+      return data.price; // close price
+  }
+};
+
+const calculateAveragePriceKuCoin = (data) => {
+  if (!data.length) {
+    return 0;
+  }
+  const prices = data.map((p) => Number(p[2])); // close price
+  return prices.reduce((a, b) => a + b, 0) / data.length;
+};
+
 module.exports.utils = {
   loadCoinGeckoMarket,
   loadCoinGeckoQuery,
@@ -461,8 +509,10 @@ module.exports.utils = {
   loadBinanceQuery,
   loadAscendexMarket,
   loadAscendexQuery,
+  loadKuCoinQuery,
   postProcessBinancePrice,
   getPreviousPrice,
   getPercentChange,
   postProcessAscendexPrice,
+  postProcessKuCoinPrice,
 };

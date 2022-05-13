@@ -114,6 +114,35 @@ var getAscendexPrice = async (marketID) => {
   }
 }
 
+var getKuCoinPrice = async (marketID) => {
+  try {
+    var url = coinUtils.loadKuCoinQuery(marketID)
+  } catch (e) {
+    throw new Error(`could not load ${marketID} query from kucoin`)
+  }
+  try {
+    var priceFetch = await axios.get(url)
+  } catch(e) {
+    console.log(e)
+    throw new Error(`could not fetch ${marketID} price from kucoin`)
+  }
+  try {
+    const proposedPrice = coinUtils.postProcessKuCoinPrice(
+      marketID,
+      priceFetch.data.data,
+    )
+    if (!proposedPrice) {
+      throw new Error(`could not post-process ${marketID} from kucoin`)
+    }
+    return proposedPrice
+  } catch (e) {
+    console.log(e)
+    console.log(`failure to post-process kucoin price request for ${marketID}
+    data: ${priceFetch.data}`)
+    throw new Error(`could not post-process ${marketID} price for kucoin`)
+  }
+}
+
 function isUnlistedMarket(marketID) {
   return UNLISTED_COINS.indexOf(marketID) > -1
 }
@@ -122,5 +151,6 @@ module.exports.prices = {
   getBinancePrice,
   getCoinGeckoPrice,
   getAscendexPrice,
+  getKuCoinPrice,
   isUnlistedMarket,
 };
