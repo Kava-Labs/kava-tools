@@ -291,10 +291,26 @@ class PriceOracle {
     // Determine if we should post the price according to expiration time and deviation threshold
     if (typeof previousPrice !== 'undefined') {
       if (!this.checkPriceExpiring(previousPrice)) {
-        let percentChange = utils.getPercentChange(
-          Number.parseFloat(previousPrice.price),
-          Number.parseFloat(fetchedPrice)
-        );
+        if (Number.parseFloat(previousPrice.price) === 0 && Number.parseFloat(fetchedPrice) === 0) {
+          console.log(
+            `previous price of ${previousPrice.price} and current price of ${fetchedPrice} for ${marketID} are both zero`
+          );
+          return false
+        }
+
+        let percentChange = 0;
+        if (Number.parseFloat(previousPrice.price) === 0) {
+          percentChange = utils.getPercentChange(
+            Number.parseFloat(fetchedPrice), // denominator (non-zero)
+            Number.parseFloat(previousPrice.price), // numerator
+          );
+        } else {
+          percentChange = utils.getPercentChange(
+            Number.parseFloat(previousPrice.price), // denominator (non-zero)
+            Number.parseFloat(fetchedPrice) // numerator
+          );
+        }
+
         if (percentChange < Number.parseFloat(this.deviation)) {
           console.log(
             `previous price of ${previousPrice.price} and current price of ${fetchedPrice} for ${marketID} below threshold for posting`
