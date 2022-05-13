@@ -299,7 +299,7 @@ class PriceOracle {
         }
 
         let percentChange = 0;
-        if (previousPrice === 0) {
+        if (Number.parseFloat(previousPrice.price) === 0) {
           percentChange = utils.getPercentChange(
             Number.parseFloat(fetchedPrice), // denominator (non-zero)
             Number.parseFloat(previousPrice.price), // numerator
