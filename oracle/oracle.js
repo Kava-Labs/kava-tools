@@ -302,7 +302,7 @@ class PriceOracle {
       return { price: null, success: false }
     }
 
-    if (absPriceDiff / price1 > 0.2 || absPriceDiff / price2 > 0.2 ) {
+    if (absPriceDiff / price1 > 0.25 || absPriceDiff / price2 > 0.25 ) {
       console.log(`could not get ${marketID} price: price difference too high`);
       return { price: null, success: false }
     }
