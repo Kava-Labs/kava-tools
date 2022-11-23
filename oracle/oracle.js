@@ -177,10 +177,10 @@ class PriceOracle {
         price = await this.fetchPriceAscendex(marketID)
         return this.boundPrice(price, 0.5, 1.25)
       case 'swp:usd':
-        price = await this.fetchExchangePrice(marketID)
+        price = await this.fetchPriceAscendex(marketID)
         return this.boundPrice(price, 0.0, 0.2)
       case 'swp:usd:30':
-        price = await this.fetchExchangePrice(marketID)
+        price = await this.fetchPriceAscendex(marketID)
         return this.boundPrice(price, 0.0, 0.2)
       case 'akt:usd':
         return this.fetchPriceAscendex(marketID)
@@ -212,10 +212,10 @@ class PriceOracle {
         price = await this.fetchPriceAscendex(marketID)
         return this.boundPrice(price, 0.5, 1.25)
       case 'swp:usd':
-        price = await this.fetchExchangePrice(marketID)
+        price = await this.fetchPriceAscendex(marketID)
         return this.boundPrice(price, 0.0, 0.2)
       case 'swp:usd:30':
-        price = await this.fetchExchangePrice(marketID)
+        price = await this.fetchPriceAscendex(marketID)
         return this.boundPrice(price, 0.0, 0.2)
       case 'akt:usd':
         return this.fetchPriceAscendex(marketID)
