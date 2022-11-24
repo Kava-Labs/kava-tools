@@ -183,13 +183,21 @@ class PriceOracle {
         price = await this.fetchPriceAscendex(marketID)
         return this.boundPrice(price, 0.0, 0.2)
       case 'akt:usd':
-        return this.fetchPriceAscendex(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 1.5)
       case 'akt:usd:30':
-        return this.fetchPriceAscendex(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 1.5)
       case 'osmo:usd':
         return this.fetchPriceCoinGecko(marketID)
       case 'osmo:usd:30':
         return this.fetchPriceCoinGecko(marketID)
+      case 'hard:usd':
+        price = await this.fetchPriceBinance(marketID)
+        return this.boundPrice(price, 0.0, 0.8)
+      case 'hard:usd:30':
+        price = await this.fetchPriceBinance(marketID)
+        return this.boundPrice(price, 0.0, 0.8)
       default:
         return this.fetchPriceBinance(marketID)
     }
@@ -218,9 +226,17 @@ class PriceOracle {
         price = await this.fetchPriceAscendex(marketID)
         return this.boundPrice(price, 0.0, 0.2)
       case 'akt:usd':
-        return this.fetchPriceAscendex(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 1.5)
       case 'akt:usd:30':
-        return this.fetchPriceAscendex(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 1.5)
+      case 'hard:usd':
+        price = await this.fetchPriceBinance(marketID)
+        return this.boundPrice(price, 0.0, 0.8)
+      case 'hard:usd:30':
+        price = await this.fetchPriceBinance(marketID)
+        return this.boundPrice(price, 0.0, 0.8)
       default:
         return this.fetchPriceCoinGecko(marketID)
     }
@@ -325,7 +341,7 @@ class PriceOracle {
       return { price: null, success: false }
     }
 
-    if (absPriceDiff / price1 > 0.7 || absPriceDiff / price2 > 0.7 ) {
+    if (absPriceDiff / price1 > 0.7 || absPriceDiff / price2 > 0.7) {
       console.log(`could not get ${marketID} price: price difference too high`);
       return { price: null, success: false }
     }
