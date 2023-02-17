@@ -183,11 +183,9 @@ class PriceOracle {
         price = await this.fetchPriceAscendex(marketID)
         return this.boundPrice(price, 0.0, 0.2)
       case 'akt:usd':
-        price = await this.fetchPriceAscendex(marketID)
-        return this.boundPrice(price, 0.0, 0.5)
+        return this.fetchPriceAscendex(marketID)
       case 'akt:usd:30':
-        price = await this.fetchPriceAscendex(marketID)
-        return this.boundPrice(price, 0.0, 0.5)
+        return this.fetchPriceAscendex(marketID)
       case 'osmo:usd':
         return this.fetchPriceCoinGecko(marketID)
       case 'osmo:usd:30':
@@ -226,11 +224,9 @@ class PriceOracle {
         price = await this.fetchPriceAscendex(marketID)
         return this.boundPrice(price, 0.0, 0.2)
       case 'akt:usd':
-        price = await this.fetchPriceAscendex(marketID)
-        return this.boundPrice(price, 0.0, 0.5)
+        return this.fetchPriceAscendex(marketID)
       case 'akt:usd:30':
-        price = await this.fetchPriceAscendex(marketID)
-        return this.boundPrice(price, 0.0, 0.5)
+        return this.fetchPriceAscendex(marketID)
       case 'hard:usd':
         price = await this.fetchPriceBinance(marketID)
         return this.boundPrice(price, 0.0, 0.35)
