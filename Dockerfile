@@ -1,4 +1,4 @@
-FROM node:10
+FROM node:19
 
 WORKDIR /app
 
@@ -10,7 +10,6 @@ COPY auction auction
 COPY yarn.lock yarn.lock
 
 RUN yarn
-RUN mv ./scripts/.env .env
 
 ENV ENV_FILE=.env
 
