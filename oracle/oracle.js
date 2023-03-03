@@ -1,4 +1,3 @@
-require('dotenv').config();
 require('log-timestamp');
 const kava = require('@kava-labs/javascript-sdk');
 const prices = require(`./prices`).prices;
