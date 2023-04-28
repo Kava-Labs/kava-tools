@@ -51,22 +51,26 @@ class PriceOracle {
    * @param {Boolean} legacyHDPath
    * @return {Promise}
    */
-  async initClient(lcdURL, mnemonic, legacyHDPath = false) {
+  async initClient(lcdURL, rpcUrl, mnemonic, legacyHDPath = false) {
     if (!lcdURL) {
       throw new Error("chain's rest-server url is required");
+    }
+    if (!rpcUrl) {
+      throw new Error("chain's rpc url is required for broadcasting txs");
     }
     if (!mnemonic) {
       throw new Error("oracle's mnemonic is required");
     }
 
     // Initiate and set Kava client
-    this.client = new kava.KavaClient(lcdURL);
+    this.client = new kava.KavaClient(lcdURL, rpcUrl);
     this.client.setWallet(mnemonic, '', legacyHDPath);
+    await this.client.setNewWallet(mnemonic, legacyHDPath);
     this.client.setBroadcastMode('sync');
     try {
       await this.client.initChain();
     } catch (e) {
-      console.log('Error: cannot connect to lcd server');
+      console.log('Error: cannot connect to lcd server', { e });
       return;
     }
     return this;
