@@ -390,13 +390,18 @@ class PriceOracle {
     expiryDate = new Date(
       expiryDate.getTime() + Number.parseInt(this.expiry) * 1000
     );
-    let newExpiry = expiryDate.toISOString().split('.')[0] + 'Z'; // Remove ms from ISO format
     let sequence = String(Number(accountData.sequence) + index);
 
     console.log(
       `posting price ${newPrice} for ${marketID} with sequence ${sequence}`
     );
-    return await this.client.postPrice(marketID, newPrice, newExpiry, this.fee, sequence);
+    return await this.client.postPrice(
+      marketID,
+      newPrice,
+      expiryDate,
+      this.fee,
+      sequence
+    );
   }
 
   /**
