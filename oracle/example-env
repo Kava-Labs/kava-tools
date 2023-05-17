@@ -4,6 +4,9 @@ CHAIN_ID="kava-testnet-8000"
 # REST endpoint
 LCD_URL="http://localhost:1317"
 
+# REST endpoint
+RPC_URL="http://localhost:26657"
+
 # Cron tab for how frequently prices will be posted (ex: 1 minute)
 CRONTAB="* * * * *"
 
