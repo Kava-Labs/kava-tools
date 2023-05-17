@@ -10,6 +10,7 @@ var main = async () => {
   const expiry = process.env.EXPIRY;
   const expiryThreshold = process.env.EXPIRY_THRESHOLD;
   const deviation = process.env.DEVIATION;
+  const rpcUrl = process.env.RPC_URL;
   let feeAmount = process.env.FEE;
   let fee = { amount: [], gas: String(150000) };
   let legacyHDPath = false;
@@ -25,7 +26,7 @@ var main = async () => {
 
   // Initiate price oracle
   oracle = new PriceOracle(marketIDs, expiry, expiryThreshold, deviation, fee);
-  await oracle.initClient(lcdURL, mnemonic, legacyHDPath);
+  await oracle.initClient(lcdURL, rpcUrl, mnemonic, legacyHDPath);
 
   // Start cron job
   cron.schedule(process.env.CRONTAB, () => {
