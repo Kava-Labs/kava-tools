@@ -1,4 +1,3 @@
-require('dotenv').config();
 require('log-timestamp');
 const kava = require('@kava-labs/javascript-sdk');
 const prices = require(`./prices`).prices;
@@ -169,17 +168,23 @@ class PriceOracle {
  * @param {String} marketID the market's ID
  */
   async fetchPrimaryPrice(marketID) {
+    let price
     switch (marketID) {
       case 'usdx:usd':
-        return this.fetchPriceAscendex(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.5, 1.1)
       case 'usdx:usd:30':
-        return this.fetchPriceAscendex(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.5, 1.1)
       case 'usdx:usd:720':
-        return this.fetchPriceAscendex(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.5, 1.1)
       case 'swp:usd':
-        return this.fetchExchangePrice(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 0.2)
       case 'swp:usd:30':
-        return this.fetchExchangePrice(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 0.2)
       case 'akt:usd':
         return this.fetchPriceAscendex(marketID)
       case 'akt:usd:30':
@@ -188,6 +193,12 @@ class PriceOracle {
         return this.fetchPriceCoinGecko(marketID)
       case 'osmo:usd:30':
         return this.fetchPriceCoinGecko(marketID)
+      case 'hard:usd':
+        price = await this.fetchPriceBinance(marketID)
+        return this.boundPrice(price, 0.0, 0.35)
+      case 'hard:usd:30':
+        price = await this.fetchPriceBinance(marketID)
+        return this.boundPrice(price, 0.0, 0.35)
       default:
         return this.fetchPriceBinance(marketID)
     }
@@ -198,24 +209,47 @@ class PriceOracle {
 * @param {String} marketID the market's ID
 */
   async fetchBackupPrice(marketID) {
+    let price
     switch (marketID) {
       case 'usdx:usd':
-        return this.fetchPriceAscendex(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.5, 1.1)
       case 'usdx:usd:30':
-        return this.fetchPriceAscendex(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.5, 1.1)
       case 'usdx:usd:720':
-        return this.fetchPriceAscendex(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.5, 1.1)
       case 'swp:usd':
-        return this.fetchExchangePrice(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 0.2)
       case 'swp:usd:30':
-        return this.fetchExchangePrice(marketID)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 0.2)
       case 'akt:usd':
         return this.fetchPriceAscendex(marketID)
       case 'akt:usd:30':
         return this.fetchPriceAscendex(marketID)
+      case 'hard:usd':
+        price = await this.fetchPriceBinance(marketID)
+        return this.boundPrice(price, 0.0, 0.35)
+      case 'hard:usd:30':
+        price = await this.fetchPriceBinance(marketID)
+        return this.boundPrice(price, 0.0, 0.35)
       default:
         return this.fetchPriceCoinGecko(marketID)
     }
+  }
+
+  /**
+   * Bounds a price to be within a specified range. 
+   * @param {Number} price the price to bound
+   * @param {Number} min the lowest possible
+   * @param {Number} max the highest possible
+   */
+  async boundPrice(price, min, max) {
+    price.price = Math.min(Math.max(price.price, min), max)
+    return price
   }
 
 
@@ -306,7 +340,7 @@ class PriceOracle {
       return { price: null, success: false }
     }
 
-    if (absPriceDiff / price1 > 0.25 || absPriceDiff / price2 > 0.25 ) {
+    if (absPriceDiff / price1 > 0.7 || absPriceDiff / price2 > 0.7) {
       console.log(`could not get ${marketID} price: price difference too high`);
       return { price: null, success: false }
     }

@@ -89,6 +89,10 @@ const loadCoinGeckoMarket = (marketID) => {
       return 'osmosis';
     case 'osmo:usd:30':
       return 'osmosis';
+    case 'eth:usd':
+      return 'ethereum';
+    case 'eth:usd:30':
+      return 'ethereum'
     default:
       throw `invalid coin gecko market id ${marketID}`;
   }
@@ -186,6 +190,16 @@ const loadCoinGeckoQuery = (marketID) => {
         String(past30Minutes),
         String(currentTime)
       );
+    case 'eth:usd':
+      return util.format(COINGECKO_V3_SIMPLE_PRICE_REQUEST, 'ethereum', 'usd');
+    case 'eth:usd:30':
+      return util.format(
+        COINGECKO_V3_MARKET_RANGE_REQUEST,
+        'ethereum',
+        'usd',
+        String(past30Minutes),
+        String(currentTime)
+      );
     default:
       throw `invalid coingecko market id ${marketID}`;
   }
@@ -204,6 +218,8 @@ const postProcessCoinGeckoPrice = (marketID, data) => {
     case 'hard:usd:30':
       return calculateAveragePriceCoinGecko(data);
     case 'osmo:usd:30':
+      return calculateAveragePriceCoinGecko(data);
+    case 'eth:usd:30':
       return calculateAveragePriceCoinGecko(data);
     default:
       const market = loadCoinGeckoMarket(marketID);
@@ -303,6 +319,10 @@ const loadBinanceMarket = (marketID) => {
       return 'LUNAUSDT';
     case 'luna:usd:30':
       return 'LUNAUSDT';
+    case 'eth:usd':
+      return 'ETHUSDT'
+    case 'eth:usd:30':
+      return 'ETHUSDT'
     default:
       throw `invalid binance market id ${marketID}`;
   }
@@ -367,6 +387,10 @@ const loadBinanceQuery = (marketID) => {
       return util.format(BINANCE_V3_TICKER_REQUEST, 'USTUSDT');
     case 'ust:usd:30':
       return util.format(BINANCE_V3_KLINES_REQUEST, 'USTUSDT');
+    case 'eth:usd':
+      return util.format(BINANCE_V3_TICKER_REQUEST, 'ETHUSDT');
+    case 'eth:usd:30':
+      return util.format(BINANCE_V3_KLINES_REQUEST, 'ETHUSDT');
     default:
       throw `invalid binance (query) market id ${marketID}`;
   }
@@ -390,6 +414,8 @@ const postProcessBinancePrice = (marketID, data) => {
       return calculateAveragePriceBinance(data);
     case 'ust:usd:30':
       return 0.0001
+    case 'eth:usd:30':
+      return calculateAveragePriceBinance(data);
     default:
       return data.lastPrice;
   }

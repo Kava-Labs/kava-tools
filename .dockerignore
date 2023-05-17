@@ -1,0 +1,3 @@
+# avoid local files being copied to the container
+*.code-workspace
+*.env
