@@ -24,7 +24,7 @@ yarn install
 
 Choose a key that you will use for the oracle. Make sure you have saved the mnemonic for that key and that the key has enough funds to pay transaction fees. Use discord to communicate with a team member to get your key included in a governance proposal to become an oracle on mainnet.
 
-Setup a kava blockchain node with a REST endpoint. See [here](https://medium.com/kava-labs/kava-rest-server-guide-a13bdecfc5e4) for instructions.
+Setup a kava blockchain node with a REST and RPC endpoint. See [here](https://medium.com/kava-labs/kava-rest-server-guide-a13bdecfc5e4) for instructions.
 
 Setup a `.env` file (see [the example](example-env))
 
