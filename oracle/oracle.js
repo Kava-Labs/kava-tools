@@ -199,6 +199,12 @@ class PriceOracle {
       case 'hard:usd:30':
         price = await this.fetchPriceBinance(marketID)
         return this.boundPrice(price, 0.0, 0.35)
+      case 'kava:usd':
+        price = await this.fetchPriceBinance(marketID)
+        return this.boundPrice(price, 0.02, 1000000.0)
+      case 'kava:usd:30':
+        price = await this.fetchPriceBinance(marketID)
+        return this.boundPrice(price, 0.02, 1000000.0)
       default:
         return this.fetchPriceBinance(marketID)
     }
@@ -236,6 +242,12 @@ class PriceOracle {
       case 'hard:usd:30':
         price = await this.fetchPriceBinance(marketID)
         return this.boundPrice(price, 0.0, 0.35)
+      case 'kava:usd':
+        price = await this.fetchPriceCoinGecko(marketID)
+        return this.boundPrice(price, 0.02, 1000000.0)
+      case 'kava:usd:30':
+        price = await this.fetchPriceCoinGecko(marketID)
+        return this.boundPrice(price, 0.02, 1000000.0)
       default:
         return this.fetchPriceCoinGecko(marketID)
     }
