@@ -6,6 +6,7 @@ const util = require('util');
 const BINANCE_V3_TICKER_REQUEST = util.format(
   'https://api.binance.com/api/v3/ticker/24hr?symbol=%s'
 );
+// https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data
 const BINANCE_V3_KLINES_REQUEST = util.format(
   'https://api.binance.com/api/v3/klines?symbol=%s&interval=1m&limit=30'
 );
@@ -13,6 +14,7 @@ const BINANCE_V3_KLINES_REQUEST = util.format(
 //
 // Coingecko
 //
+// https://www.coingecko.com/en/api/documentation
 const COINGECKO_V3_MARKET_RANGE_REQUEST = util.format(
   'https://api.coingecko.com/api/v3/coins/%s/market_chart/range?vs_currency=%s&from=%s&to=%s'
 );
@@ -26,6 +28,7 @@ const COINGECKO_V3_SIMPLE_PRICE_REQUEST = util.format(
 const ASCENDEX_V1_TICKER_REQUEST = util.format(
   'https://ascendex.com/api/pro/v1/ticker?symbol=%s/%s'
 );
+// https://ascendex.github.io/ascendex-pro-api/#historical-bar-data
 const ASCENDEX_V1_30MIN_BARHIST_REQUEST = util.format(
   'https://ascendex.com/api/pro/v1/barhist?symbol=%s/%s&interval=1&n=30'
 );
@@ -229,7 +232,7 @@ const postProcessCoinGeckoPrice = (marketID, data) => {
 
 const calculateAveragePriceCoinGecko = (data) => {
   if (!data.prices.length) {
-    return 0;
+    throw new Error('no data for average price calculation');
   }
   const prices = data.prices.map((p) => p[1]);
   return prices.reduce((a, b) => a + b, 0) / data.prices.length;
@@ -423,7 +426,7 @@ const postProcessBinancePrice = (marketID, data) => {
 
 const calculateAveragePriceBinance = (data) => {
   if (!data[0].length) {
-    return 0;
+    throw new Error('no data for average price calculation');
   }
   const prices = data.map((p) => Number(p[4]));
   return prices.reduce((a, b) => a + b, 0) / data.length;
@@ -491,7 +494,7 @@ const postProcessAscendexPrice = (marketID, data) => {
 
 const calculateAveragePriceAscendex = (data) => {
   if (!data.length) {
-    return 0;
+    throw new Error('no data for average price calculation');
   }
   const prices = data.map((p) => Number(p.data.c));
   return prices.reduce((a, b) => a + b, 0) / data.length;
@@ -519,7 +522,7 @@ const postProcessKuCoinPrice = (marketID, data) => {
 
 const calculateAveragePriceKuCoin = (data) => {
   if (!data.length) {
-    return 0;
+    throw new Error('no data for average price calculation');
   }
   const prices = data.map((p) => Number(p[2])); // close price
   return prices.reduce((a, b) => a + b, 0) / data.length;
