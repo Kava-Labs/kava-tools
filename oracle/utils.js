@@ -7,6 +7,7 @@ const BINANCE_V3_TICKER_REQUEST = util.format(
   'https://api.binance.com/api/v3/ticker/24hr?symbol=%s'
 );
 // https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data
+// fetches the last 30 1m candles
 const BINANCE_V3_KLINES_REQUEST = util.format(
   'https://api.binance.com/api/v3/klines?symbol=%s&interval=1m&limit=30'
 );
@@ -15,6 +16,7 @@ const BINANCE_V3_KLINES_REQUEST = util.format(
 // Coingecko
 //
 // https://www.coingecko.com/en/api/documentation
+// fetches a range of price data, where if the period is withing the last day, the interval is 5 minutes
 const COINGECKO_V3_MARKET_RANGE_REQUEST = util.format(
   'https://api.coingecko.com/api/v3/coins/%s/market_chart/range?vs_currency=%s&from=%s&to=%s'
 );
@@ -29,6 +31,7 @@ const ASCENDEX_V1_TICKER_REQUEST = util.format(
   'https://ascendex.com/api/pro/v1/ticker?symbol=%s/%s'
 );
 // https://ascendex.github.io/ascendex-pro-api/#historical-bar-data
+// fetches the last 30 1m candles
 const ASCENDEX_V1_30MIN_BARHIST_REQUEST = util.format(
   'https://ascendex.com/api/pro/v1/barhist?symbol=%s/%s&interval=1&n=30'
 );
@@ -42,6 +45,7 @@ const ASCENDEX_V1_12HR_BARHIST_REQUEST = util.format(
 const KUCOIN_V1_TICKER_REQUEST = util.format(
   'https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=%s-%s'
 );
+// fetches 1 minutes candles from the last x minutes (up to 1500 candles returned)
 const KUCOIN_V1_30MIN_BARHIST_REQUEST = util.format(
   'https://api.kucoin.com/api/v1/market/candles?type=1min&symbol=%s-%s&start_at=%s'
 );
