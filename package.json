@@ -18,7 +18,7 @@
   "homepage": "https://github.com/Kava-Labs/kava-tools#readme",
   "dependencies": {
     "@kava-labs/javascript-sdk": "^10.0.0-beta-1",
-    "axios": "^0.21.1",
+    "axios": "^1.6.0",
     "coingecko-api": "^1.0.10",
     "dotenv": "^8.2.0",
     "log-timestamp": "^0.3.0",
