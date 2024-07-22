@@ -100,6 +100,19 @@ const loadCoinGeckoMarket = (marketID) => {
       return 'ethereum';
     case 'eth:usd:30':
       return 'ethereum'
+    // return empty string as a market ID for stablecoins, because price for them is hardcoded as 1.0 USD
+    case 'usdt:usd':
+      return ''
+    case 'usdt:usd:30':
+      return ''
+    case 'usdc:usd':
+      return ''
+    case 'usdc:usd:30':
+      return ''
+    case 'dai:usd':
+      return ''
+    case 'dai:usd:30':
+      return ''
     default:
       throw `invalid coin gecko market id ${marketID}`;
   }
@@ -330,6 +343,19 @@ const loadBinanceMarket = (marketID) => {
       return 'ETHUSDT'
     case 'eth:usd:30':
       return 'ETHUSDT'
+    // return empty string as a market ID for stablecoins, because price for them is hardcoded as 1.0 USD
+    case 'usdt:usd':
+      return ''
+    case 'usdt:usd:30':
+      return ''
+    case 'usdc:usd':
+      return ''
+    case 'usdc:usd:30':
+      return ''
+    case 'dai:usd':
+      return ''
+    case 'dai:usd:30':
+      return ''
     default:
       throw `invalid binance market id ${marketID}`;
   }
