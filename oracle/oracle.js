@@ -194,11 +194,11 @@ class PriceOracle {
       case 'osmo:usd:30':
         return this.fetchPriceCoinGecko(marketID)
       case 'hard:usd':
-        price = await this.fetchPriceBinance(marketID)
-        return this.boundPrice(price, 0.0, 0.35)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 0.1)
       case 'hard:usd:30':
-        price = await this.fetchPriceBinance(marketID)
-        return this.boundPrice(price, 0.0, 0.35)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 0.1)
       case 'kava:usd':
         price = await this.fetchPriceBinance(marketID)
         return this.boundPrice(price, 0.02, 1000000.0)
@@ -237,11 +237,11 @@ class PriceOracle {
       case 'akt:usd:30':
         return this.fetchPriceAscendex(marketID)
       case 'hard:usd':
-        price = await this.fetchPriceBinance(marketID)
-        return this.boundPrice(price, 0.0, 0.35)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 0.1)
       case 'hard:usd:30':
-        price = await this.fetchPriceBinance(marketID)
-        return this.boundPrice(price, 0.0, 0.35)
+        price = await this.fetchPriceAscendex(marketID)
+        return this.boundPrice(price, 0.0, 0.1)
       case 'kava:usd':
         price = await this.fetchPriceCoinGecko(marketID)
         return this.boundPrice(price, 0.02, 1000000.0)
@@ -254,7 +254,7 @@ class PriceOracle {
   }
 
   /**
-   * Bounds a price to be within a specified range. 
+   * Bounds a price to be within a specified range.
    * @param {Number} price the price to bound
    * @param {Number} min the lowest possible
    * @param {Number} max the highest possible
