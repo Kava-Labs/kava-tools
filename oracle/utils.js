@@ -267,6 +267,10 @@ const loadPrimaryMarket = (marketID) => {
       return loadAscendexMarket(marketID);
     case 'swp:usd:30':
       return loadAscendexMarket(marketID);
+    case 'hard:usd':
+      return loadAscendexMarket(marketID);
+    case 'hard:usd:30':
+      return loadAscendexMarket(marketID);
     case 'akt:usd':
       return loadAscendexMarket(marketID);
     case 'akt:usd:30':
@@ -369,6 +373,10 @@ const loadAscendexMarket = (marketID) => {
       return 'USDXUSDT';
     case 'usdx:usd:720':
       return 'USDXUSDT';
+    case 'hard:usd':
+      return "HARDUSDT"
+    case 'hard:usd:30':
+      return "HARDUSDT"
     case 'swp:usd':
       return 'SWPUSDT';
     case 'swp:usd:30':
@@ -502,6 +510,10 @@ const loadAscendexQuery = (marketID) => {
       return util.format(ASCENDEX_V1_30MIN_BARHIST_REQUEST, 'AKT', 'USDT');
     case 'akt:usd':
       return util.format(ASCENDEX_V1_TICKER_REQUEST, 'AKT', 'USDT');
+    case 'hard:usd':
+      return util.format(ASCENDEX_V1_TICKER_REQUEST, 'HARD', 'USDT');
+    case 'hard:usd:30':
+      return util.format(ASCENDEX_V1_30MIN_BARHIST_REQUEST, 'HARD', 'USDT');
     default:
       throw `invalid ascendex (query) market id ${marketID}`;
   }
@@ -512,6 +524,8 @@ const postProcessAscendexPrice = (marketID, data) => {
     case 'usdx:usd:30':
       return calculateAveragePriceAscendex(data);
     case 'usdx:usd:720':
+      return calculateAveragePriceAscendex(data);
+    case 'hard:usd:30':
       return calculateAveragePriceAscendex(data);
     case 'swp:usd:30':
       return calculateAveragePriceAscendex(data);
