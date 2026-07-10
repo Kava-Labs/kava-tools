@@ -26,16 +26,13 @@ var getCoinGeckoPrice = async (marketID) => {
   try {
     var url = coinUtils.loadCoinGeckoQuery(marketID);
   } catch (e) {
-    console.log(e);
-    console.log(`could not fetch ${marketID} price from coin-gecko`);
-    return;
+    throw new Error(`could not load ${marketID} query from coin-gecko`);
   }
   try {
     var priceFetch = await axios.get(url);
   } catch (e) {
     console.log(e);
-    console.log(`could not fetch ${marketID} price from coin-gecko`);
-    return;
+    throw new Error(`could not fetch ${marketID} price from coin-gecko`);
   }
   try {
     const proposedPrice = coinUtils.postProcessCoinGeckoPrice(
@@ -43,15 +40,14 @@ var getCoinGeckoPrice = async (marketID) => {
       priceFetch.data
     );
     if (!proposedPrice) {
-      console.log(`could not fetch ${marketID} price from coin-gecko`);
-      return;
+      throw new Error(`could not post-process ${marketID} price from coin-gecko`);
     }
     return proposedPrice;
   } catch (e) {
     console.log(e);
     console.log(`failure to post-process coin-gecko price request for ${marketID}
     data: ${priceFetch.data}`);
-    return;
+    throw new Error(`could not post-process ${marketID} price from coin-gecko`);
   }
 };
 
@@ -94,35 +90,6 @@ var getBinancePrice = async (marketID) => {
   // return priceFetch.data.lastPrice
 };
 
-var getAscendexPrice = async (marketID) => {
-  try {
-    var url = coinUtils.loadAscendexQuery(marketID)
-  } catch (e) {
-    throw new Error(`could not load ${marketID} query from ascendex`)
-  }
-  try {
-    var priceFetch = await axios.get(url)
-  } catch(e) {
-    console.log(e)
-    throw new Error(`could not fetch ${marketID} price from ascendex`)
-  }
-  try {
-    const proposedPrice = coinUtils.postProcessAscendexPrice(
-      marketID,
-      priceFetch.data.data
-    )
-    if (!proposedPrice) {
-      throw new Error(`could not post-process ${marketID} from ascendex`)
-    }
-    return proposedPrice
-  } catch (e) {
-    console.log(e)
-    console.log(`failure to post-process ascendex price request for ${marketID}
-    data: ${priceFetch.data}`)
-    throw new Error(`could not post-process ${marketID} price for ascendex`)
-  }
-}
-
 var getKuCoinPrice = async (marketID) => {
   try {
     var url = coinUtils.loadKuCoinQuery(marketID)
@@ -159,7 +126,6 @@ function isUnlistedMarket(marketID) {
 module.exports.prices = {
   getBinancePrice,
   getCoinGeckoPrice,
-  getAscendexPrice,
   getKuCoinPrice,
   isUnlistedMarket,
 };

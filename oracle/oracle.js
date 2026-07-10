@@ -3,6 +3,10 @@ const kava = require('@kava-labs/javascript-sdk');
 const prices = require(`./prices`).prices;
 const utils = require('./utils').utils;
 
+const USDX_PRICE = '0.66';
+const HARD_PRICE = '0.001';
+const DISABLED_MARKETS = new Set(['swp:usd', 'swp:usd:30']);
+
 /**
  * Price oracle class for posting prices to Kava.
  */
@@ -24,17 +28,25 @@ class PriceOracle {
       throw new Error('must specify fee')
     }
 
-    // Validate each market ID on Binance and CoinGecko
-    for (let i = 0; i < marketIDs.length; i++) {
+    const enabledMarketIDs = marketIDs.filter((marketID) => {
+      if (!DISABLED_MARKETS.has(marketID)) {
+        return true;
+      }
+      console.log(`price posting disabled for ${marketID}, skipping...`);
+      return false;
+    });
+
+    // Validate each enabled market ID against its configured sources
+    for (let i = 0; i < enabledMarketIDs.length; i++) {
       try {
-        utils.loadPrimaryMarket(marketIDs[i]);
-        utils.loadBackupMarket(marketIDs[i]);
+        utils.loadPrimaryMarket(enabledMarketIDs[i]);
+        utils.loadBackupMarket(enabledMarketIDs[i]);
       } catch (e) {
         console.log("couldn't load remote market from market ID, error:", e);
         return;
       }
     }
-    this.marketIDs = marketIDs;
+    this.marketIDs = enabledMarketIDs;
 
     // Set expiration time, expiration threshold, and deviation
     this.expiry = expiry;
@@ -146,6 +158,11 @@ class PriceOracle {
    * @param {String} marketID the market's ID
    */
   async fetchPrice(marketID) {
+    if (DISABLED_MARKETS.has(marketID)) {
+      console.log(`price posting disabled for ${marketID}, skipping...`);
+      return { price: null, success: false };
+    }
+
     var binanceError = false
     var res
     try {
@@ -171,33 +188,33 @@ class PriceOracle {
     let price
     switch (marketID) {
       case 'usdx:usd':
-        price = await this.fetchPriceAscendex(marketID)
+        price = this.fetchFixedPrice(USDX_PRICE)
         return this.boundPrice(price, 0.5, 1.1)
       case 'usdx:usd:30':
-        price = await this.fetchPriceAscendex(marketID)
+        price = this.fetchFixedPrice(USDX_PRICE)
         return this.boundPrice(price, 0.5, 1.1)
       case 'usdx:usd:720':
-        price = await this.fetchPriceAscendex(marketID)
+        price = this.fetchFixedPrice(USDX_PRICE)
         return this.boundPrice(price, 0.5, 1.1)
       case 'swp:usd':
-        price = await this.fetchPriceAscendex(marketID)
+        price = { price: null, success: false }
         return this.boundPrice(price, 0.0, 0.2)
       case 'swp:usd:30':
-        price = await this.fetchPriceAscendex(marketID)
+        price = { price: null, success: false }
         return this.boundPrice(price, 0.0, 0.2)
       case 'akt:usd':
-        return this.fetchPriceAscendex(marketID)
+        return this.fetchPriceCoinGecko(marketID)
       case 'akt:usd:30':
-        return this.fetchPriceAscendex(marketID)
+        return this.fetchPriceCoinGecko(marketID)
       case 'osmo:usd':
         return this.fetchPriceCoinGecko(marketID)
       case 'osmo:usd:30':
         return this.fetchPriceCoinGecko(marketID)
       case 'hard:usd':
-        price = await this.fetchPriceAscendex(marketID)
+        price = this.fetchFixedPrice(HARD_PRICE)
         return this.boundPrice(price, 0.001, 0.01)
       case 'hard:usd:30':
-        price = await this.fetchPriceAscendex(marketID)
+        price = this.fetchFixedPrice(HARD_PRICE)
         return this.boundPrice(price, 0.001, 0.01)
       case 'kava:usd':
         price = await this.fetchPriceBinance(marketID)
@@ -218,29 +235,29 @@ class PriceOracle {
     let price
     switch (marketID) {
       case 'usdx:usd':
-        price = await this.fetchPriceAscendex(marketID)
+        price = this.fetchFixedPrice(USDX_PRICE)
         return this.boundPrice(price, 0.5, 1.1)
       case 'usdx:usd:30':
-        price = await this.fetchPriceAscendex(marketID)
+        price = this.fetchFixedPrice(USDX_PRICE)
         return this.boundPrice(price, 0.5, 1.1)
       case 'usdx:usd:720':
-        price = await this.fetchPriceAscendex(marketID)
+        price = this.fetchFixedPrice(USDX_PRICE)
         return this.boundPrice(price, 0.5, 1.1)
       case 'swp:usd':
-        price = await this.fetchPriceAscendex(marketID)
+        price = { price: null, success: false }
         return this.boundPrice(price, 0.0, 0.2)
       case 'swp:usd:30':
-        price = await this.fetchPriceAscendex(marketID)
+        price = { price: null, success: false }
         return this.boundPrice(price, 0.0, 0.2)
       case 'akt:usd':
-        return this.fetchPriceAscendex(marketID)
+        return this.fetchPriceCoinGecko(marketID)
       case 'akt:usd:30':
-        return this.fetchPriceAscendex(marketID)
+        return this.fetchPriceCoinGecko(marketID)
       case 'hard:usd':
-        price = await this.fetchPriceAscendex(marketID)
+        price = this.fetchFixedPrice(HARD_PRICE)
         return this.boundPrice(price, 0.001, 0.01)
       case 'hard:usd:30':
-        price = await this.fetchPriceAscendex(marketID)
+        price = this.fetchFixedPrice(HARD_PRICE)
         return this.boundPrice(price, 0.001, 0.01)
       case 'kava:usd':
         price = await this.fetchPriceCoinGecko(marketID)
@@ -260,8 +277,17 @@ class PriceOracle {
    * @param {Number} max the highest possible
    */
   async boundPrice(price, min, max) {
-    price.price = Math.min(Math.max(price.price, min), max)
+    const numericPrice = Number(price.price)
+    if (numericPrice < min) {
+      price.price = min
+    } else if (numericPrice > max) {
+      price.price = max
+    }
     return price
+  }
+
+  fetchFixedPrice(price) {
+    return { price, success: true };
   }
 
 
@@ -296,21 +322,6 @@ class PriceOracle {
   }
 
   /**
-   * Fetches price from Ascendex
-   * @param {String} marketID the market's ID
-   */
-  async fetchPriceAscendex(marketID) {
-    let retreivedPrice;
-    try {
-      retreivedPrice = await prices.getAscendexPrice(marketID);
-    } catch (e) {
-      console.log(`could not get ${marketID} price from Ascendex`);
-      return { price: null, success: false };
-    }
-    return { price: retreivedPrice, success: true };
-  }
-
-  /**
    * Fetches price from KuCoin
    * @param {String} marketID the market's ID
    */
@@ -323,41 +334,6 @@ class PriceOracle {
       return { price: null, success: false };
     }
     return { price: retreivedPrice, success: true };
-  }
-
-  /**
-   * Fetches price from Ascendex and KuCoin
-   * @param {String} marketID the market's ID
-   */
-  async fetchExchangePrice(marketID) {
-    const priceResult1 = await this.fetchPriceAscendex(marketID);
-    if (!priceResult1.success) {
-      console.log(`could not get ${marketID} ascendex price`)
-      return { price: null, success: false }
-    }
-
-    const priceResult2 = await this.fetchPriceKuCoin(marketID);
-    if (!priceResult2.success) {
-      console.log(`could not get ${marketID} kucoin price`)
-      return { price: null, success: false }
-    }
-
-    const price1 = Number(priceResult1.price);
-    const price2 = Number(priceResult2.price);
-
-    const absPriceDiff = Math.abs(price1 - price2);
-
-    if (price1 == 0 || price2 == 0) {
-      console.log(`could not get ${marketID} price: exchange price zero`)
-      return { price: null, success: false }
-    }
-
-    if (absPriceDiff / price1 > 0.7 || absPriceDiff / price2 > 0.7) {
-      console.log(`could not get ${marketID} price: price difference too high`);
-      return { price: null, success: false }
-    }
-
-    return { price: (price1 + price2) / 2, success: true };
   }
 
   /**
@@ -431,7 +407,15 @@ class PriceOracle {
     }
 
     // Set up post price transaction parameters
-    let newPrice = Number.parseFloat(fetchedPrice).toFixed(18).toString();
+    let newPrice;
+    if (typeof fetchedPrice === 'string' && /^\d+(\.\d+)?$/.test(fetchedPrice)) {
+      const priceParts = fetchedPrice.split('.');
+      const whole = priceParts[0];
+      const fractional = (priceParts[1] || '').padEnd(18, '0').slice(0, 18);
+      newPrice = `${whole}.${fractional}`;
+    } else {
+      newPrice = Number.parseFloat(fetchedPrice).toFixed(18).toString();
+    }
     let expiryDate = new Date();
     expiryDate = new Date(
       expiryDate.getTime() + Number.parseInt(this.expiry) * 1000

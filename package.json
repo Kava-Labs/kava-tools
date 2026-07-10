@@ -13,7 +13,8 @@
     "url": "https://github.com/Kava-Labs/kava-tools/issues"
   },
   "scripts": {
-    "oracle": "node ./scripts/oracle.js"
+    "oracle": "node ./scripts/oracle.js",
+    "test": "node ./oracle/test.js"
   },
   "homepage": "https://github.com/Kava-Labs/kava-tools#readme",
   "dependencies": {

@@ -4,7 +4,7 @@ Client software for running an oracle on the kava blockchain.
 
 ## How it works
 
-At the specified crontab frequency, the oracle client will query the Binance v3 API for price information about that asset. If Binance is down, it will fallback to CoinGecko. If the price meets the threshold for posting (default is 0.5% change from the previous posted price), is will submit a `postprice` transaction to the blockchain along with a time when that price should be considered expired. At the end of each block, the median price of all oracles is selected as the asset's current price.
+At the specified crontab frequency, the oracle client will query the configured price source for each asset. Most markets use Binance with CoinGecko as a fallback. AKT uses CoinGecko, USDX is fixed at $0.66, and HARD is fixed at $0.001. SWP price posting is disabled. If the price meets the threshold for posting (default is 0.5% change from the previous posted price), it will submit a `postprice` transaction to the blockchain along with a time when that price should be considered expired. At the end of each block, the median price of all oracles is selected as the asset's current price.
 
 
 ## Setup

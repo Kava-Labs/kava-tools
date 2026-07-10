@@ -25,21 +25,6 @@ const COINGECKO_V3_SIMPLE_PRICE_REQUEST = util.format(
 );
 
 //
-// Ascendex
-//
-const ASCENDEX_V1_TICKER_REQUEST = util.format(
-  'https://ascendex.com/api/pro/v1/ticker?symbol=%s/%s'
-);
-// https://ascendex.github.io/ascendex-pro-api/#historical-bar-data
-// fetches the last 30 1m candles
-const ASCENDEX_V1_30MIN_BARHIST_REQUEST = util.format(
-  'https://ascendex.com/api/pro/v1/barhist?symbol=%s/%s&interval=1&n=30'
-);
-const ASCENDEX_V1_12HR_BARHIST_REQUEST = util.format(
-  'https://ascendex.com/api/pro/v1/barhist?symbol=%s/%s&interval=15&n=48'
-);
-
-//
 // KuCoin
 //
 const KUCOIN_V1_TICKER_REQUEST = util.format(
@@ -196,6 +181,20 @@ const loadCoinGeckoQuery = (marketID) => {
         String(past30Minutes),
         String(currentTime)
       );
+    case 'akt:usd':
+      return util.format(
+        COINGECKO_V3_SIMPLE_PRICE_REQUEST,
+        'akash-network',
+        'usd'
+      );
+    case 'akt:usd:30':
+      return util.format(
+        COINGECKO_V3_MARKET_RANGE_REQUEST,
+        'akash-network',
+        'usd',
+        String(past30Minutes),
+        String(currentTime)
+      );
     case 'busd:usd':
       return '';
     case 'busd:usd:30':
@@ -237,6 +236,8 @@ const postProcessCoinGeckoPrice = (marketID, data) => {
       return calculateAveragePriceCoinGecko(data);
     case 'hard:usd:30':
       return calculateAveragePriceCoinGecko(data);
+    case 'akt:usd:30':
+      return calculateAveragePriceCoinGecko(data);
     case 'osmo:usd:30':
       return calculateAveragePriceCoinGecko(data);
     case 'eth:usd:30':
@@ -258,23 +259,23 @@ const calculateAveragePriceCoinGecko = (data) => {
 const loadPrimaryMarket = (marketID) => {
   switch (marketID) {
     case 'usdx:usd':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'usdx:usd:30':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'usdx:usd:720':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'swp:usd':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'swp:usd:30':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'hard:usd':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'hard:usd:30':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'akt:usd':
-      return loadAscendexMarket(marketID);
+      return loadCoinGeckoMarket(marketID);
     case 'akt:usd:30':
-      return loadAscendexMarket(marketID);
+      return loadCoinGeckoMarket(marketID);
     case 'osmo:usd':
       return loadCoinGeckoMarket(marketID);
     case 'osmo:usd:30':
@@ -287,19 +288,23 @@ const loadPrimaryMarket = (marketID) => {
 const loadBackupMarket = (marketID) => {
   switch (marketID) {
     case 'usdx:usd':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'usdx:usd:30':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'usdx:usd:720':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'swp:usd':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'swp:usd:30':
-      return loadAscendexMarket(marketID);
+      return marketID;
     case 'akt:usd':
-      return loadAscendexMarket(marketID);
+      return loadCoinGeckoMarket(marketID);
     case 'akt:usd:30':
-      return loadAscendexMarket(marketID);
+      return loadCoinGeckoMarket(marketID);
+    case 'hard:usd':
+      return marketID;
+    case 'hard:usd:30':
+      return marketID;
     default:
       return loadCoinGeckoMarket(marketID);
   }
@@ -362,31 +367,6 @@ const loadBinanceMarket = (marketID) => {
       return ''
     default:
       throw `invalid binance market id ${marketID}`;
-  }
-};
-
-const loadAscendexMarket = (marketID) => {
-  switch (marketID) {
-    case 'usdx:usd':
-      return 'USDXUSDT';
-    case 'usdx:usd:30':
-      return 'USDXUSDT';
-    case 'usdx:usd:720':
-      return 'USDXUSDT';
-    case 'hard:usd':
-      return "HARDUSDT"
-    case 'hard:usd:30':
-      return "HARDUSDT"
-    case 'swp:usd':
-      return 'SWPUSDT';
-    case 'swp:usd:30':
-      return 'SWPUSDT';
-    case 'akt:usd':
-      return 'AKTUSDT';
-    case 'akt:usd:30':
-      return 'AKTUSDT';
-    default:
-      throw `invalid ascendex market id ${marketID}`;
   }
 };
 
@@ -494,56 +474,6 @@ const getPreviousPrice = (prices, marketID, address) => {
   }
 };
 
-const loadAscendexQuery = (marketID) => {
-  switch (marketID) {
-    case 'usdx:usd':
-      return util.format(ASCENDEX_V1_TICKER_REQUEST, 'USDX', 'USDT');
-    case 'swp:usd':
-      return util.format(ASCENDEX_V1_TICKER_REQUEST, 'SWP', 'USDT');
-    case 'usdx:usd:30':
-      return util.format(ASCENDEX_V1_30MIN_BARHIST_REQUEST, 'USDX', 'USDT');
-    case 'swp:usd:30':
-      return util.format(ASCENDEX_V1_30MIN_BARHIST_REQUEST, 'SWP', 'USDT');
-    case 'usdx:usd:720':
-      return util.format(ASCENDEX_V1_12HR_BARHIST_REQUEST, 'USDX', 'USDT');
-    case 'akt:usd:30':
-      return util.format(ASCENDEX_V1_30MIN_BARHIST_REQUEST, 'AKT', 'USDT');
-    case 'akt:usd':
-      return util.format(ASCENDEX_V1_TICKER_REQUEST, 'AKT', 'USDT');
-    case 'hard:usd':
-      return util.format(ASCENDEX_V1_TICKER_REQUEST, 'HARD', 'USDT');
-    case 'hard:usd:30':
-      return util.format(ASCENDEX_V1_30MIN_BARHIST_REQUEST, 'HARD', 'USDT');
-    default:
-      throw `invalid ascendex (query) market id ${marketID}`;
-  }
-};
-
-const postProcessAscendexPrice = (marketID, data) => {
-  switch (marketID) {
-    case 'usdx:usd:30':
-      return calculateAveragePriceAscendex(data);
-    case 'usdx:usd:720':
-      return calculateAveragePriceAscendex(data);
-    case 'hard:usd:30':
-      return calculateAveragePriceAscendex(data);
-    case 'swp:usd:30':
-      return calculateAveragePriceAscendex(data);
-    case 'akt:usd:30':
-      return calculateAveragePriceAscendex(data);
-    default:
-      return data.close;
-  }
-};
-
-const calculateAveragePriceAscendex = (data) => {
-  if (!data.length) {
-    throw new Error('no data for average price calculation');
-  }
-  const prices = data.map((p) => Number(p.data.c));
-  return prices.reduce((a, b) => a + b, 0) / data.length;
-};
-
 const loadKuCoinQuery = (marketID) => {
   switch (marketID) {
     case 'swp:usd':
@@ -551,7 +481,7 @@ const loadKuCoinQuery = (marketID) => {
     case 'swp:usd:30':
       return util.format(KUCOIN_V1_30MIN_BARHIST_REQUEST, 'SWP', 'USDT', Math.round(((new Date()).getTime() - 60000 * 30) / 1000));
     default:
-      throw `invalid ascendex (query) market id ${marketID}`;
+      throw `invalid kucoin (query) market id ${marketID}`;
   }
 };
 
@@ -580,12 +510,9 @@ module.exports.utils = {
   loadBackupMarket,
   loadBinanceMarket,
   loadBinanceQuery,
-  loadAscendexMarket,
-  loadAscendexQuery,
   loadKuCoinQuery,
   postProcessBinancePrice,
   getPreviousPrice,
   getPercentChange,
-  postProcessAscendexPrice,
   postProcessKuCoinPrice,
 };
