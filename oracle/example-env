@@ -7,8 +7,14 @@ LCD_URL="http://localhost:1317"
 # REST endpoint
 RPC_URL="http://localhost:26657"
 
-# Cron tab for how frequently prices will be posted (ex: 1 minute)
-CRONTAB="* * * * *"
+# Cron tab for how frequently prices will be posted (ex: 2 minutes)
+CRONTAB="*/2 * * * *"
+
+# Minimum delay between CoinGecko requests. The public endpoint may allow only 2 requests per minute.
+COINGECKO_MIN_INTERVAL_MS="31000"
+
+# Abort CoinGecko requests that do not respond within this many milliseconds.
+COINGECKO_TIMEOUT_MS="10000"
 
 # bip39 mnemonic of oracle
 MNEMONIC="secret words go here"

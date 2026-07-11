@@ -6,6 +6,12 @@ const utils = require('./utils').utils;
 const USDX_PRICE = '0.66';
 const HARD_PRICE = '0.001';
 const DISABLED_MARKETS = new Set(['swp:usd', 'swp:usd:30']);
+const COINGECKO_PRIMARY_MARKETS = new Set([
+  'akt:usd',
+  'akt:usd:30',
+  'osmo:usd',
+  'osmo:usd:30',
+]);
 
 /**
  * Price oracle class for posting prices to Kava.
@@ -91,6 +97,20 @@ class PriceOracle {
    * Post prices for each market
    */
   async postPrices() {
+    if (this.isPostingPrices) {
+      console.log('previous oracle price cycle still running, skipping...');
+      return;
+    }
+
+    this.isPostingPrices = true;
+    try {
+      return await this.postPricesInternal();
+    } finally {
+      this.isPostingPrices = false;
+    }
+  }
+
+  async postPricesInternal() {
     var i = 0;
     // fetch account data so we can manually manage sequence when posting
     let accountData
@@ -163,17 +183,21 @@ class PriceOracle {
       return { price: null, success: false };
     }
 
-    var binanceError = false
+    var primarySourceError = false
     var res
     try {
       res = await this.fetchPrimaryPrice(marketID);
       if (!res.success) {
-        binanceError = true
+        primarySourceError = true
       }
     } catch (error) {
-      binanceError = true
+      primarySourceError = true
     }
-    if (binanceError) {
+    if (primarySourceError && COINGECKO_PRIMARY_MARKETS.has(marketID)) {
+      console.log(`no distinct backup price source for ${marketID}, skipping...`)
+      return res || { price: null, success: false };
+    }
+    if (primarySourceError) {
       console.log("trying backup price source after error")
       res = await this.fetchBackupPrice(marketID);
     }
